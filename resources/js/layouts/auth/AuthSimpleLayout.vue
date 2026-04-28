@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import { UtensilsCrossed } from 'lucide-vue-next';
 import { home } from '@/routes';
 
 defineProps<{
@@ -10,34 +10,35 @@ defineProps<{
 </script>
 
 <template>
-    <div
-        class="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10"
-    >
-        <div class="w-full max-w-sm">
-            <div class="flex flex-col gap-8">
-                <div class="flex flex-col items-center gap-4">
-                    <Link
-                        :href="home()"
-                        class="flex flex-col items-center gap-2 font-medium"
-                    >
-                        <div
-                            class="mb-1 flex h-9 w-9 items-center justify-center rounded-md"
-                        >
-                            <AppLogoIcon
-                                class="size-9 fill-current text-[var(--foreground)] dark:text-white"
-                            />
-                        </div>
-                        <span class="sr-only">{{ title }}</span>
-                    </Link>
-                    <div class="space-y-2 text-center">
-                        <h1 class="text-xl font-medium">{{ title }}</h1>
-                        <p class="text-center text-sm text-muted-foreground">
-                            {{ description }}
-                        </p>
-                    </div>
+    <div style="min-height: 100dvh; background: #f8fafc;">
+
+        <!-- Emerald hero -->
+        <div style="background: linear-gradient(135deg, #065f46 0%, #059669 50%, #0d9488 100%); padding: 48px 24px 72px; text-align: center;">
+            <Link :href="home()" style="display: inline-flex; flex-direction: column; align-items: center; gap: 10px; text-decoration: none;">
+                <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.18); border-radius: 18px; display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,0.28);">
+                    <UtensilsCrossed style="width: 26px; height: 26px; color: white;" />
+                </div>
+                <div>
+                    <p style="color: rgba(167,243,208,0.85); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin: 0;">
+                        Kitchen Tracker
+                    </p>
+                    <p style="color: white; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin: 2px 0 0;">
+                        FoodWise
+                    </p>
+                </div>
+            </Link>
+        </div>
+
+        <!-- Card overlapping hero -->
+        <div style="max-width: 420px; margin: -40px auto 0; padding: 0 20px 48px; position: relative; z-index: 10;">
+            <div style="background: white; border-radius: 20px; padding: 28px 24px 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h1 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 6px;">{{ title }}</h1>
+                    <p style="font-size: 13px; color: #64748b; margin: 0;">{{ description }}</p>
                 </div>
                 <slot />
             </div>
         </div>
+
     </div>
 </template>
