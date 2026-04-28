@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, Head } from '@inertiajs/vue3';
+import { useForm, Head, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Camera, RotateCcw } from 'lucide-vue-next';
@@ -149,7 +149,7 @@ function retake() {
 }
 
 function save() {
-    saveForm.post(entriesStore().url, { onSuccess: () => retake() });
+    saveForm.post(entriesStore().url, { onSuccess: () => router.visit('/waste/entries') });
 }
 
 const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {

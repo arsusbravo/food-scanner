@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { usePage, Link } from '@inertiajs/vue3';
 import { Toaster } from '@/components/ui/sonner';
-import { computed } from 'vue';
-import { House, UtensilsCrossed, ScanLine, FileBarChart2 } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe } from 'lucide-vue-next';
 import { useLocale, type SupportedLocale } from '@/composables/useLocale';
 
 const page = usePage<{ auth: { user: { name: string; email: string } } }>();
@@ -14,6 +14,21 @@ const userInitials = computed(() => {
 
 const url = computed(() => page.url);
 const { locale, setLocale } = useLocale();
+
+const langOpen = ref(false);
+
+const LANG_LABELS: Record<SupportedLocale, string> = {
+    en: 'English',
+    nl: 'Nederlands',
+    de: 'Deutsch',
+    fr: 'Français',
+    es: 'Español',
+};
+
+function selectLocale(code: SupportedLocale) {
+    setLocale(code);
+    langOpen.value = false;
+}
 
 const navItems = [
     { label: 'Home',    icon: House,           href: '/waste' },
@@ -45,26 +60,50 @@ function isActive(href: string) {
                     <h1 class="text-white text-xl font-bold mt-0.5 tracking-tight">FoodWise</h1>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-3">
                     <!-- Language switcher -->
-                    <div class="flex gap-1">
+                    <div class="relative">
                         <button
-                            v-for="code in (['en','nl','de','fr','es'] as SupportedLocale[])"
-                            :key="code"
                             type="button"
-                            class="text-xs font-bold px-2 py-1 rounded-lg transition-all"
-                            :style="locale === code
-                                ? 'background: white; color: #059669;'
-                                : 'background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.65);'"
-                            @click="setLocale(code)"
+                            class="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors"
+                            style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);"
+                            @click="langOpen = !langOpen"
                         >
-                            {{ code.toUpperCase() }}
+                            <Globe style="width: 13px; height: 13px;" />
+                            {{ locale.toUpperCase() }}
                         </button>
+
+                        <!-- Backdrop -->
+                        <div
+                            v-if="langOpen"
+                            style="position: fixed; inset: 0; z-index: 98;"
+                            @click="langOpen = false"
+                        />
+
+                        <!-- Dropdown -->
+                        <div
+                            v-if="langOpen"
+                            style="position: absolute; right: 0; top: calc(100% + 8px); background: white; border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); min-width: 160px; overflow: hidden; z-index: 99;"
+                        >
+                            <button
+                                v-for="code in (['en','nl','de','fr','es'] as SupportedLocale[])"
+                                :key="code"
+                                type="button"
+                                class="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-left transition-colors"
+                                :style="locale === code
+                                    ? 'background: #ecfdf5; color: #059669;'
+                                    : 'color: #475569;'"
+                                @click="selectLocale(code)"
+                            >
+                                {{ LANG_LABELS[code] }}
+                                <span class="ml-auto text-xs font-bold opacity-50">{{ code.toUpperCase() }}</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Avatar -->
                     <div
-                        class="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                        class="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
                         style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);"
                     >
                         {{ userInitials }}
