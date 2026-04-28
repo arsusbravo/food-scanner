@@ -65,7 +65,11 @@ async function analyse() {
     analysing.value = true;
     analyseError.value = null;
 
+    console.log('[AIScan] original file', { name: file.name, size: file.size, type: file.type });
+
     const compressed = await compressImage(file);
+    console.log('[AIScan] compressed', { size: compressed.size, type: compressed.type });
+
     const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => resolve((e.target!.result as string).split(',')[1]);
@@ -73,23 +77,33 @@ async function analyse() {
         reader.readAsDataURL(compressed);
     });
 
+    const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
+    console.log('[AIScan] sending request', {
+        base64Length: base64.length,
+        csrfPresent: !!csrfToken,
+        url: '/waste/ai-scan',
+    });
+
     try {
         const res = await fetch('/waste/ai-scan', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '',
+                'X-CSRF-TOKEN': csrfToken,
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ photo: base64 }),
         });
 
+        console.log('[AIScan] response', { status: res.status, ok: res.ok });
+
         if (!res.ok) {
             const body = await res.json().catch(() => ({}));
+            console.error('[AIScan] error body', body);
             const firstValidationError = body.errors
                 ? Object.values(body.errors as Record<string, string[]>)[0]?.[0]
                 : null;
-            const rawMessage = firstValidationError ?? body.message ?? '';
+            const rawMessage = firstValidationError ?? body.error ?? body.message ?? '';
             analyseError.value = rawMessage.toLowerCase().includes('required')
                 ? 'Upload failed: image is too large for the server. Please try a smaller photo.'
                 : rawMessage || 'Analysis failed. Please try again.';
@@ -97,6 +111,7 @@ async function analyse() {
         }
 
         const result: AiResult = await res.json();
+        console.log('[AIScan] success', result);
         aiResult.value = result;
         saveForm.category = result.category;
         saveForm.item_name = result.item_name;
@@ -104,7 +119,8 @@ async function analyse() {
         saveForm.reason = result.reason;
         saveForm.notes = result.notes ?? '';
         step.value = 'review';
-    } catch {
+    } catch (err) {
+        console.error('[AIScan] network error', err);
         analyseError.value = 'Network error. Please try again.';
     } finally {
         analysing.value = false;

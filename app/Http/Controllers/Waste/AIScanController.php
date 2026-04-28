@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -40,21 +41,46 @@ PROMPT;
 
         $imageData = $validated['photo'];
         $provider = config('services.ai.provider', 'anthropic');
+        $model    = $provider === 'openrouter'
+            ? config('services.openrouter.model', 'unknown')
+            : 'claude-sonnet-4-6';
 
-        $response = $provider === 'openrouter'
-            ? $this->callOpenRouter($imageData)
-            : $this->callAnthropic($imageData);
+        Log::info('[AIScan] request', [
+            'provider'    => $provider,
+            'model'       => $model,
+            'photo_bytes' => (int) (strlen($imageData) * 0.75), // approx decoded bytes
+        ]);
+
+        try {
+            $response = $provider === 'openrouter'
+                ? $this->callOpenRouter($imageData)
+                : $this->callAnthropic($imageData);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error('[AIScan] connection error', ['message' => $e->getMessage()]);
+            return response()->json(['error' => 'Connection to AI timed out. Please try again.'], 422);
+        }
+
+        Log::info('[AIScan] api response', [
+            'status' => $response->status(),
+            'body'   => substr($response->body(), 0, 500),
+        ]);
 
         if ($response->failed()) {
             $reason = $response->json('error.message')
                 ?? $response->json('error')
                 ?? $response->body();
+            Log::error('[AIScan] api error', [
+                'status' => $response->status(),
+                'reason' => $reason,
+            ]);
             return response()->json(['error' => 'AI error: ' . $reason], 422);
         }
 
         $rawText = $provider === 'openrouter'
             ? $response->json('choices.0.message.content', '')
             : $response->json('content.0.text', '');
+
+        Log::info('[AIScan] raw text', ['text' => $rawText]);
 
         // Strip markdown code fences that some models wrap around JSON
         $cleaned = preg_replace('/^```(?:json)?\s*/i', '', trim($rawText));
@@ -63,8 +89,15 @@ PROMPT;
         $extracted = json_decode(trim($cleaned), true);
 
         if (! $extracted || ! isset($extracted['item_name'], $extracted['category'], $extracted['reason'])) {
+            Log::error('[AIScan] parse failed', [
+                'raw'     => $rawText,
+                'cleaned' => $cleaned,
+                'decoded' => $extracted,
+            ]);
             return response()->json(['error' => 'Could not parse AI response: ' . substr($rawText, 0, 200)], 422);
         }
+
+        Log::info('[AIScan] success', ['item' => $extracted['item_name']]);
 
         return response()->json([
             'item_name' => $extracted['item_name'],
