@@ -2,6 +2,7 @@
 import { useForm, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Camera, RotateCcw } from 'lucide-vue-next';
+import { Spinner } from '@/components/ui/spinner';
 import CategoryPicker from '@/components/waste/CategoryPicker.vue';
 import WeightInput from '@/components/waste/WeightInput.vue';
 import InputError from '@/components/InputError.vue';
@@ -150,7 +151,7 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
 <template>
     <Head title="AI Scan" />
 
-    <div class="max-w-lg mx-auto px-4 pt-5 pb-4 space-y-5">
+    <div class="max-w-lg mx-auto px-4 pt-5 pb-8 space-y-5">
 
         <!-- Step 1: Upload -->
         <div v-if="step === 'upload'">
@@ -185,8 +186,19 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                         </div>
                     </template>
                     <template v-else>
-                        <img :src="previewUrl" alt="Preview" class="max-h-64 rounded-xl object-contain" />
-                        <p class="text-xs text-slate-400">Tap to change photo</p>
+                        <div class="relative w-full">
+                            <img :src="previewUrl" alt="Preview" class="max-h-64 w-full rounded-xl object-contain" />
+                            <!-- Scanning overlay -->
+                            <div
+                                v-if="analysing"
+                                class="absolute inset-0 rounded-xl flex flex-col items-center justify-center gap-3"
+                                style="background: rgba(5,150,105,0.88); backdrop-filter: blur(2px);"
+                            >
+                                <Spinner class="text-white" style="width:32px;height:32px;" />
+                                <p class="text-white font-semibold text-sm tracking-wide">Scanning with AI…</p>
+                            </div>
+                        </div>
+                        <p v-if="!analysing" class="text-xs text-slate-400">Tap to change photo</p>
                     </template>
                 </label>
 
@@ -195,13 +207,13 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                 </p>
 
                 <button
-                    class="mt-4 w-full h-12 rounded-xl font-semibold text-base text-white transition-opacity disabled:opacity-50"
+                    class="mt-4 w-full h-12 rounded-xl font-semibold text-base text-white transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
                     style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 16px rgba(5,150,105,0.25);"
                     :disabled="!previewUrl || analysing"
                     @click="analyse"
                 >
-                    <span v-if="analysing">Analysing…</span>
-                    <span v-else>Analyse with AI</span>
+                    <Spinner v-if="analysing" class="text-white" />
+                    {{ analysing ? 'Analysing…' : 'Analyse with AI' }}
                 </button>
             </div>
         </div>
@@ -285,10 +297,11 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                         </button>
                         <button
                             type="submit"
-                            class="flex-1 h-12 rounded-xl font-semibold text-base text-white transition-opacity disabled:opacity-50"
+                            class="flex-1 h-12 rounded-xl font-semibold text-base text-white transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
                             style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 16px rgba(5,150,105,0.25);"
                             :disabled="saveForm.processing || !saveForm.category || !saveForm.item_name"
                         >
+                            <Spinner v-if="saveForm.processing" class="text-white" />
                             {{ saveForm.processing ? 'Saving…' : 'Save Entry' }}
                         </button>
                     </div>

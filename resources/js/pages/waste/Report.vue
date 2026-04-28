@@ -2,6 +2,7 @@
 import { router, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Download, FileText } from 'lucide-vue-next';
+import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { index as reportIndex } from '@/routes/waste/report';
@@ -23,16 +24,26 @@ const dateTo = ref(props.dateTo);
 const categories: WasteCategory[] = ['protein', 'veg', 'dairy', 'prepared'];
 const reasons: WasteReason[] = ['spoilage', 'overproduction', 'expiry', 'prep_waste', 'other'];
 
+const generating = ref(false);
+const exporting = ref<'csv' | 'pdf' | null>(null);
+
 function generate() {
-    router.get(reportIndex().url, { date_from: dateFrom.value, date_to: dateTo.value });
+    generating.value = true;
+    router.get(reportIndex().url, { date_from: dateFrom.value, date_to: dateTo.value }, {
+        onFinish: () => { generating.value = false; },
+    });
 }
 
 function exportCsv() {
+    exporting.value = 'csv';
     window.location.href = `/waste/report/csv?date_from=${dateFrom.value}&date_to=${dateTo.value}`;
+    setTimeout(() => { exporting.value = null; }, 3000);
 }
 
 function exportPdf() {
+    exporting.value = 'pdf';
     window.location.href = `/waste/report/pdf?date_from=${dateFrom.value}&date_to=${dateTo.value}`;
+    setTimeout(() => { exporting.value = null; }, 3000);
 }
 
 const CATEGORY_BADGE: Record<WasteCategory, string> = {
@@ -46,7 +57,7 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
 <template>
     <Head title="EU Compliance Report" />
 
-    <div class="max-w-2xl mx-auto px-4 pt-5 pb-4 space-y-5">
+    <div class="max-w-2xl mx-auto px-4 pt-5 pb-8 space-y-5">
 
         <!-- Header -->
         <div>
@@ -66,11 +77,13 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                     <Input id="date_to" v-model="dateTo" type="date" class="border-slate-200 bg-slate-50 text-slate-900" />
                 </div>
                 <button
-                    class="h-10 px-5 rounded-xl font-semibold text-sm text-white transition-opacity"
+                    class="h-10 px-5 rounded-xl font-semibold text-sm text-white transition-opacity disabled:opacity-60 flex items-center gap-2"
                     style="background: linear-gradient(135deg, #059669, #047857);"
+                    :disabled="generating"
                     @click="generate"
                 >
-                    Generate
+                    <Spinner v-if="generating" class="text-white" />
+                    {{ generating ? 'Generating…' : 'Generate' }}
                 </button>
             </div>
         </div>
@@ -191,20 +204,24 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
             <!-- Export buttons -->
             <div class="flex gap-3">
                 <button
-                    class="flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 transition-colors"
+                    class="flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 transition-opacity disabled:opacity-60"
                     style="border-color: #6ee7b7; color: #059669; background: #f0fdf4;"
+                    :disabled="exporting === 'csv'"
                     @click="exportCsv"
                 >
-                    <Download style="width: 16px; height: 16px;" />
-                    Export CSV
+                    <Spinner v-if="exporting === 'csv'" style="color: #059669;" />
+                    <Download v-else style="width: 16px; height: 16px;" />
+                    {{ exporting === 'csv' ? 'Preparing…' : 'Export CSV' }}
                 </button>
                 <button
-                    class="flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 transition-colors"
+                    class="flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 transition-opacity disabled:opacity-60"
                     style="border-color: #6ee7b7; color: #059669; background: #f0fdf4;"
+                    :disabled="exporting === 'pdf'"
                     @click="exportPdf"
                 >
-                    <FileText style="width: 16px; height: 16px;" />
-                    Export PDF
+                    <Spinner v-if="exporting === 'pdf'" style="color: #059669;" />
+                    <FileText v-else style="width: 16px; height: 16px;" />
+                    {{ exporting === 'pdf' ? 'Preparing…' : 'Export PDF' }}
                 </button>
             </div>
 

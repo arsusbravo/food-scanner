@@ -40,7 +40,7 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
 <template>
     <Head title="Home" />
 
-    <div class="max-w-lg mx-auto px-4 pt-5 pb-4 space-y-5">
+    <div class="max-w-lg mx-auto px-4 pt-5 pb-8 space-y-5">
 
         <!-- Greeting -->
         <div>
@@ -86,7 +86,7 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                 class="rounded-2xl p-4 flex items-center gap-3 transition-opacity active:opacity-80"
                 style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 16px rgba(5,150,105,0.3);"
             >
-                <div class="size-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(255,255,255,0.2);">
+                <div class="size-10 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(255,255,255,0.2);">
                     <UtensilsCrossed style="width: 20px; height: 20px; color: white;" />
                 </div>
                 <div>
@@ -100,7 +100,7 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                 class="rounded-2xl p-4 flex items-center gap-3 transition-opacity active:opacity-80"
                 style="background: linear-gradient(135deg, #0d9488, #0f766e); box-shadow: 0 4px 16px rgba(13,148,136,0.3);"
             >
-                <div class="size-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(255,255,255,0.2);">
+                <div class="size-10 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(255,255,255,0.2);">
                     <ScanLine style="width: 20px; height: 20px; color: white;" />
                 </div>
                 <div>

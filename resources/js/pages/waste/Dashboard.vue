@@ -2,6 +2,7 @@
 import { useForm, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Trash2, ScanLine } from 'lucide-vue-next';
+import { Spinner } from '@/components/ui/spinner';
 import CategoryPicker from '@/components/waste/CategoryPicker.vue';
 import WeightInput from '@/components/waste/WeightInput.vue';
 import InputError from '@/components/InputError.vue';
@@ -41,7 +42,7 @@ function formatWeight(kg: string): string {
 <template>
     <Head title="Log Waste" />
 
-    <div class="max-w-lg mx-auto px-4 pt-5 pb-4 space-y-5">
+    <div class="max-w-lg mx-auto px-4 pt-5 pb-8 space-y-5">
 
         <!-- Form card -->
         <div class="bg-white rounded-2xl border border-slate-100 p-5" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
@@ -100,10 +101,11 @@ function formatWeight(kg: string): string {
 
                 <button
                     type="submit"
-                    class="w-full h-12 rounded-xl font-semibold text-base text-white transition-opacity disabled:opacity-50"
+                    class="w-full h-12 rounded-xl font-semibold text-base text-white transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
                     style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 16px rgba(5,150,105,0.25);"
                     :disabled="form.processing || !form.category || !form.item_name || form.weight_kg === ''"
                 >
+                    <Spinner v-if="form.processing" class="text-white" />
                     {{ form.processing ? 'Saving…' : 'Log Entry' }}
                 </button>
             </form>

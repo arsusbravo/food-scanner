@@ -14,10 +14,10 @@ const userInitials = computed(() => {
 const url = computed(() => page.url);
 
 const navItems = [
-    { label: 'Home',     icon: House,           href: '/waste' },
-    { label: 'Log',      icon: UtensilsCrossed, href: '/waste/entries' },
-    { label: 'AI Scan',  icon: ScanLine,        href: '/waste/ai-scan' },
-    { label: 'Report',   icon: FileBarChart2,   href: '/waste/report' },
+    { label: 'Home',    icon: House,           href: '/waste' },
+    { label: 'Log',     icon: UtensilsCrossed, href: '/waste/entries' },
+    { label: 'AI Scan', icon: ScanLine,        href: '/waste/ai-scan' },
+    { label: 'Report',  icon: FileBarChart2,   href: '/waste/report' },
 ];
 
 function isActive(href: string) {
@@ -27,12 +27,13 @@ function isActive(href: string) {
 </script>
 
 <template>
-    <div class="flex flex-col bg-slate-50" style="min-height: 100dvh;">
+    <div class="bg-slate-50" style="min-height: 100dvh;">
 
-        <!-- ── Gradient header ── -->
+        <!-- Fixed header -->
         <header
-            class="flex-shrink-0 shadow-lg"
-            style="background: linear-gradient(135deg, #065f46 0%, #059669 45%, #0d9488 100%);"
+            class="shadow-lg"
+            style="position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+                   background: linear-gradient(135deg, #065f46 0%, #059669 45%, #0d9488 100%);"
         >
             <div class="flex items-center justify-between px-5 py-4 max-w-lg mx-auto">
                 <div>
@@ -42,7 +43,6 @@ function isActive(href: string) {
                     <h1 class="text-white text-xl font-bold mt-0.5 tracking-tight">FoodWise</h1>
                 </div>
 
-                <!-- User avatar -->
                 <div
                     class="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
                     style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);"
@@ -52,15 +52,16 @@ function isActive(href: string) {
             </div>
         </header>
 
-        <!-- ── Scrollable page content ── -->
-        <main class="flex-1 overflow-y-auto pb-2">
+        <!-- Scrollable content — padded to clear fixed header (76px) and fixed nav (84px) -->
+        <main style="padding-top: 76px; padding-bottom: 84px;">
             <slot />
         </main>
 
-        <!-- ── Bottom navigation ── -->
+        <!-- Fixed bottom navigation -->
         <nav
-            class="flex-shrink-0 bg-white border-t border-slate-200"
-            style="box-shadow: 0 -4px 24px rgba(0,0,0,0.07);"
+            class="bg-white border-t border-slate-200"
+            style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+                   box-shadow: 0 -4px 24px rgba(0,0,0,0.07);"
         >
             <div class="flex items-center max-w-lg mx-auto px-2" style="height: 64px;">
                 <Link
@@ -68,9 +69,7 @@ function isActive(href: string) {
                     :key="item.href"
                     :href="item.href"
                     class="flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all"
-                    :style="isActive(item.href)
-                        ? 'color: #059669;'
-                        : 'color: #94a3b8;'"
+                    :style="isActive(item.href) ? 'color: #059669;' : 'color: #94a3b8;'"
                 >
                     <div
                         class="flex items-center justify-center rounded-xl transition-colors"
