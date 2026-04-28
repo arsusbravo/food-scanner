@@ -1,6 +1,22 @@
 import type { MessageSchema } from './en';
 
 export const messages: MessageSchema = {
+    home: {
+        greeting_morning: 'Guten Morgen',
+        greeting_afternoon: 'Guten Tag',
+        greeting_evening: 'Guten Abend',
+        today: 'Heute',
+        this_week: 'Diese Woche',
+        entry: 'Eintrag',
+        entries: 'Einträge',
+        recent_entries: 'Letzte Einträge',
+        see_all: 'Alle anzeigen',
+        log_waste: 'Abfall erfassen',
+        manual_entry: 'Manuelle Eingabe',
+        ai_scan: 'KI-Scan',
+        photo_scan: 'Foto-Scan',
+        no_entries: 'Noch keine Einträge. Beginnen Sie mit der Erfassung.',
+    },
     nav: {
         dashboard: 'Dashboard',
         log_waste: 'Abfall erfassen',
@@ -60,7 +76,10 @@ export const messages: MessageSchema = {
         subtitle: 'EU-Richtlinie 2018/851 · FLW-Protokoll · Lebensmittelservice (HORECA)',
         date_from: 'Von',
         date_to: 'Bis',
-        generate: 'Bericht erstellen',
+        generate: 'Erstellen',
+        generating: 'Erstelle…',
+        preparing: 'Vorbereitung…',
+        table_title: 'Abfall nach Grund × Kategorie (kg)',
         export_csv: 'CSV exportieren',
         export_pdf: 'PDF exportieren',
         no_data: 'Keine Abfalleinträge im gewählten Zeitraum gefunden.',

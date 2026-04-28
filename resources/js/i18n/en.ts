@@ -3,6 +3,22 @@ type Stringified<T> = {
 };
 
 export const messages = {
+    home: {
+        greeting_morning: 'Good morning',
+        greeting_afternoon: 'Good afternoon',
+        greeting_evening: 'Good evening',
+        today: 'Today',
+        this_week: 'This week',
+        entry: 'entry',
+        entries: 'entries',
+        recent_entries: 'Recent Entries',
+        see_all: 'See all',
+        log_waste: 'Log Waste',
+        manual_entry: 'Manual entry',
+        ai_scan: 'AI Scan',
+        photo_scan: 'Photo scan',
+        no_entries: 'No entries yet. Start logging food waste.',
+    },
     nav: {
         dashboard: 'Dashboard',
         log_waste: 'Log Waste',
@@ -62,7 +78,10 @@ export const messages = {
         subtitle: 'EU Directive 2018/851 · FLW Protocol · Food Service (HORECA)',
         date_from: 'From',
         date_to: 'To',
-        generate: 'Generate Report',
+        generate: 'Generate',
+        generating: 'Generating…',
+        preparing: 'Preparing…',
+        table_title: 'Waste by Reason × Category (kg)',
         export_csv: 'Export CSV',
         export_pdf: 'Export PDF',
         no_data: 'No waste entries found for the selected period.',

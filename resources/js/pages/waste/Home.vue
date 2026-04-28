@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { UtensilsCrossed, ScanLine, ChevronRight, TrendingUp, CalendarDays } from 'lucide-vue-next';
-import { CATEGORY_LABELS, REASON_LABELS, type WasteEntry } from '@/types/waste';
+import { type WasteEntry } from '@/types/waste';
 
 type Props = {
     todayKg: number;
@@ -14,14 +15,15 @@ type Props = {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
 const page = usePage<{ auth: { user: { name: string } } }>();
 const firstName = computed(() => page.props.auth?.user?.name?.split(' ')[0] ?? 'there');
 
 const greeting = computed(() => {
     const h = new Date().getHours();
-    if (h < 12) return 'Good morning';
-    if (h < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (h < 12) return t('home.greeting_morning');
+    if (h < 18) return t('home.greeting_afternoon');
+    return t('home.greeting_evening');
 });
 
 function fmtKg(kg: number): string {
@@ -56,11 +58,11 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                     <div class="size-8 rounded-xl flex items-center justify-center" style="background: #ecfdf5;">
                         <CalendarDays style="width: 15px; height: 15px; color: #059669;" />
                     </div>
-                    <span class="text-xs font-semibold text-slate-500">Today</span>
+                    <span class="text-xs font-semibold text-slate-500">{{ $t('home.today') }}</span>
                 </div>
                 <p class="text-2xl font-bold text-slate-900 tabular-nums">{{ fmtKg(todayKg) }}</p>
                 <p class="text-xs text-slate-400 mt-1">
-                    {{ todayCount }} {{ todayCount === 1 ? 'entry' : 'entries' }}
+                    {{ todayCount }} {{ $t(todayCount === 1 ? 'home.entry' : 'home.entries') }}
                 </p>
             </div>
 
@@ -70,11 +72,11 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                     <div class="size-8 rounded-xl flex items-center justify-center" style="background: #f0fdfa;">
                         <TrendingUp style="width: 15px; height: 15px; color: #0d9488;" />
                     </div>
-                    <span class="text-xs font-semibold text-slate-500">This week</span>
+                    <span class="text-xs font-semibold text-slate-500">{{ $t('home.this_week') }}</span>
                 </div>
                 <p class="text-2xl font-bold text-slate-900 tabular-nums">{{ fmtKg(weekKg) }}</p>
                 <p class="text-xs text-slate-400 mt-1">
-                    {{ weekCount }} {{ weekCount === 1 ? 'entry' : 'entries' }}
+                    {{ weekCount }} {{ $t(weekCount === 1 ? 'home.entry' : 'home.entries') }}
                 </p>
             </div>
         </div>
@@ -90,8 +92,8 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                     <UtensilsCrossed style="width: 20px; height: 20px; color: white;" />
                 </div>
                 <div>
-                    <p class="font-semibold text-sm text-white">Log Waste</p>
-                    <p class="text-xs mt-0.5" style="color: rgba(167,243,208,0.8);">Manual entry</p>
+                    <p class="font-semibold text-sm text-white">{{ $t('home.log_waste') }}</p>
+                    <p class="text-xs mt-0.5" style="color: rgba(167,243,208,0.8);">{{ $t('home.manual_entry') }}</p>
                 </div>
             </Link>
 
@@ -104,8 +106,8 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                     <ScanLine style="width: 20px; height: 20px; color: white;" />
                 </div>
                 <div>
-                    <p class="font-semibold text-sm text-white">AI Scan</p>
-                    <p class="text-xs mt-0.5" style="color: rgba(153,246,228,0.8);">Photo scan</p>
+                    <p class="font-semibold text-sm text-white">{{ $t('home.ai_scan') }}</p>
+                    <p class="text-xs mt-0.5" style="color: rgba(153,246,228,0.8);">{{ $t('home.photo_scan') }}</p>
                 </div>
             </Link>
         </div>
@@ -113,9 +115,9 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
         <!-- Recent entries -->
         <div>
             <div class="flex items-center justify-between mb-3">
-                <h3 class="font-semibold text-slate-800">Recent Entries</h3>
+                <h3 class="font-semibold text-slate-800">{{ $t('home.recent_entries') }}</h3>
                 <Link href="/waste/entries" class="flex items-center gap-0.5 text-xs font-semibold" style="color: #059669;">
-                    See all <ChevronRight style="width: 14px; height: 14px;" />
+                    {{ $t('home.see_all') }} <ChevronRight style="width: 14px; height: 14px;" />
                 </Link>
             </div>
 
@@ -123,7 +125,7 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                 v-if="recentEntries.length === 0"
                 class="bg-white rounded-2xl p-8 text-center text-sm text-slate-400 border border-slate-100"
             >
-                No entries yet. Start logging food waste.
+                {{ $t('home.no_entries') }}
             </div>
 
             <div v-else class="space-y-2">
@@ -136,7 +138,7 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                     <div class="min-w-0 flex-1">
                         <p class="font-semibold text-slate-900 truncate text-sm">{{ entry.item_name }}</p>
                         <p class="text-xs text-slate-400 mt-0.5">
-                            {{ CATEGORY_LABELS[entry.category] }} · {{ fmtEntryWeight(entry.weight_kg) }} · {{ REASON_LABELS[entry.reason] }}
+                            {{ $t(`log_waste.categories.${entry.category}`) }} · {{ fmtEntryWeight(entry.weight_kg) }} · {{ $t(`log_waste.reasons.${entry.reason}`) }}
                         </p>
                     </div>
                     <span

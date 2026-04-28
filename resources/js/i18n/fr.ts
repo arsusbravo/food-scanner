@@ -1,6 +1,22 @@
 import type { MessageSchema } from './en';
 
 export const messages: MessageSchema = {
+    home: {
+        greeting_morning: 'Bonjour',
+        greeting_afternoon: 'Bon après-midi',
+        greeting_evening: 'Bonsoir',
+        today: 'Aujourd\'hui',
+        this_week: 'Cette semaine',
+        entry: 'entrée',
+        entries: 'entrées',
+        recent_entries: 'Entrées récentes',
+        see_all: 'Tout voir',
+        log_waste: 'Enregistrer',
+        manual_entry: 'Saisie manuelle',
+        ai_scan: 'Scan IA',
+        photo_scan: 'Scan photo',
+        no_entries: 'Aucune entrée pour l\'instant. Commencez à enregistrer.',
+    },
     nav: {
         dashboard: 'Tableau de bord',
         log_waste: 'Enregistrer déchets',
@@ -60,7 +76,10 @@ export const messages: MessageSchema = {
         subtitle: 'Directive UE 2018/851 · Protocole FLW · Restauration (HORECA)',
         date_from: 'Du',
         date_to: 'Au',
-        generate: 'Générer le rapport',
+        generate: 'Générer',
+        generating: 'Génération…',
+        preparing: 'Préparation…',
+        table_title: 'Déchets par raison × catégorie (kg)',
         export_csv: 'Exporter CSV',
         export_pdf: 'Exporter PDF',
         no_data: 'Aucune entrée de déchets trouvée pour la période sélectionnée.',

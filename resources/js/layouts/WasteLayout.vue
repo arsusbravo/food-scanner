@@ -3,6 +3,7 @@ import { usePage, Link } from '@inertiajs/vue3';
 import { Toaster } from '@/components/ui/sonner';
 import { computed } from 'vue';
 import { House, UtensilsCrossed, ScanLine, FileBarChart2 } from 'lucide-vue-next';
+import { useLocale, type SupportedLocale } from '@/composables/useLocale';
 
 const page = usePage<{ auth: { user: { name: string; email: string } } }>();
 
@@ -12,6 +13,7 @@ const userInitials = computed(() => {
 });
 
 const url = computed(() => page.url);
+const { locale, setLocale } = useLocale();
 
 const navItems = [
     { label: 'Home',    icon: House,           href: '/waste' },
@@ -43,11 +45,30 @@ function isActive(href: string) {
                     <h1 class="text-white text-xl font-bold mt-0.5 tracking-tight">FoodWise</h1>
                 </div>
 
-                <div
-                    class="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                    style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);"
-                >
-                    {{ userInitials }}
+                <div class="flex items-center gap-2">
+                    <!-- Language switcher -->
+                    <div class="flex gap-1">
+                        <button
+                            v-for="code in (['en','nl','de','fr','es'] as SupportedLocale[])"
+                            :key="code"
+                            type="button"
+                            class="text-xs font-bold px-2 py-1 rounded-lg transition-all"
+                            :style="locale === code
+                                ? 'background: white; color: #059669;'
+                                : 'background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.65);'"
+                            @click="setLocale(code)"
+                        >
+                            {{ code.toUpperCase() }}
+                        </button>
+                    </div>
+
+                    <!-- Avatar -->
+                    <div
+                        class="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                        style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);"
+                    >
+                        {{ userInitials }}
+                    </div>
                 </div>
             </div>
         </header>

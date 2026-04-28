@@ -1,6 +1,22 @@
 import type { MessageSchema } from './en';
 
 export const messages: MessageSchema = {
+    home: {
+        greeting_morning: 'Buenos días',
+        greeting_afternoon: 'Buenas tardes',
+        greeting_evening: 'Buenas noches',
+        today: 'Hoy',
+        this_week: 'Esta semana',
+        entry: 'entrada',
+        entries: 'entradas',
+        recent_entries: 'Entradas recientes',
+        see_all: 'Ver todo',
+        log_waste: 'Registrar',
+        manual_entry: 'Entrada manual',
+        ai_scan: 'Escaneo IA',
+        photo_scan: 'Escaneo foto',
+        no_entries: 'Sin entradas aún. Comience a registrar desperdicios.',
+    },
     nav: {
         dashboard: 'Panel',
         log_waste: 'Registrar desperdicio',
@@ -60,7 +76,10 @@ export const messages: MessageSchema = {
         subtitle: 'Directiva UE 2018/851 · Protocolo FLW · Restauración (HORECA)',
         date_from: 'Desde',
         date_to: 'Hasta',
-        generate: 'Generar informe',
+        generate: 'Generar',
+        generating: 'Generando…',
+        preparing: 'Preparando…',
+        table_title: 'Residuos por motivo × categoría (kg)',
         export_csv: 'Exportar CSV',
         export_pdf: 'Exportar PDF',
         no_data: 'No se encontraron entradas en el período seleccionado.',

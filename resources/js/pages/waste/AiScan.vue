@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm, Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Camera, RotateCcw } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
 import CategoryPicker from '@/components/waste/CategoryPicker.vue';
@@ -10,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { store as entriesStore } from '@/routes/waste/entries';
-import { REASON_LABELS, type WasteCategory } from '@/types/waste';
+import { type WasteCategory } from '@/types/waste';
 
 type AiResult = {
     item_name: string;
@@ -20,6 +21,8 @@ type AiResult = {
     confidence: 'high' | 'medium' | 'low';
     notes: string | null;
 };
+
+const { t } = useI18n();
 
 const step = ref<'upload' | 'review'>('upload');
 const previewUrl = ref<string | null>(null);
@@ -36,6 +39,14 @@ const saveForm = useForm({
     notes: '',
     source: 'ai_scan' as const,
 });
+
+const reasonOptions = computed(() => [
+    { value: 'spoilage',       label: t('log_waste.reasons.spoilage') },
+    { value: 'overproduction', label: t('log_waste.reasons.overproduction') },
+    { value: 'expiry',         label: t('log_waste.reasons.expiry') },
+    { value: 'prep_waste',     label: t('log_waste.reasons.prep_waste') },
+    { value: 'other',          label: t('log_waste.reasons.other') },
+]);
 
 function onFileSelect(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -122,7 +133,7 @@ async function analyse() {
         step.value = 'review';
     } catch (err) {
         console.error('[AIScan] network error', err);
-        analyseError.value = 'Network error. Please try again.';
+        analyseError.value = t('ai_scan.error_network');
     } finally {
         analysing.value = false;
     }
@@ -156,10 +167,8 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
         <!-- Step 1: Upload -->
         <div v-if="step === 'upload'">
             <div class="bg-white rounded-2xl border border-slate-100 p-5" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
-                <h1 class="text-xl font-bold text-slate-900 mb-1">AI Waste Scanner</h1>
-                <p class="text-sm text-slate-400 mb-5">
-                    Take a photo of the food waste. AI will extract the details automatically.
-                </p>
+                <h1 class="text-xl font-bold text-slate-900 mb-1">{{ $t('ai_scan.title') }}</h1>
+                <p class="text-sm text-slate-400 mb-5">{{ $t('ai_scan.subtitle') }}</p>
 
                 <!-- Drop zone -->
                 <label
@@ -181,8 +190,8 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                             <Camera style="width: 28px; height: 28px; color: #059669;" />
                         </div>
                         <div>
-                            <p class="font-semibold text-slate-700">Take or upload a photo</p>
-                            <p class="text-xs text-slate-400 mt-1">JPG, PNG, WebP up to 10 MB</p>
+                            <p class="font-semibold text-slate-700">{{ $t('ai_scan.upload_label') }}</p>
+                            <p class="text-xs text-slate-400 mt-1">{{ $t('ai_scan.upload_hint') }}</p>
                         </div>
                     </template>
                     <template v-else>
@@ -195,10 +204,10 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                                 style="background: rgba(5,150,105,0.88); backdrop-filter: blur(2px);"
                             >
                                 <Spinner class="text-white" style="width:32px;height:32px;" />
-                                <p class="text-white font-semibold text-sm tracking-wide">Scanning with AI…</p>
+                                <p class="text-white font-semibold text-sm tracking-wide">{{ $t('ai_scan.analysing') }}</p>
                             </div>
                         </div>
-                        <p v-if="!analysing" class="text-xs text-slate-400">Tap to change photo</p>
+                        <p v-if="!analysing" class="text-xs text-slate-400">{{ $t('ai_scan.change_photo') }}</p>
                     </template>
                 </label>
 
@@ -213,7 +222,7 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                     @click="analyse"
                 >
                     <Spinner v-if="analysing" class="text-white" />
-                    {{ analysing ? 'Analysing…' : 'Analyse with AI' }}
+                    {{ analysing ? $t('ai_scan.analysing') : $t('ai_scan.analyse') }}
                 </button>
             </div>
         </div>
@@ -222,13 +231,13 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
         <div v-else>
             <div class="bg-white rounded-2xl border border-slate-100 p-5" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
                 <div class="flex items-center justify-between mb-4">
-                    <h1 class="text-xl font-bold text-slate-900">Review AI Results</h1>
+                    <h1 class="text-xl font-bold text-slate-900">{{ $t('ai_scan.review_title') }}</h1>
                     <span
                         v-if="aiResult"
                         class="rounded-full px-3 py-1 text-xs font-bold capitalize"
                         :style="CONFIDENCE_STYLES[aiResult.confidence]"
                     >
-                        {{ aiResult.confidence }} confidence
+                        {{ $t(`ai_scan.confidence_${aiResult.confidence}`) }}
                     </span>
                 </div>
 
@@ -238,13 +247,13 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
 
                 <form class="space-y-5" @submit.prevent="save">
                     <div class="space-y-2">
-                        <Label class="text-slate-700 font-semibold">Category</Label>
+                        <Label class="text-slate-700 font-semibold">{{ $t('log_waste.category') }}</Label>
                         <CategoryPicker v-model="saveForm.category" />
                         <InputError :message="saveForm.errors.category" />
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="review_item" class="text-slate-700 font-semibold">Item Name</Label>
+                        <Label for="review_item" class="text-slate-700 font-semibold">{{ $t('log_waste.item_name') }}</Label>
                         <Input
                             id="review_item"
                             v-model="saveForm.item_name"
@@ -254,20 +263,20 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                     </div>
 
                     <div class="space-y-2">
-                        <Label class="text-slate-700 font-semibold">Weight</Label>
+                        <Label class="text-slate-700 font-semibold">{{ $t('log_waste.weight') }}</Label>
                         <WeightInput v-model="saveForm.weight_kg" />
                         <InputError :message="saveForm.errors.weight_kg" />
                     </div>
 
                     <div class="space-y-2">
-                        <Label class="text-slate-700 font-semibold">Reason for Waste</Label>
+                        <Label class="text-slate-700 font-semibold">{{ $t('log_waste.reason') }}</Label>
                         <Select v-model="saveForm.reason">
                             <SelectTrigger class="h-12 w-full text-base border-slate-200 bg-slate-50 text-slate-900">
-                                <SelectValue placeholder="Select reason…" />
+                                <SelectValue :placeholder="$t('log_waste.reason_placeholder')" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem v-for="(label, key) in REASON_LABELS" :key="key" :value="key">
-                                    {{ label }}
+                                <SelectItem v-for="opt in reasonOptions" :key="opt.value" :value="opt.value">
+                                    {{ opt.label }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -276,7 +285,8 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
 
                     <div class="space-y-2">
                         <Label for="review_notes" class="text-slate-700 font-semibold">
-                            Notes <span class="text-slate-400 font-normal">(optional)</span>
+                            {{ $t('log_waste.notes') }}
+                            <span class="text-slate-400 font-normal">{{ $t('log_waste.notes_optional') }}</span>
                         </Label>
                         <Input
                             id="review_notes"
@@ -293,7 +303,7 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                             @click="retake"
                         >
                             <RotateCcw style="width: 16px; height: 16px;" />
-                            Retake
+                            {{ $t('ai_scan.retake') }}
                         </button>
                         <button
                             type="submit"
@@ -302,7 +312,7 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                             :disabled="saveForm.processing || !saveForm.category || !saveForm.item_name"
                         >
                             <Spinner v-if="saveForm.processing" class="text-white" />
-                            {{ saveForm.processing ? 'Saving…' : 'Save Entry' }}
+                            {{ saveForm.processing ? $t('ai_scan.saving') : $t('ai_scan.save') }}
                         </button>
                     </div>
                 </form>

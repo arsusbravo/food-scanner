@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { router, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Download, FileText } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { index as reportIndex } from '@/routes/waste/report';
-import { CATEGORY_LABELS, REASON_LABELS, type WasteCategory, type WasteReason, type WasteReportRow } from '@/types/waste';
+import { type WasteCategory, type WasteReason, type WasteReportRow } from '@/types/waste';
 
 type Props = {
     summary: Record<WasteCategory, WasteReportRow>;
@@ -17,6 +18,8 @@ type Props = {
 };
 
 const props = defineProps<Props>();
+
+const { t } = useI18n();
 
 const dateFrom = ref(props.dateFrom);
 const dateTo = ref(props.dateTo);
@@ -61,19 +64,19 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
 
         <!-- Header -->
         <div>
-            <h1 class="text-2xl font-bold text-slate-900">EU Compliance Report</h1>
-            <p class="text-xs text-slate-400 mt-1">EU Directive 2018/851 · FLW Protocol · Food Service (HORECA)</p>
+            <h1 class="text-2xl font-bold text-slate-900">{{ $t('report.title') }}</h1>
+            <p class="text-xs text-slate-400 mt-1">{{ $t('report.subtitle') }}</p>
         </div>
 
         <!-- Date range filter -->
         <div class="bg-white rounded-2xl border border-slate-100 p-4" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
             <div class="flex flex-wrap gap-4 items-end">
                 <div class="flex-1 min-w-32 space-y-1.5">
-                    <Label for="date_from" class="text-slate-700 font-semibold text-sm">From</Label>
+                    <Label for="date_from" class="text-slate-700 font-semibold text-sm">{{ $t('report.date_from') }}</Label>
                     <Input id="date_from" v-model="dateFrom" type="date" class="border-slate-200 bg-slate-50 text-slate-900" />
                 </div>
                 <div class="flex-1 min-w-32 space-y-1.5">
-                    <Label for="date_to" class="text-slate-700 font-semibold text-sm">To</Label>
+                    <Label for="date_to" class="text-slate-700 font-semibold text-sm">{{ $t('report.date_to') }}</Label>
                     <Input id="date_to" v-model="dateTo" type="date" class="border-slate-200 bg-slate-50 text-slate-900" />
                 </div>
                 <button
@@ -83,7 +86,7 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                     @click="generate"
                 >
                     <Spinner v-if="generating" class="text-white" />
-                    {{ generating ? 'Generating…' : 'Generate' }}
+                    {{ generating ? $t('report.generating') : $t('report.generate') }}
                 </button>
             </div>
         </div>
@@ -93,7 +96,7 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
             v-if="grandTotal === 0"
             class="bg-white rounded-2xl border border-slate-100 p-10 text-center text-sm text-slate-400"
         >
-            No waste entries found for the selected period.
+            {{ $t('report.no_data') }}
         </div>
 
         <template v-else>
@@ -104,11 +107,11 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                 style="background: linear-gradient(135deg, #065f46, #059669, #0d9488); box-shadow: 0 4px 20px rgba(5,150,105,0.3);"
             >
                 <div>
-                    <p class="text-sm font-medium" style="color: rgba(167,243,208,0.85);">Total Food Waste</p>
+                    <p class="text-sm font-medium" style="color: rgba(167,243,208,0.85);">{{ $t('report.total_waste') }}</p>
                     <p class="text-4xl font-bold tabular-nums mt-1">{{ grandTotal.toFixed(2) }} kg</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-sm" style="color: rgba(167,243,208,0.85);">{{ totalEntries }} entries</p>
+                    <p class="text-sm" style="color: rgba(167,243,208,0.85);">{{ totalEntries }} {{ $t('report.entries') }}</p>
                     <p class="text-xs mt-1" style="color: rgba(167,243,208,0.6);">{{ dateFrom }} – {{ dateTo }}</p>
                 </div>
             </div>
@@ -125,12 +128,12 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                         class="inline-block rounded-full px-2.5 py-0.5 text-xs font-bold mb-3"
                         :style="CATEGORY_BADGE[cat]"
                     >
-                        {{ CATEGORY_LABELS[cat] }}
+                        {{ $t(`log_waste.categories.${cat}`) }}
                     </span>
                     <p class="text-2xl font-bold text-slate-900 tabular-nums">
                         {{ summary[cat]?.total_kg?.toFixed(2) ?? '0.00' }}
                     </p>
-                    <p class="text-xs text-slate-400 mt-0.5">kg · {{ summary[cat]?.entry_count ?? 0 }} entries</p>
+                    <p class="text-xs text-slate-400 mt-0.5">kg · {{ summary[cat]?.entry_count ?? 0 }} {{ $t('report.entries') }}</p>
                     <p class="mt-1 text-xs font-mono" style="color: #059669;">{{ summary[cat]?.eu_code }}</p>
                 </div>
             </div>
@@ -138,17 +141,17 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
             <!-- Cross-tab table -->
             <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden" style="box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                 <div class="px-4 py-3 border-b border-slate-100">
-                    <h3 class="font-bold text-slate-800 text-sm">Waste by Reason × Category (kg)</h3>
+                    <h3 class="font-bold text-slate-800 text-sm">{{ $t('report.table_title') }}</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr style="background: #f8fafc;">
-                                <th class="px-4 py-3 text-left font-semibold text-slate-600">Reason</th>
+                                <th class="px-4 py-3 text-left font-semibold text-slate-600">{{ $t('report.table.reason') }}</th>
                                 <th v-for="cat in categories" :key="cat" class="px-3 py-3 text-right font-semibold text-slate-600">
-                                    {{ CATEGORY_LABELS[cat] }}
+                                    {{ $t(`log_waste.categories.${cat}`) }}
                                 </th>
-                                <th class="px-4 py-3 text-right font-semibold text-slate-600">Total</th>
+                                <th class="px-4 py-3 text-right font-semibold text-slate-600">{{ $t('report.table.total') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -157,7 +160,7 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                                 :key="reason"
                                 class="border-t border-slate-50"
                             >
-                                <td class="px-4 py-3 font-medium text-slate-700">{{ REASON_LABELS[reason] }}</td>
+                                <td class="px-4 py-3 font-medium text-slate-700">{{ $t(`log_waste.reasons.${reason}`) }}</td>
                                 <td v-for="cat in categories" :key="cat" class="px-3 py-3 text-right tabular-nums text-slate-400">
                                     {{ summary[cat]?.by_reason[reason]?.total_kg?.toFixed(2) ?? '—' }}
                                 </td>
@@ -172,7 +175,7 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                         </tbody>
                         <tfoot>
                             <tr style="background: #f0fdf4; border-top: 2px solid #d1fae5;">
-                                <td class="px-4 py-3 font-bold text-slate-700">Total (kg)</td>
+                                <td class="px-4 py-3 font-bold text-slate-700">{{ $t('report.table.total') }}</td>
                                 <td v-for="cat in categories" :key="cat" class="px-3 py-3 text-right tabular-nums font-bold" style="color: #059669;">
                                     {{ summary[cat]?.total_kg?.toFixed(2) ?? '0.00' }}
                                 </td>
@@ -187,11 +190,11 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
 
             <!-- FLW mapping -->
             <div class="bg-white rounded-2xl border border-slate-100 p-4" style="box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">FLW Protocol Mapping</h3>
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">{{ $t('report.flw_mapping') }}</h3>
                 <div class="space-y-2.5">
                     <div v-for="cat in categories" :key="cat" class="flex items-start gap-3 text-sm">
                         <span class="rounded-full px-2.5 py-0.5 text-xs font-bold shrink-0 mt-0.5" :style="CATEGORY_BADGE[cat]">
-                            {{ CATEGORY_LABELS[cat] }}
+                            {{ $t(`log_waste.categories.${cat}`) }}
                         </span>
                         <div>
                             <span class="font-semibold text-slate-700">{{ summary[cat]?.flw_group }}</span>
@@ -211,7 +214,7 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                 >
                     <Spinner v-if="exporting === 'csv'" style="color: #059669;" />
                     <Download v-else style="width: 16px; height: 16px;" />
-                    {{ exporting === 'csv' ? 'Preparing…' : 'Export CSV' }}
+                    {{ exporting === 'csv' ? $t('report.preparing') : $t('report.export_csv') }}
                 </button>
                 <button
                     class="flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 transition-opacity disabled:opacity-60"
@@ -221,7 +224,7 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                 >
                     <Spinner v-if="exporting === 'pdf'" style="color: #059669;" />
                     <FileText v-else style="width: 16px; height: 16px;" />
-                    {{ exporting === 'pdf' ? 'Preparing…' : 'Export PDF' }}
+                    {{ exporting === 'pdf' ? $t('report.preparing') : $t('report.export_pdf') }}
                 </button>
             </div>
 

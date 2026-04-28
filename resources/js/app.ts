@@ -8,6 +8,7 @@ import SettingsLayout from '@/layouts/settings/Layout.vue';
 import WasteLayout from '@/layouts/WasteLayout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { messages as en } from '@/i18n/en';
+import { messages as nl } from '@/i18n/nl';
 import { messages as de } from '@/i18n/de';
 import { messages as fr } from '@/i18n/fr';
 import { messages as es } from '@/i18n/es';
@@ -20,7 +21,7 @@ const i18n = createI18n({
     legacy: false,
     locale: storedLocale,
     fallbackLocale: 'en',
-    messages: { en, de, fr, es },
+    messages: { en, nl, de, fr, es },
 });
 
 createInertiaApp({

@@ -1,9 +1,9 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-export type SupportedLocale = 'en' | 'de' | 'fr' | 'es';
+export type SupportedLocale = 'en' | 'nl' | 'de' | 'fr' | 'es';
 
-const SUPPORTED: SupportedLocale[] = ['en', 'de', 'fr', 'es'];
+const SUPPORTED: SupportedLocale[] = ['en', 'nl', 'de', 'fr', 'es'];
 
 const setCookie = (name: string, value: string, days = 365) => {
     if (typeof document === 'undefined') return;

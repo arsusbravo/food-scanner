@@ -12,6 +12,7 @@ const { locale, setLocale } = useLocale();
 
 const LABELS: Record<SupportedLocale, string> = {
     en: 'EN',
+    nl: 'NL',
     de: 'DE',
     fr: 'FR',
     es: 'ES',
@@ -19,6 +20,7 @@ const LABELS: Record<SupportedLocale, string> = {
 
 const FULL_LABELS: Record<SupportedLocale, string> = {
     en: 'English',
+    nl: 'Nederlands',
     de: 'Deutsch',
     fr: 'Français',
     es: 'Español',
@@ -36,7 +38,7 @@ const FULL_LABELS: Record<SupportedLocale, string> = {
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="start" class="w-40">
             <DropdownMenuItem
-                v-for="code in (['en', 'de', 'fr', 'es'] as SupportedLocale[])"
+                v-for="code in (['en', 'nl', 'de', 'fr', 'es'] as SupportedLocale[])"
                 :key="code"
                 :class="{ 'font-semibold text-primary': locale === code }"
                 @click="setLocale(code)"
