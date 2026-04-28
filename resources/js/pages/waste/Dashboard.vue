@@ -7,8 +7,6 @@ import { Spinner } from '@/components/ui/spinner';
 import CategoryPicker from '@/components/waste/CategoryPicker.vue';
 import WeightInput from '@/components/waste/WeightInput.vue';
 import InputError from '@/components/InputError.vue';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { store, destroy } from '@/routes/waste/entries';
 import { index as aiScanIndex } from '@/routes/waste/ai-scan';
@@ -61,30 +59,31 @@ function formatWeight(kg: string): string {
 
             <form class="space-y-5" @submit.prevent="submit">
                 <div class="space-y-2">
-                    <Label class="text-slate-700 font-semibold">{{ $t('log_waste.category') }}</Label>
+                    <label style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.category') }}</label>
                     <CategoryPicker v-model="form.category" />
                     <InputError :message="form.errors.category" />
                 </div>
 
                 <div class="space-y-2">
-                    <Label for="item_name" class="text-slate-700 font-semibold">{{ $t('log_waste.item_name') }}</Label>
-                    <Input
+                    <label for="item_name" style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.item_name') }}</label>
+                    <input
                         id="item_name"
                         v-model="form.item_name"
+                        type="text"
                         :placeholder="$t('log_waste.item_placeholder')"
-                        class="h-12 text-base border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                        style="width: 100%; height: 48px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 15px; padding: 0 14px; outline: none; box-sizing: border-box;"
                     />
                     <InputError :message="form.errors.item_name" />
                 </div>
 
                 <div class="space-y-2">
-                    <Label class="text-slate-700 font-semibold">{{ $t('log_waste.weight') }}</Label>
+                    <label style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.weight') }}</label>
                     <WeightInput v-model="form.weight_kg" />
                     <InputError :message="form.errors.weight_kg" />
                 </div>
 
                 <div class="space-y-2">
-                    <Label class="text-slate-700 font-semibold">{{ $t('log_waste.reason') }}</Label>
+                    <label style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.reason') }}</label>
                     <Select v-model="form.reason">
                         <SelectTrigger class="h-12 w-full text-base border-slate-200 bg-slate-50 text-slate-900">
                             <SelectValue :placeholder="$t('log_waste.reason_placeholder')" />
@@ -99,15 +98,16 @@ function formatWeight(kg: string): string {
                 </div>
 
                 <div class="space-y-2">
-                    <Label for="notes" class="text-slate-700 font-semibold">
+                    <label for="notes" style="font-size: 13px; font-weight: 700; color: #374151;">
                         {{ $t('log_waste.notes') }}
-                        <span class="text-slate-400 font-normal">{{ $t('log_waste.notes_optional') }}</span>
-                    </Label>
-                    <Input
+                        <span style="font-weight: 400; color: #94a3b8;">{{ $t('log_waste.notes_optional') }}</span>
+                    </label>
+                    <input
                         id="notes"
                         v-model="form.notes"
+                        type="text"
                         :placeholder="$t('log_waste.notes_placeholder')"
-                        class="border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                        style="width: 100%; height: 44px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 15px; padding: 0 14px; outline: none; box-sizing: border-box;"
                     />
                 </div>
 

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { Input } from '@/components/ui/input';
 
 const model = defineModel<number | ''>({ default: '' });
 
@@ -43,19 +42,19 @@ function toggleUnit() {
 
 <template>
     <div class="flex gap-2">
-        <Input
+        <input
             type="number"
             inputmode="decimal"
             min="0"
             step="any"
             placeholder="0.00"
             :value="displayValue"
-            class="flex-1 h-12 text-lg border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+            style="flex: 1; height: 48px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 18px; padding: 0 14px; outline: none; box-sizing: border-box; min-width: 0;"
             @input="onInput"
         />
         <button
             type="button"
-            class="flex min-w-[4rem] items-center justify-center rounded-md border-2 px-3 font-bold text-sm transition-colors"
+            class="flex min-w-[4rem] items-center justify-center rounded-xl border-2 px-3 font-bold text-sm transition-colors"
             style="border-color: #6ee7b7; color: #059669; background: #f0fdf4;"
             @click="toggleUnit"
         >

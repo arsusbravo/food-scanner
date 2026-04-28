@@ -4,8 +4,6 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Download, FileText } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { index as reportIndex } from '@/routes/waste/report';
 import { type WasteCategory, type WasteReason, type WasteReportRow } from '@/types/waste';
 
@@ -72,12 +70,12 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
         <div class="bg-white rounded-2xl border border-slate-100 p-4" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
             <div class="flex flex-wrap gap-4 items-end">
                 <div class="flex-1 min-w-32 space-y-1.5">
-                    <Label for="date_from" class="text-slate-700 font-semibold text-sm">{{ $t('report.date_from') }}</Label>
-                    <Input id="date_from" v-model="dateFrom" type="date" class="border-slate-200 bg-slate-50 text-slate-900" />
+                    <label for="date_from" style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('report.date_from') }}</label>
+                    <input id="date_from" v-model="dateFrom" type="date" style="width: 100%; height: 40px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 14px; padding: 0 12px; outline: none; box-sizing: border-box;" />
                 </div>
                 <div class="flex-1 min-w-32 space-y-1.5">
-                    <Label for="date_to" class="text-slate-700 font-semibold text-sm">{{ $t('report.date_to') }}</Label>
-                    <Input id="date_to" v-model="dateTo" type="date" class="border-slate-200 bg-slate-50 text-slate-900" />
+                    <label for="date_to" style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('report.date_to') }}</label>
+                    <input id="date_to" v-model="dateTo" type="date" style="width: 100%; height: 40px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 14px; padding: 0 12px; outline: none; box-sizing: border-box;" />
                 </div>
                 <button
                     class="h-10 px-5 rounded-xl font-semibold text-sm text-white transition-opacity disabled:opacity-60 flex items-center gap-2"

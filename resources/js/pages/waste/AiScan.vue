@@ -7,8 +7,6 @@ import { Spinner } from '@/components/ui/spinner';
 import CategoryPicker from '@/components/waste/CategoryPicker.vue';
 import WeightInput from '@/components/waste/WeightInput.vue';
 import InputError from '@/components/InputError.vue';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { store as entriesStore } from '@/routes/waste/entries';
 import { type WasteCategory } from '@/types/waste';
@@ -247,29 +245,30 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
 
                 <form class="space-y-5" @submit.prevent="save">
                     <div class="space-y-2">
-                        <Label class="text-slate-700 font-semibold">{{ $t('log_waste.category') }}</Label>
+                        <label style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.category') }}</label>
                         <CategoryPicker v-model="saveForm.category" />
                         <InputError :message="saveForm.errors.category" />
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="review_item" class="text-slate-700 font-semibold">{{ $t('log_waste.item_name') }}</Label>
-                        <Input
+                        <label for="review_item" style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.item_name') }}</label>
+                        <input
                             id="review_item"
                             v-model="saveForm.item_name"
-                            class="h-12 text-base border-slate-200 bg-slate-50 text-slate-900"
+                            type="text"
+                            style="width: 100%; height: 48px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 15px; padding: 0 14px; outline: none; box-sizing: border-box;"
                         />
                         <InputError :message="saveForm.errors.item_name" />
                     </div>
 
                     <div class="space-y-2">
-                        <Label class="text-slate-700 font-semibold">{{ $t('log_waste.weight') }}</Label>
+                        <label style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.weight') }}</label>
                         <WeightInput v-model="saveForm.weight_kg" />
                         <InputError :message="saveForm.errors.weight_kg" />
                     </div>
 
                     <div class="space-y-2">
-                        <Label class="text-slate-700 font-semibold">{{ $t('log_waste.reason') }}</Label>
+                        <label style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.reason') }}</label>
                         <Select v-model="saveForm.reason">
                             <SelectTrigger class="h-12 w-full text-base border-slate-200 bg-slate-50 text-slate-900">
                                 <SelectValue :placeholder="$t('log_waste.reason_placeholder')" />
@@ -284,14 +283,15 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="review_notes" class="text-slate-700 font-semibold">
+                        <label for="review_notes" style="font-size: 13px; font-weight: 700; color: #374151;">
                             {{ $t('log_waste.notes') }}
-                            <span class="text-slate-400 font-normal">{{ $t('log_waste.notes_optional') }}</span>
-                        </Label>
-                        <Input
+                            <span style="font-weight: 400; color: #94a3b8;">{{ $t('log_waste.notes_optional') }}</span>
+                        </label>
+                        <input
                             id="review_notes"
                             v-model="saveForm.notes"
-                            class="border-slate-200 bg-slate-50 text-slate-900"
+                            type="text"
+                            style="width: 100%; height: 44px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 15px; padding: 0 14px; outline: none; box-sizing: border-box;"
                         />
                     </div>
 
