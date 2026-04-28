@@ -22,7 +22,7 @@ return new class extends Migration
             $table->datetime('logged_at');
             $table->enum('source', ['manual', 'ai_scan'])->default('manual');
             $table->string('photo_path')->nullable();
-            $table->json('ai_raw_response')->nullable();
+            $table->text('ai_raw_response')->nullable();
             $table->timestamps();
 
             $table->index(['user_id', 'logged_at']);
