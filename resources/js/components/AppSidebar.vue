@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid, Leaf } from 'lucide-vue-next';
+import { BookOpen, LayoutGrid, Leaf, Users } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -16,6 +15,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { users as adminUsers } from '@/routes/admin';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -25,17 +25,17 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Kitchen App',
-        href: '/waste',
-        icon: Leaf,
+        title: 'Users',
+        href: adminUsers(),
+        icon: Users,
     },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: FolderGit2,
+        title: 'Kitchen App',
+        href: '/waste',
+        icon: Leaf,
     },
     {
         title: 'Documentation',
@@ -65,7 +65,6 @@ const footerNavItems: NavItem[] = [
 
         <SidebarFooter>
             <NavFooter :items="footerNavItems" />
-            <LanguageSwitcher />
             <NavUser />
         </SidebarFooter>
     </Sidebar>
