@@ -28,13 +28,29 @@ Category guide: protein=meat/fish/eggs/legumes, veg=vegetables/fruit/herbs, dair
 No text outside the JSON object.
 PROMPT;
 
-    public function index(): InertiaResponse
+    public function index(Request $request): InertiaResponse
     {
-        return Inertia::render('waste/AiScan');
+        $user = $request->user();
+
+        return Inertia::render('waste/AiScan', [
+            'quota' => [
+                'ai_scans_used'  => $user->aiScansUsedThisMonth(),
+                'ai_scan_quota'  => $user->aiScanQuota(),
+            ],
+        ]);
     }
 
     public function store(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        if (! $user->canAiScan()) {
+            $quota = $user->aiScanQuota();
+            return response()->json([
+                'error' => "Monthly AI scan limit reached ({$quota} scans). Upgrade to Pro for unlimited scans.",
+            ], 403);
+        }
+
         $validated = $request->validate([
             'photo' => ['required', 'string', 'min:100'],
         ]);

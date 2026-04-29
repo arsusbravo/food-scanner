@@ -20,6 +20,14 @@ type AiResult = {
     notes: string | null;
 };
 
+type QuotaProp = { ai_scans_used: number; ai_scan_quota: number | null };
+
+const props = defineProps<{ quota: QuotaProp }>();
+
+const quotaReached = computed(() =>
+    props.quota.ai_scan_quota !== null && props.quota.ai_scans_used >= props.quota.ai_scan_quota
+);
+
 const { t } = useI18n();
 
 const step = ref<'upload' | 'review'>('upload');
@@ -158,12 +166,27 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
 </script>
 
 <template>
-    <Head title="AI Scan" />
+    <Head title="Scan Waste" />
 
     <div class="max-w-lg mx-auto px-4 pt-5 pb-8 space-y-5">
 
         <!-- Step 1: Upload -->
         <div v-if="step === 'upload'">
+            <!-- Quota banner -->
+            <div
+                v-if="quota.ai_scan_quota !== null"
+                class="mb-3 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-sm font-medium"
+                :style="quotaReached
+                    ? 'background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;'
+                    : 'background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;'"
+            >
+                <span>
+                    <strong>{{ quota.ai_scans_used }}</strong> / <strong>{{ quota.ai_scan_quota }}</strong>
+                    {{ ' ' }}scans used this month
+                </span>
+                <span v-if="quotaReached" class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:#fca5a5;color:#991b1b;">Limit reached</span>
+            </div>
+
             <div class="bg-white rounded-2xl border border-slate-100 p-5" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
                 <h1 class="text-xl font-bold text-slate-900 mb-1">{{ $t('ai_scan.title') }}</h1>
                 <p class="text-sm text-slate-400 mb-5">{{ $t('ai_scan.subtitle') }}</p>
@@ -213,7 +236,11 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                     {{ analyseError }}
                 </p>
 
+                <div v-if="quotaReached" class="mt-4 text-center text-sm font-semibold" style="color:#dc2626;">
+                    Monthly scan limit reached. Upgrade to Pro for unlimited photo scans.
+                </div>
                 <button
+                    v-else
                     class="mt-4 w-full h-12 rounded-xl font-semibold text-base text-white transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
                     style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 16px rgba(5,150,105,0.25);"
                     :disabled="!previewUrl || analysing"

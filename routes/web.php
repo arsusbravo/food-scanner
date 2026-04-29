@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::delete('admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
     Route::patch('admin/users/{user}/toggle-active', [AdminController::class, 'toggleActive'])->name('admin.users.toggle-active');
     Route::patch('admin/users/{user}/password', [AdminController::class, 'updatePassword'])->name('admin.users.update-password');
+    Route::patch('admin/users/{user}/plan', [AdminController::class, 'updatePlan'])->name('admin.users.update-plan');
 
     // Entry management (admin)
     Route::patch('admin/entries/{entry}', [AdminController::class, 'updateEntry'])->name('admin.entries.update');

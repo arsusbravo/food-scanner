@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { router, Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Download, FileText } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
@@ -13,6 +13,7 @@ type Props = {
     dateTo: string;
     grandTotal: number;
     totalEntries: number;
+    quota: { exports_used: number; export_quota: number | null };
 };
 
 const props = defineProps<Props>();
@@ -27,6 +28,10 @@ const reasons: WasteReason[] = ['spoilage', 'overproduction', 'expiry', 'prep_wa
 
 const generating = ref(false);
 const exporting = ref<'csv' | 'pdf' | null>(null);
+
+const exportQuotaReached = computed(() =>
+    props.quota.export_quota !== null && props.quota.exports_used >= props.quota.export_quota
+);
 
 function generate() {
     generating.value = true;
@@ -202,28 +207,44 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                 </div>
             </div>
 
-            <!-- Export buttons -->
-            <div class="flex gap-3">
-                <button
-                    class="flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 transition-opacity disabled:opacity-60"
-                    style="border-color: #6ee7b7; color: #059669; background: #f0fdf4;"
-                    :disabled="exporting === 'csv'"
-                    @click="exportCsv"
+            <!-- Export quota + buttons -->
+            <div class="space-y-3">
+                <!-- Quota banner (only shown when quota applies) -->
+                <div
+                    v-if="quota.export_quota !== null"
+                    class="rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-sm font-medium"
+                    :style="exportQuotaReached
+                        ? 'background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;'
+                        : 'background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;'"
                 >
-                    <Spinner v-if="exporting === 'csv'" style="color: #059669;" />
-                    <Download v-else style="width: 16px; height: 16px;" />
-                    {{ exporting === 'csv' ? $t('report.preparing') : $t('report.export_csv') }}
-                </button>
-                <button
-                    class="flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 transition-opacity disabled:opacity-60"
-                    style="border-color: #6ee7b7; color: #059669; background: #f0fdf4;"
-                    :disabled="exporting === 'pdf'"
-                    @click="exportPdf"
-                >
-                    <Spinner v-if="exporting === 'pdf'" style="color: #059669;" />
-                    <FileText v-else style="width: 16px; height: 16px;" />
-                    {{ exporting === 'pdf' ? $t('report.preparing') : $t('report.export_pdf') }}
-                </button>
+                    <span>
+                        Exports this month: <strong>{{ quota.exports_used }}</strong> / <strong>{{ quota.export_quota }}</strong>
+                    </span>
+                    <span v-if="exportQuotaReached" class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:#fca5a5;color:#991b1b;">Limit reached</span>
+                </div>
+
+                <div class="flex gap-3">
+                    <button
+                        class="flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 transition-opacity disabled:opacity-60"
+                        style="border-color: #6ee7b7; color: #059669; background: #f0fdf4;"
+                        :disabled="exporting === 'csv' || exportQuotaReached"
+                        @click="exportCsv"
+                    >
+                        <Spinner v-if="exporting === 'csv'" style="color: #059669;" />
+                        <Download v-else style="width: 16px; height: 16px;" />
+                        {{ exporting === 'csv' ? $t('report.preparing') : $t('report.export_csv') }}
+                    </button>
+                    <button
+                        class="flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 transition-opacity disabled:opacity-60"
+                        style="border-color: #6ee7b7; color: #059669; background: #f0fdf4;"
+                        :disabled="exporting === 'pdf' || exportQuotaReached"
+                        @click="exportPdf"
+                    >
+                        <Spinner v-if="exporting === 'pdf'" style="color: #059669;" />
+                        <FileText v-else style="width: 16px; height: 16px;" />
+                        {{ exporting === 'pdf' ? $t('report.preparing') : $t('report.export_pdf') }}
+                    </button>
+                </div>
             </div>
 
         </template>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Waste;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserExport;
 use App\Models\WasteEntry;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -39,21 +40,36 @@ class ReportController extends Controller
 
         $summary = $this->buildSummary($rows);
 
+        $user = $request->user();
+
         return Inertia::render('waste/Report', [
-            'summary' => $summary,
-            'dateFrom' => $from->toDateString(),
-            'dateTo' => $to->toDateString(),
-            'grandTotal' => round($rows->sum('total_kg'), 2),
+            'summary'      => $summary,
+            'dateFrom'     => $from->toDateString(),
+            'dateTo'       => $to->toDateString(),
+            'grandTotal'   => round($rows->sum('total_kg'), 2),
             'totalEntries' => $rows->sum('entry_count'),
+            'quota'        => [
+                'exports_used'   => $user->exportsUsedThisMonth(),
+                'export_quota'   => $user->exportQuota(),
+            ],
         ]);
     }
 
-    public function exportCsv(Request $request): HttpResponse
+    public function exportCsv(Request $request): HttpResponse|\Illuminate\Http\RedirectResponse
     {
+        $user = $request->user();
+
+        if (! $user->canExport()) {
+            $quota = $user->exportQuota();
+            return back()->withErrors(['quota' => "Monthly export limit reached ({$quota} exports). Upgrade to Pro for unlimited exports."]);
+        }
+
+        UserExport::create(['user_id' => $user->id, 'type' => 'csv']);
+
         $from = Carbon::parse($request->query('date_from', now()->startOfMonth()))->startOfDay();
         $to = Carbon::parse($request->query('date_to', now()))->endOfDay();
 
-        $entries = WasteEntry::where('user_id', $request->user()->id)
+        $entries = WasteEntry::where('user_id', $user->id)
             ->whereBetween('logged_at', [$from, $to])
             ->orderBy('logged_at', 'desc')
             ->get();
@@ -82,12 +98,21 @@ class ReportController extends Controller
         ]);
     }
 
-    public function exportPdf(Request $request): HttpResponse
+    public function exportPdf(Request $request): HttpResponse|\Illuminate\Http\RedirectResponse
     {
+        $user = $request->user();
+
+        if (! $user->canExport()) {
+            $quota = $user->exportQuota();
+            return back()->withErrors(['quota' => "Monthly export limit reached ({$quota} exports). Upgrade to Pro for unlimited exports."]);
+        }
+
+        UserExport::create(['user_id' => $user->id, 'type' => 'pdf']);
+
         $from = Carbon::parse($request->query('date_from', now()->startOfMonth()))->startOfDay();
         $to = Carbon::parse($request->query('date_to', now()))->endOfDay();
 
-        $rows = WasteEntry::where('user_id', $request->user()->id)
+        $rows = WasteEntry::where('user_id', $user->id)
             ->whereBetween('logged_at', [$from, $to])
             ->selectRaw('category, reason, SUM(weight_kg) as total_kg, COUNT(*) as entry_count')
             ->groupBy('category', 'reason')
@@ -96,7 +121,7 @@ class ReportController extends Controller
 
         $showIndividual = $from->diffInDays($to) <= 31;
         $individualEntries = $showIndividual
-            ? WasteEntry::where('user_id', $request->user()->id)
+            ? WasteEntry::where('user_id', $user->id)
                 ->whereBetween('logged_at', [$from, $to])
                 ->orderBy('logged_at', 'desc')
                 ->get()
@@ -113,7 +138,7 @@ class ReportController extends Controller
             'individualEntries' => $individualEntries,
             'flwMapping' => self::FLW_MAPPING,
             'generatedAt' => now()->toDateTimeString(),
-            'user' => $request->user(),
+            'user' => $user,
         ]);
 
         $filename = 'eu-food-waste-report-' . $from->toDateString() . '-to-' . $to->toDateString() . '.pdf';

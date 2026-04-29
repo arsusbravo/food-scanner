@@ -90,7 +90,7 @@ function initials(name: string): string {
                     <div class="size-9 rounded-lg bg-teal-50 flex items-center justify-center">
                         <ScanLine class="size-4 text-teal-600" />
                     </div>
-                    <span class="text-sm text-muted-foreground font-medium">AI Scans</span>
+                    <span class="text-sm text-muted-foreground font-medium">Scans</span>
                 </div>
                 <p class="text-3xl font-bold tabular-nums">{{ stats.ai_scan_count }}</p>
                 <p class="text-xs text-muted-foreground mt-1">photo scans total</p>
@@ -168,9 +168,9 @@ function initials(name: string): string {
                         {{ fmtKg(entry.weight_kg) }}
                     </span>
 
-                    <!-- AI badge -->
+                    <!-- scan badge -->
                     <span v-if="entry.source === 'ai_scan'" class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0" style="background:#ecfdf5; color:#059669;">
-                        AI
+                        Scan
                     </span>
                 </div>
             </div>

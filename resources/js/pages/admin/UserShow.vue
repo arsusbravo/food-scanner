@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import {
     ArrowLeft, Pencil, Power, Trash2, X, Check,
     ScanLine, Scale, CalendarDays, Eye, EyeOff,
-    Wand2, Copy, KeyRound,
+    Wand2, Copy, KeyRound, CreditCard,
 } from 'lucide-vue-next';
 import { users as adminUsers } from '@/routes/admin';
 import {
@@ -12,6 +12,7 @@ import {
     destroy as destroyUserFn,
     toggleActive as toggleActiveFn,
     updatePassword as updatePasswordFn,
+    updatePlan as updatePlanFn,
 } from '@/routes/admin/users';
 import { update as updateEntryFn, destroy as destroyEntryFn } from '@/routes/admin/entries';
 import { dashboard } from '@/routes';
@@ -31,6 +32,15 @@ type UserProp = {
     name: string;
     email: string;
     is_active: boolean;
+    plan: string;
+    plan_raw: string;
+    plan_expires_at: string | null;
+    ai_scan_limit: number | null;
+    export_limit: number | null;
+    ai_scans_used: number;
+    ai_scan_quota: number | null;
+    exports_used: number;
+    export_quota: number | null;
     created_at: string;
 };
 
@@ -105,6 +115,18 @@ function savePassword(): void {
             showPassword.value = false;
         },
     });
+}
+
+// ── Subscription ──────────────────────────────────────────────
+const planForm = useForm({
+    plan:            props.user.plan_raw,
+    plan_expires_at: props.user.plan_expires_at ?? '',
+    ai_scan_limit:   props.user.ai_scan_limit !== null ? String(props.user.ai_scan_limit) : '',
+    export_limit:    props.user.export_limit !== null ? String(props.user.export_limit) : '',
+});
+
+function savePlan(): void {
+    planForm.patch(updatePlanFn(props.user.id).url, { preserveScroll: true });
 }
 
 // ── Delete user ───────────────────────────────────────────────
@@ -260,7 +282,7 @@ const inputMd  = 'width:100%;height:40px;border-radius:10px;border:1.5px solid #
             <div class="rounded-xl border bg-card p-4">
                 <div class="flex items-center gap-1.5 mb-1.5">
                     <ScanLine class="size-3.5 text-emerald-500" />
-                    <p class="text-xs text-muted-foreground font-medium">AI Scans</p>
+                    <p class="text-xs text-muted-foreground font-medium">Scans</p>
                 </div>
                 <p class="text-2xl font-bold tabular-nums">{{ stats.ai_scan_count }}</p>
             </div>
@@ -273,8 +295,8 @@ const inputMd  = 'width:100%;height:40px;border-radius:10px;border:1.5px solid #
             </div>
         </div>
 
-        <!-- ── Management cards (3-column grid) ── -->
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <!-- ── Management cards (2-col then 4-col grid) ── -->
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
 
                 <!-- Edit profile -->
                 <div class="rounded-xl border bg-card p-5 flex flex-col gap-4">
@@ -361,6 +383,60 @@ const inputMd  = 'width:100%;height:40px;border-radius:10px;border:1.5px solid #
                     >{{ passwordForm.processing ? 'Updating…' : 'Update Password' }}</button>
                 </div>
 
+                <!-- Subscription -->
+                <div class="rounded-xl border bg-card p-5 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <CreditCard class="size-4 text-muted-foreground" />
+                        <p class="text-sm font-semibold">Subscription</p>
+                    </div>
+
+                    <!-- Usage summary -->
+                    <div class="flex gap-3 text-xs text-muted-foreground">
+                        <span>
+                            Scans:
+                            <strong style="color:#0f172a;">{{ user.ai_scans_used }} / {{ user.ai_scan_quota ?? '∞' }}</strong>
+                        </span>
+                        <span>
+                            Exports:
+                            <strong style="color:#0f172a;">{{ user.exports_used }} / {{ user.export_quota ?? '∞' }}</strong>
+                        </span>
+                    </div>
+
+                    <!-- Plan selector -->
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Plan</label>
+                        <select v-model="planForm.plan" :style="inputMd">
+                            <option value="free">Free</option>
+                            <option value="pro">Pro</option>
+                        </select>
+                    </div>
+
+                    <!-- Trial expiry -->
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Trial Expires (optional)</label>
+                        <input v-model="planForm.plan_expires_at" type="date" :style="inputMd" />
+                    </div>
+
+                    <!-- Custom limits -->
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Scan Limit</label>
+                            <input v-model="planForm.ai_scan_limit" type="number" min="0" placeholder="Plan default" :style="inputMd" />
+                        </div>
+                        <div class="flex-1">
+                            <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Export Limit</label>
+                            <input v-model="planForm.export_limit" type="number" min="0" placeholder="Plan default" :style="inputMd" />
+                        </div>
+                    </div>
+
+                    <button
+                        @click="savePlan"
+                        :disabled="planForm.processing"
+                        class="w-full h-10 rounded-xl text-sm font-semibold transition-opacity disabled:opacity-60 mt-auto"
+                        style="background:linear-gradient(135deg,#2563eb,#4f46e5);color:white;"
+                    >{{ planForm.processing ? 'Saving…' : 'Save Subscription' }}</button>
+                </div>
+
                 <!-- Account actions -->
                 <div class="rounded-xl border bg-card p-5 flex flex-col gap-2">
                     <p class="text-sm font-semibold mb-1">Account</p>
@@ -437,7 +513,7 @@ const inputMd  = 'width:100%;height:40px;border-radius:10px;border:1.5px solid #
                                     <td class="px-3 py-3 text-xs text-muted-foreground hidden md:table-cell whitespace-nowrap">{{ REASON_LABELS[entry.reason] }}</td>
                                     <td class="px-3 py-3 text-right font-semibold tabular-nums text-muted-foreground whitespace-nowrap">{{ fmtKg(entry.weight_kg) }}</td>
                                     <td class="px-3 py-3 text-center hidden sm:table-cell">
-                                        <span v-if="entry.source === 'ai_scan'" class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#ecfdf5;color:#059669;">AI</span>
+                                        <span v-if="entry.source === 'ai_scan'" class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#ecfdf5;color:#059669;">Scan</span>
                                         <span v-else class="text-xs text-muted-foreground">—</span>
                                     </td>
                                     <td class="px-5 py-3">

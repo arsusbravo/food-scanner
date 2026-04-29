@@ -42,21 +42,28 @@ class AdminController extends Controller
                 'wasteEntries as ai_scan_count' => fn($q) => $q->where('source', 'ai_scan'),
             ])
             ->orderByDesc('created_at')
-            ->get(['id', 'name', 'email', 'is_active', 'created_at'])
+            ->get(['id', 'name', 'email', 'is_active', 'plan', 'plan_expires_at', 'ai_scan_limit', 'export_limit', 'created_at'])
             ->map(function (User $user) {
                 $lastEntry = WasteEntry::where('user_id', $user->id)
                     ->orderByDesc('logged_at')
                     ->value('logged_at');
 
                 return [
-                    'id'            => $user->id,
-                    'name'          => $user->name,
-                    'email'         => $user->email,
-                    'is_active'     => $user->is_active,
-                    'created_at'    => $user->created_at,
-                    'total_entries' => $user->waste_entries_count,
-                    'ai_scan_count' => $user->ai_scan_count,
-                    'last_entry_at' => $lastEntry,
+                    'id'               => $user->id,
+                    'name'             => $user->name,
+                    'email'            => $user->email,
+                    'is_active'        => $user->is_active,
+                    'plan'             => $user->effectivePlan(),
+                    'plan_raw'         => $user->plan,
+                    'plan_expires_at'  => $user->plan_expires_at?->toDateString(),
+                    'created_at'       => $user->created_at,
+                    'total_entries'    => $user->waste_entries_count,
+                    'ai_scans_used'    => $user->aiScansUsedThisMonth(),
+                    'ai_scan_quota'    => $user->aiScanQuota(),
+                    'ai_scan_count'    => $user->ai_scan_count,
+                    'exports_used'     => $user->exportsUsedThisMonth(),
+                    'export_quota'     => $user->exportQuota(),
+                    'last_entry_at'    => $lastEntry,
                 ];
             });
 
@@ -82,11 +89,20 @@ class AdminController extends Controller
 
         return Inertia::render('admin/UserShow', [
             'user'    => [
-                'id'         => $user->id,
-                'name'       => $user->name,
-                'email'      => $user->email,
-                'is_active'  => $user->is_active,
-                'created_at' => $user->created_at,
+                'id'              => $user->id,
+                'name'            => $user->name,
+                'email'           => $user->email,
+                'is_active'       => $user->is_active,
+                'plan'            => $user->effectivePlan(),
+                'plan_raw'        => $user->plan,
+                'plan_expires_at' => $user->plan_expires_at?->toDateString(),
+                'ai_scan_limit'   => $user->ai_scan_limit,
+                'export_limit'    => $user->export_limit,
+                'ai_scans_used'   => $user->aiScansUsedThisMonth(),
+                'ai_scan_quota'   => $user->aiScanQuota(),
+                'exports_used'    => $user->exportsUsedThisMonth(),
+                'export_quota'    => $user->exportQuota(),
+                'created_at'      => $user->created_at,
             ],
             'entries' => $entries,
             'stats'   => $stats,
@@ -109,6 +125,40 @@ class AdminController extends Controller
         return back()->with('success', 'User updated.');
     }
 
+    public function updatePassword(Request $request, User $user): RedirectResponse
+    {
+        abort_if($user->is_admin, 403);
+
+        $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        return back()->with('success', 'Password updated.');
+    }
+
+    public function updatePlan(Request $request, User $user): RedirectResponse
+    {
+        abort_if($user->is_admin, 403);
+
+        $validated = $request->validate([
+            'plan'            => ['required', Rule::in(['free', 'pro'])],
+            'plan_expires_at' => ['nullable', 'date'],
+            'ai_scan_limit'   => ['nullable', 'integer', 'min:0'],
+            'export_limit'    => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $user->plan            = $validated['plan'];
+        $user->plan_expires_at = $validated['plan_expires_at'] ?? null;
+        $user->ai_scan_limit   = $validated['ai_scan_limit'] ?? null;
+        $user->export_limit    = $validated['export_limit'] ?? null;
+        $user->save();
+
+        return back()->with('success', 'Subscription updated.');
+    }
+
     public function destroyUser(User $user): RedirectResponse
     {
         abort_if($user->is_admin, 403);
@@ -126,20 +176,6 @@ class AdminController extends Controller
         $user->save();
 
         return back()->with('success', $user->is_active ? 'User activated.' : 'User deactivated.');
-    }
-
-    public function updatePassword(Request $request, User $user): RedirectResponse
-    {
-        abort_if($user->is_admin, 403);
-
-        $request->validate([
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        $user->password = bcrypt($request->password);
-        $user->save();
-
-        return back()->with('success', 'Password updated.');
     }
 
     public function updateEntry(Request $request, WasteEntry $entry): RedirectResponse
