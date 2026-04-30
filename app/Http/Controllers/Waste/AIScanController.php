@@ -13,7 +13,7 @@ use Inertia\Response as InertiaResponse;
 
 class AIScanController extends Controller
 {
-    private const SYSTEM_PROMPT = <<<'PROMPT'
+    private const SYSTEM_PROMPT_BASE = <<<'PROMPT'
 You are a food waste auditor for a commercial kitchen.
 Analyse the photograph of discarded food and return ONLY a valid JSON object:
 {
@@ -25,8 +25,28 @@ Analyse the photograph of discarded food and return ONLY a valid JSON object:
   "notes": "string or null"
 }
 Category guide: protein=meat/fish/eggs/legumes, veg=vegetables/fruit/herbs, dairy=milk/cheese/cream, prepared=cooked dishes/sauces/pastries.
+The fields category, reason, and confidence MUST use the exact English enum values listed above.
 No text outside the JSON object.
 PROMPT;
+
+    private const LANGUAGE_NAMES = [
+        'en' => 'English',
+        'nl' => 'Dutch',
+        'de' => 'German',
+        'fr' => 'French',
+        'es' => 'Spanish',
+    ];
+
+    private function buildSystemPrompt(string $locale): string
+    {
+        $lang = self::LANGUAGE_NAMES[$locale] ?? 'English';
+
+        if ($lang === 'English') {
+            return self::SYSTEM_PROMPT_BASE;
+        }
+
+        return self::SYSTEM_PROMPT_BASE . "\nWrite item_name and notes in {$lang}.";
+    }
 
     public function index(Request $request): InertiaResponse
     {
@@ -67,10 +87,13 @@ PROMPT;
             'photo_bytes' => (int) (strlen($imageData) * 0.75), // approx decoded bytes
         ]);
 
+        $locale       = $request->cookie('locale', 'en');
+        $systemPrompt = $this->buildSystemPrompt($locale);
+
         try {
             $response = $provider === 'openrouter'
-                ? $this->callOpenRouter($imageData)
-                : $this->callAnthropic($imageData);
+                ? $this->callOpenRouter($imageData, $systemPrompt)
+                : $this->callAnthropic($imageData, $systemPrompt);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             Log::error('[AIScan] connection error', ['message' => $e->getMessage()]);
             return response()->json(['error' => 'Connection to AI timed out. Please try again.'], 422);
@@ -125,7 +148,7 @@ PROMPT;
         ]);
     }
 
-    private function callAnthropic(string $imageData): Response
+    private function callAnthropic(string $imageData, string $systemPrompt): Response
     {
         return Http::withToken(config('services.anthropic.key'))
             ->withHeader('anthropic-version', '2023-06-01')
@@ -133,7 +156,7 @@ PROMPT;
             ->post('https://api.anthropic.com/v1/messages', [
                 'model' => 'claude-sonnet-4-6',
                 'max_tokens' => 512,
-                'system' => self::SYSTEM_PROMPT,
+                'system' => $systemPrompt,
                 'messages' => [
                     [
                         'role' => 'user',
@@ -156,7 +179,7 @@ PROMPT;
             ]);
     }
 
-    private function callOpenRouter(string $imageData): Response
+    private function callOpenRouter(string $imageData, string $systemPrompt): Response
     {
         return Http::withToken(config('services.openrouter.key'))
             ->withHeader('HTTP-Referer', config('app.url'))
@@ -168,7 +191,7 @@ PROMPT;
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => self::SYSTEM_PROMPT,
+                        'content' => $systemPrompt,
                     ],
                     [
                         'role' => 'user',
