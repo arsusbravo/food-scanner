@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Waste\AIScanController;
+use App\Http\Controllers\Waste\InsightsController;
 use App\Http\Controllers\Waste\ReportController;
 use App\Http\Controllers\Waste\WasteEntryController;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,8 @@ Route::middleware(['auth', 'verified', 'user-active'])->prefix('waste')->name('w
 
     Route::get('ai-scan', [AIScanController::class, 'index'])->name('ai-scan.index');
     Route::post('ai-scan', [AIScanController::class, 'store'])->name('ai-scan.store');
+
+    Route::get('insights', [InsightsController::class, 'index'])->name('insights.index');
 
     Route::get('report', [ReportController::class, 'index'])->name('report.index');
     Route::get('report/csv', [ReportController::class, 'exportCsv'])->name('report.csv');

@@ -2,7 +2,7 @@
 import { usePage, Link } from '@inertiajs/vue3';
 import { Toaster } from '@/components/ui/sonner';
 import { ref, computed } from 'vue';
-import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe } from 'lucide-vue-next';
+import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe, Lightbulb } from 'lucide-vue-next';
 import { useLocale, type SupportedLocale } from '@/composables/useLocale';
 
 const page = usePage<{ auth: { user: { name: string; email: string } } }>();
@@ -31,10 +31,11 @@ function selectLocale(code: SupportedLocale) {
 }
 
 const navItems = [
-    { label: 'Home',    icon: House,           href: '/waste' },
-    { label: 'Log',     icon: UtensilsCrossed, href: '/waste/entries' },
-    { label: 'AI Scan', icon: ScanLine,        href: '/waste/ai-scan' },
-    { label: 'Report',  icon: FileBarChart2,   href: '/waste/report' },
+    { label: 'Home',       icon: House,           href: '/waste' },
+    { label: 'Log',        icon: UtensilsCrossed, href: '/waste/entries' },
+    { label: 'Scan',       icon: ScanLine,        href: '/waste/ai-scan' },
+    { label: 'Report',     icon: FileBarChart2,   href: '/waste/report' },
+    { label: 'Insights',   icon: Lightbulb,       href: '/waste/insights' },
 ];
 
 function isActive(href: string) {
