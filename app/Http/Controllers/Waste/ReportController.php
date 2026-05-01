@@ -100,7 +100,7 @@ class ReportController extends Controller
 
     public function exportPdf(Request $request): HttpResponse|\Illuminate\Http\RedirectResponse
     {
-        $user = $request->user();
+        $user = $request->user()->load('company');
 
         if (! $user->canExport()) {
             $quota = $user->exportQuota();
@@ -129,7 +129,7 @@ class ReportController extends Controller
 
         $summary = $this->buildSummary($rows);
 
-        $locale = $request->cookie('locale', 'en');
+        $locale = $user->document_locale ?? $request->cookie('locale', 'en');
 
         $pdf = Pdf::loadView('reports.waste-compliance', [
             'summary'            => $summary,
@@ -141,6 +141,7 @@ class ReportController extends Controller
             'flwMapping'         => self::FLW_MAPPING,
             'generatedAt'        => now()->toDateTimeString(),
             'user'               => $user,
+            'company'            => $user->company,
             'tr'                 => $this->pdfTranslations($locale),
         ]);
 

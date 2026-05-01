@@ -102,13 +102,14 @@ function isActive(href: string) {
                         </div>
                     </div>
 
-                    <!-- Avatar -->
-                    <div
+                    <!-- Avatar → Settings -->
+                    <Link
+                        href="/waste/settings"
                         class="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
                         style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);"
                     >
                         {{ userInitials }}
-                    </div>
+                    </Link>
                 </div>
             </div>
         </header>

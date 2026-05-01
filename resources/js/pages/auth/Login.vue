@@ -94,11 +94,8 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
             <InputError :message="errors.password" />
         </div>
 
-        <!-- Remember me -->
-        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <input type="checkbox" name="remember" :tabindex="3" style="width: 16px; height: 16px; accent-color: #059669; cursor: pointer;" />
-            <span style="font-size: 14px; font-weight: 500; color: #374151;">Remember me</span>
-        </label>
+        <!-- Remember me — always on -->
+        <input type="hidden" name="remember" value="1" />
 
         <!-- Submit -->
         <button

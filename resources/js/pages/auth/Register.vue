@@ -47,6 +47,22 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
             <InputError :message="errors.name" />
         </div>
 
+        <!-- Company name -->
+        <div class="flex flex-col gap-1.5">
+            <label for="company_name" style="font-size: 13px; font-weight: 700; color: #374151;">Company name</label>
+            <input
+                id="company_name"
+                type="text"
+                name="company_name"
+                required
+                autocomplete="organization"
+                placeholder="Your restaurant or company"
+                :tabindex="2"
+                :style="inputStyle"
+            />
+            <InputError :message="errors.company_name" />
+        </div>
+
         <!-- Email -->
         <div class="flex flex-col gap-1.5">
             <label for="email" style="font-size: 13px; font-weight: 700; color: #374151;">Email address</label>
@@ -57,7 +73,7 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
                 required
                 autocomplete="email"
                 placeholder="email@example.com"
-                :tabindex="2"
+                :tabindex="3"
                 :style="inputStyle"
             />
             <InputError :message="errors.email" />
@@ -74,7 +90,7 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
                     required
                     autocomplete="new-password"
                     placeholder="Password"
-                    :tabindex="3"
+                    :tabindex="4"
                     :style="inputStyle + 'padding-right: 44px;'"
                 />
                 <button
@@ -101,7 +117,7 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
                     required
                     autocomplete="new-password"
                     placeholder="Confirm password"
-                    :tabindex="4"
+                    :tabindex="5"
                     :style="inputStyle + 'padding-right: 44px;'"
                 />
                 <button
@@ -120,7 +136,7 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
         <!-- Submit -->
         <button
             type="submit"
-            tabindex="5"
+            tabindex="6"
             :disabled="processing"
             class="flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
             style="width: 100%; height: 50px; border-radius: 14px; border: none; background: linear-gradient(135deg, #059669, #047857); color: white; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(5,150,105,0.3);"
@@ -132,7 +148,7 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
         <!-- Log in link -->
         <p style="text-align: center; font-size: 14px; color: #64748b; margin: 0;">
             Already have an account?
-            <Link :href="login()" :tabindex="6" style="font-weight: 700; color: #059669; text-decoration: none;">
+            <Link :href="login()" :tabindex="7" style="font-weight: 700; color: #059669; text-decoration: none;">
                 Log in
             </Link>
         </p>

@@ -63,7 +63,15 @@
             </div>
             <div class="meta-block">
                 <div class="meta-label">{{ $tr['establishment'] }}</div>
-                <div class="meta-value">{{ config('app.name') }}</div>
+                <div class="meta-value">{{ $company?->name ?? $user->name }}</div>
+                @if($company?->address || $company?->city)
+                <div style="font-size:9px;color:#555;margin-top:2px;">
+                    {{ implode(', ', array_filter([$company->address, $company->city, $company->postal_code])) }}
+                </div>
+                @endif
+                @if($company?->phone)
+                <div style="font-size:9px;color:#555;">{{ $company->phone }}</div>
+                @endif
             </div>
             <div class="meta-block">
                 <div class="meta-label">{{ $tr['generated_by'] }}</div>
@@ -226,7 +234,7 @@
     <div class="attestation">
         <h3>{{ $tr['attestation_title'] }}</h3>
         <p style="margin-top: 6px; font-size: 10px; color: #555;">
-            {{ str_replace([':name', ':from', ':to'], [config('app.name'), $dateFrom, $dateTo], $tr['attestation_text']) }}
+            {{ str_replace([':name', ':from', ':to'], [$company?->name ?? $user->name, $dateFrom, $dateTo], $tr['attestation_text']) }}
         </p>
         <div class="signature-row">
             <div>
