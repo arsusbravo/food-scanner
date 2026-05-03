@@ -5,26 +5,51 @@ namespace App\Actions\Fortify;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\Company;
+use App\Models\Invitation;
+use App\Models\SiteSetting;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules, ProfileValidationRules;
 
-    /**
-     * Validate and create a newly registered user.
-     *
-     * @param  array<string, string>  $input
-     */
     public function create(array $input): User
     {
-        Validator::make($input, [
+        $mode = SiteSetting::get('registration_mode', 'invite_only');
+
+        $rules = [
             ...$this->profileRules(),
             'password'     => $this->passwordRules(),
             'company_name' => ['required', 'string', 'max:255'],
-        ])->validate();
+        ];
+
+        if ($mode === 'invite_only') {
+            $rules['invite_token'] = [
+                'required',
+                Rule::exists('invitations', 'token')
+                    ->whereNull('accepted_at')
+                    ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now())),
+            ];
+        } elseif ($mode === 'open') {
+            $turnstileToken = $input['cf-turnstile-response'] ?? '';
+            $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v1/siteverify', [
+                'secret'   => config('services.turnstile.secret'),
+                'response' => $turnstileToken,
+            ]);
+
+            if (! ($verify->json('success') ?? false)) {
+                throw ValidationException::withMessages([
+                    'cf-turnstile-response' => 'CAPTCHA verification failed. Please try again.',
+                ]);
+            }
+        }
+
+        Validator::make($input, $rules)->validate();
 
         $user = User::create([
             'name'     => $input['name'],
@@ -36,6 +61,10 @@ class CreateNewUser implements CreatesNewUsers
             'user_id' => $user->id,
             'name'    => $input['company_name'],
         ]);
+
+        if ($mode === 'invite_only') {
+            Invitation::where('token', $input['invite_token'])->first()?->markAccepted($user);
+        }
 
         return $user;
     }

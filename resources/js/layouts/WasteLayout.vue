@@ -56,9 +56,9 @@ function isActive(href: string) {
             <div class="flex items-center justify-between px-5 py-4 max-w-lg mx-auto">
                 <div>
                     <p style="color: rgba(167,243,208,0.85); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;">
-                        Kitchen Tracker
+                        KitchenLog
                     </p>
-                    <h1 class="text-white text-xl font-bold mt-0.5 tracking-tight">FoodWise</h1>
+                    <h1 class="text-white text-xl font-bold mt-0.5 tracking-tight">K-Log</h1>
                 </div>
 
                 <div class="flex items-center gap-3">

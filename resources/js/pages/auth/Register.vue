@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { Eye, EyeOff } from 'lucide-vue-next';
 import InputError from '@/components/InputError.vue';
 import { Spinner } from '@/components/ui/spinner';
@@ -14,8 +14,24 @@ defineOptions({
     },
 });
 
+const props = defineProps<{
+    inviteToken: string | null;
+    mode: 'invite_only' | 'open';
+    turnstileSiteKey: string | null;
+}>();
+
 const showPassword = ref(false);
-const showConfirm = ref(false);
+const showConfirm  = ref(false);
+
+onMounted(() => {
+    if (props.mode === 'open' && props.turnstileSiteKey) {
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    }
+});
 
 const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 15px; padding: 0 14px; outline: none; box-sizing: border-box; transition: border-color 0.15s;';
 </script>
@@ -131,6 +147,15 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
                 </button>
             </div>
             <InputError :message="errors.password_confirmation" />
+        </div>
+
+        <!-- Invite token (hidden, invite_only mode) -->
+        <input v-if="mode === 'invite_only' && inviteToken" type="hidden" name="invite_token" :value="inviteToken" />
+
+        <!-- Turnstile CAPTCHA (open mode) -->
+        <div v-if="mode === 'open' && turnstileSiteKey">
+            <div class="cf-turnstile" :data-sitekey="turnstileSiteKey" data-theme="light" />
+            <InputError :message="(errors as Record<string, string>)['cf-turnstile-response']" />
         </div>
 
         <!-- Submit -->

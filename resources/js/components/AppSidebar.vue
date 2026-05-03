@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, LayoutGrid, Leaf, Users } from 'lucide-vue-next';
+import { BookOpen, LayoutGrid, Leaf, Users, UserPlus } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,7 +15,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { users as adminUsers } from '@/routes/admin';
+import { users as adminUsers, registrations as adminRegistrations } from '@/routes/admin';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -28,6 +28,11 @@ const mainNavItems: NavItem[] = [
         title: 'Users',
         href: adminUsers(),
         icon: Users,
+    },
+    {
+        title: 'Registrations',
+        href: adminRegistrations(),
+        icon: UserPlus,
     },
 ];
 

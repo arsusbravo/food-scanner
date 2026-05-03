@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\Invitation;
+use App\Models\SiteSetting;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -66,7 +68,30 @@ class FortifyServiceProvider extends ServiceProvider
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::registerView(fn () => Inertia::render('auth/Register'));
+        Fortify::registerView(function (Request $request) {
+            $mode = SiteSetting::get('registration_mode', 'invite_only');
+
+            if ($mode === 'invite_only') {
+                $token = $request->query('token', '');
+                $valid = $token && Invitation::valid()->where('token', $token)->exists();
+
+                if (! $valid) {
+                    return Inertia::render('auth/InviteOnly');
+                }
+
+                return Inertia::render('auth/Register', [
+                    'inviteToken'      => $token,
+                    'mode'             => 'invite_only',
+                    'turnstileSiteKey' => null,
+                ]);
+            }
+
+            return Inertia::render('auth/Register', [
+                'inviteToken'      => null,
+                'mode'             => 'open',
+                'turnstileSiteKey' => config('services.turnstile.site_key'),
+            ]);
+        });
 
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/TwoFactorChallenge'));
 

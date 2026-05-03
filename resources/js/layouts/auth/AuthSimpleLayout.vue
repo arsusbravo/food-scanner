@@ -20,10 +20,10 @@ defineProps<{
                 </div>
                 <div>
                     <p style="color: rgba(167,243,208,0.85); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin: 0;">
-                        Kitchen Tracker
+                        Food Waste Tracker
                     </p>
                     <p style="color: white; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin: 2px 0 0;">
-                        FoodWise
+                        KitchenLog
                     </p>
                 </div>
             </Link>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -23,6 +24,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     // Entry management (admin)
     Route::patch('admin/entries/{entry}', [AdminController::class, 'updateEntry'])->name('admin.entries.update');
     Route::delete('admin/entries/{entry}', [AdminController::class, 'destroyEntry'])->name('admin.entries.destroy');
+
+    // Registration management
+    Route::get('admin/registrations', [RegistrationController::class, 'index'])->name('admin.registrations');
+    Route::patch('admin/registrations/mode', [RegistrationController::class, 'updateMode'])->name('admin.registrations.mode');
+    Route::post('admin/registrations/invitations', [RegistrationController::class, 'storeInvitation'])->name('admin.registrations.invitations.store');
+    Route::delete('admin/registrations/invitations/{invitation}', [RegistrationController::class, 'destroyInvitation'])->name('admin.registrations.invitations.destroy');
 });
 
 require __DIR__.'/settings.php';

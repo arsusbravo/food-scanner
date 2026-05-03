@@ -43,7 +43,7 @@ const highlights = [
 </script>
 
 <template>
-    <Head title="FoodWise — EU Food Waste Tracker" />
+    <Head title="KitchenLog — EU Food Waste Tracker" />
 
     <div style="min-height: 100dvh; background: #f8fafc; font-family: Inter, system-ui, sans-serif;">
 
@@ -57,10 +57,10 @@ const highlights = [
                 </div>
 
                 <p style="color: rgba(167,243,208,0.85); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">
-                    Kitchen Tracker
+                    Food Waste Tracker
                 </p>
                 <h1 style="color: white; font-size: 40px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 12px;">
-                    FoodWise
+                    KitchenLog
                 </h1>
                 <p style="color: rgba(209,250,229,0.9); font-size: 17px; line-height: 1.5; margin: 0 0 28px;">
                     Smart food waste tracking for commercial kitchens — built for EU compliance.
@@ -148,7 +148,7 @@ const highlights = [
         <!-- Footer -->
         <div style="max-width: 480px; margin: 0 auto; padding: 32px 24px 48px; text-align: center;">
             <p style="font-size: 12px; color: #94a3b8;">
-                FoodWise · Compliant with EU Directive 2018/851 &amp; FLW Protocol
+                KitchenLog · Compliant with EU Directive 2018/851 &amp; FLW Protocol
             </p>
         </div>
 
