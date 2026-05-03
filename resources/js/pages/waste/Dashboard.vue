@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm, Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Trash2, ScanLine } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
@@ -13,7 +13,7 @@ import { index as aiScanIndex } from '@/routes/waste/ai-scan';
 import { type WasteEntry, type WasteCategory } from '@/types/waste';
 
 type Props = { recentEntries: WasteEntry[] };
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const { t } = useI18n();
 
@@ -33,8 +33,22 @@ const reasonOptions = computed(() => [
     { value: 'other',          label: t('log_waste.reasons.other') },
 ]);
 
+const recentSection = ref<HTMLElement | null>(null);
+const flashEntryId  = ref<number | null>(null);
+
 function submit() {
-    form.post(store().url, { onSuccess: () => form.reset() });
+    form.post(store().url, {
+        onSuccess: () => {
+            form.reset();
+            nextTick(() => {
+                recentSection.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                if (props.recentEntries.length > 0) {
+                    flashEntryId.value = props.recentEntries[0].id;
+                    setTimeout(() => { flashEntryId.value = null; }, 1800);
+                }
+            });
+        },
+    });
 }
 
 function deleteEntry(entry: WasteEntry) {
@@ -134,7 +148,7 @@ function formatWeight(kg: string): string {
         </a>
 
         <!-- Recent entries -->
-        <div>
+        <div ref="recentSection">
             <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">{{ $t('log_waste.recent_title') }}</h2>
 
             <div
@@ -149,6 +163,7 @@ function formatWeight(kg: string): string {
                     v-for="entry in recentEntries"
                     :key="entry.id"
                     class="bg-white rounded-xl border border-slate-100 px-4 py-3 flex items-center justify-between"
+                    :class="{ 'flash-entry': flashEntryId === entry.id }"
                     style="box-shadow: 0 1px 4px rgba(0,0,0,0.04);"
                 >
                     <div class="min-w-0 flex-1">
@@ -176,3 +191,14 @@ function formatWeight(kg: string): string {
         </div>
     </div>
 </template>
+
+<style scoped>
+@keyframes entry-flash {
+    0%   { background-color: #d1fae5; border-color: #6ee7b7; }
+    60%  { background-color: #d1fae5; border-color: #6ee7b7; }
+    100% { background-color: white;   border-color: #f1f5f9; }
+}
+.flash-entry {
+    animation: entry-flash 1.8s ease-out forwards;
+}
+</style>
