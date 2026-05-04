@@ -3,6 +3,7 @@
 use App\Http\Controllers\Waste\AIScanController;
 use App\Http\Controllers\Waste\InsightsController;
 use App\Http\Controllers\Waste\ReportController;
+use App\Http\Controllers\Waste\SubscriptionController;
 use App\Http\Controllers\Waste\WasteEntryController;
 use App\Http\Controllers\Waste\WasteSettingsController;
 use Illuminate\Support\Facades\Route;
@@ -26,4 +27,9 @@ Route::middleware(['auth', 'verified', 'user-active'])->prefix('waste')->name('w
     Route::get('report', [ReportController::class, 'index'])->name('report.index');
     Route::get('report/csv', [ReportController::class, 'exportCsv'])->name('report.csv');
     Route::get('report/pdf', [ReportController::class, 'exportPdf'])->name('report.pdf');
+
+    Route::get('subscription',           [SubscriptionController::class, 'index'])->name('subscription.index');
+    Route::post('subscription/checkout', [SubscriptionController::class, 'checkout'])->name('subscription.checkout');
+    Route::get('subscription/success',   [SubscriptionController::class, 'success'])->name('subscription.success');
+    Route::get('subscription/portal',    [SubscriptionController::class, 'portal'])->name('subscription.portal');
 });

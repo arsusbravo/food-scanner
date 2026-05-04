@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { Head, useForm, usePage, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { ArrowLeft, User, Building2, FileText, KeyRound, Eye, EyeOff, Check, LogOut } from 'lucide-vue-next';
+import { ArrowLeft, User, Building2, FileText, KeyRound, Eye, EyeOff, Check, LogOut, Zap } from 'lucide-vue-next';
 import {
     profile as profileRoute,
     company as companyRoute,
     password as passwordRoute,
     documentLocale as documentLocaleRoute,
 } from '@/routes/waste/settings';
+import { index as subscriptionRoute } from '@/routes/waste/subscription';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -26,6 +27,9 @@ const props = defineProps<{
         postal_code: string | null;
         country: string | null;
     } | null;
+    plan: 'free' | 'pro';
+    scans_used: number;
+    scan_quota: number | null;
 }>();
 
 const page = usePage<{ auth: { user: { name: string } } }>();
@@ -134,6 +138,34 @@ const selectMd = 'width:100%;height:44px;border-radius:12px;border:1.5px solid #
             <p class="mt-3 font-semibold text-slate-800">{{ user.name }}</p>
             <p class="text-sm text-slate-400">{{ user.email }}</p>
         </div>
+
+        <!-- Plan card -->
+        <a
+            :href="subscriptionRoute().url"
+            class="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-between no-underline"
+            style="box-shadow: 0 2px 12px rgba(0,0,0,0.05); text-decoration: none;"
+        >
+            <div class="flex items-center gap-3">
+                <div class="size-9 rounded-xl flex items-center justify-center shrink-0"
+                     :style="plan === 'pro' ? 'background: linear-gradient(135deg,#0284c7,#0ea5e9);' : 'background:#f1f5f9;'">
+                    <Zap style="width:16px;height:16px;" :style="plan === 'pro' ? 'color:white;' : 'color:#64748b;'" />
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-800">{{ $t('subscription.title') }}</p>
+                    <p class="text-xs text-slate-400 mt-0.5">
+                        {{ scans_used }} / {{ scan_quota ?? '∞' }} {{ $t('subscription.scans_used').toLowerCase() }}
+                    </p>
+                </div>
+            </div>
+            <span
+                class="text-xs font-bold px-3 py-1 rounded-full shrink-0"
+                :style="plan === 'pro'
+                    ? 'background: linear-gradient(135deg,#0284c7,#0ea5e9); color: white;'
+                    : 'background: #f1f5f9; color: #64748b;'"
+            >
+                {{ plan === 'pro' ? $t('subscription.pro') : $t('subscription.free') }}
+            </span>
+        </a>
 
         <!-- Profile card -->
         <div class="bg-white rounded-2xl border border-slate-100 p-5 space-y-4" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">

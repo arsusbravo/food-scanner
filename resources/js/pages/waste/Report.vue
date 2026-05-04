@@ -2,9 +2,10 @@
 import { router, Head } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Download, FileText } from 'lucide-vue-next';
+import { Download, FileText, Zap } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
 import { index as reportIndex } from '@/routes/waste/report';
+import { index as subscriptionRoute } from '@/routes/waste/subscription';
 import { type WasteCategory, type WasteReason, type WasteReportRow } from '@/types/waste';
 
 type Props = {
@@ -218,10 +219,23 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                         : 'background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;'"
                 >
                     <span>
-                        Exports this month: <strong>{{ quota.exports_used }}</strong> / <strong>{{ quota.export_quota }}</strong>
+                        {{ $t('report.exports_this_month') }}: <strong>{{ quota.exports_used }}</strong> / <strong>{{ quota.export_quota }}</strong>
                     </span>
-                    <span v-if="exportQuotaReached" class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:#fca5a5;color:#991b1b;">Limit reached</span>
+                    <span v-if="exportQuotaReached" class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:#fca5a5;color:#991b1b;">
+                        {{ $t('report.limit_reached') }}
+                    </span>
                 </div>
+
+                <!-- Upgrade nudge when limit reached -->
+                <a
+                    v-if="exportQuotaReached"
+                    :href="subscriptionRoute().url"
+                    class="flex items-center justify-center gap-2 w-full h-11 rounded-xl font-semibold text-sm text-white no-underline"
+                    style="background: linear-gradient(135deg, #0284c7, #0ea5e9); box-shadow: 0 4px 14px rgba(2,132,199,0.3);"
+                >
+                    <Zap style="width: 15px; height: 15px;" />
+                    {{ $t('report.upgrade_for_exports') }}
+                </a>
 
                 <div class="flex gap-3">
                     <button

@@ -33,6 +33,9 @@ class WasteSettingsController extends Controller
                 'postal_code' => $company->postal_code,
                 'country'     => $company->country,
             ] : null,
+            'plan'        => $user->effectivePlan(),
+            'scans_used'  => $user->aiScansUsedThisMonth(),
+            'scan_quota'  => $user->aiScanQuota(),
         ]);
     }
 

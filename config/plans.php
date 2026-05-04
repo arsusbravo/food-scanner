@@ -6,7 +6,7 @@ return [
         'exports'  => 2,
     ],
     'pro' => [
-        'ai_scans' => null, // null = unlimited
-        'exports'  => null,
+        'ai_scans' => 1000,
+        'exports'  => null, // unlimited
     ],
 ];

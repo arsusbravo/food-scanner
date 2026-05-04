@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Stripe\WebhookController as StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -31,6 +32,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::post('admin/registrations/invitations', [RegistrationController::class, 'storeInvitation'])->name('admin.registrations.invitations.store');
     Route::delete('admin/registrations/invitations/{invitation}', [RegistrationController::class, 'destroyInvitation'])->name('admin.registrations.invitations.destroy');
 });
+
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/waste.php';

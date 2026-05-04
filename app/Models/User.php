@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 #[Fillable(['name', 'email', 'password', 'document_locale'])]
@@ -17,7 +18,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable, Billable;
 
     protected function casts(): array
     {
@@ -57,8 +58,13 @@ class User extends Authenticatable
 
     public function effectivePlan(): string
     {
+        // Admin-assigned plan expiry override
         if ($this->plan !== 'free' && $this->plan_expires_at && $this->plan_expires_at->isPast()) {
             return 'free';
+        }
+        // Active Stripe subscription
+        if ($this->subscribed('default')) {
+            return 'pro';
         }
 
         return $this->plan ?? 'free';
@@ -82,20 +88,41 @@ class User extends Authenticatable
         return config("plans.{$this->effectivePlan()}.exports");
     }
 
+    public function billingPeriodStart(): \Carbon\Carbon
+    {
+        // Stripe subscribers: anchor to subscription start; free users: registration date.
+        $subscription = $this->subscription('default');
+        $anchor = ($subscription && $subscription->active())
+            ? $subscription->created_at
+            : $this->created_at;
+
+        $anchorDay = (int) $anchor->day;
+        $today     = now();
+
+        // Try the anchor day in the current month; Carbon clamps to the last day
+        // of shorter months (e.g. registered on Jan 31 → Feb 28).
+        $start = $today->copy()->startOfDay()->day($anchorDay);
+
+        // If that date is still in the future, the period started last month.
+        if ($start->isFuture()) {
+            $start = $start->subMonthNoOverflow();
+        }
+
+        return $start;
+    }
+
     public function aiScansUsedThisMonth(): int
     {
         return $this->wasteEntries()
             ->where('source', 'ai_scan')
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
+            ->where('created_at', '>=', $this->billingPeriodStart())
             ->count();
     }
 
     public function exportsUsedThisMonth(): int
     {
         return $this->userExports()
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
+            ->where('created_at', '>=', $this->billingPeriodStart())
             ->count();
     }
 
