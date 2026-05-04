@@ -39,12 +39,13 @@ class SubscriptionController extends Controller
             : env('STRIPE_PRICE_MONTHLY');
 
         $checkout = $request->user()->checkout($priceId, [
-            'success_url'       => route('waste.subscription.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url'        => route('waste.subscription.index'),
-            'metadata'          => ['interval' => $interval],
-            'automatic_tax'     => ['enabled' => true],
-            'tax_id_collection' => ['enabled' => true],
-            'customer_update'   => ['address' => 'auto'],
+            'success_url'                => route('waste.subscription.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'                 => route('waste.subscription.index'),
+            'metadata'                   => ['interval' => $interval],
+            'automatic_tax'              => ['enabled' => true],
+            'tax_id_collection'          => ['enabled' => true],
+            'billing_address_collection' => 'required',
+            'customer_update'            => ['address' => 'auto', 'name' => 'auto'],
         ]);
 
         return Inertia::location($checkout->url);
