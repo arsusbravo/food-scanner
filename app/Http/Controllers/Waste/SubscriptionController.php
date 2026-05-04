@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Waste;
 
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,41 +12,20 @@ class SubscriptionController extends Controller
 {
     public function index(Request $request): Response
     {
-        $user         = $request->user();
-        $subscription = $user->subscription('default');
-        $active       = $subscription && $subscription->active();
-
-        $interval       = null;
-        $nextBillingDate = null;
-        $onGracePeriod  = false;
-
-        if ($active) {
-            $monthlyPriceId = env('STRIPE_PRICE_MONTHLY');
-            $interval       = $subscription->stripe_price === $monthlyPriceId ? 'monthly' : 'annual';
-            $onGracePeriod  = $subscription->onGracePeriod();
-
-            if ($onGracePeriod) {
-                $nextBillingDate = $subscription->ends_at?->format('d M Y');
-            } else {
-                try {
-                    $stripeSub       = $subscription->asStripeSubscription();
-                    $nextBillingDate = Carbon::createFromTimestamp($stripeSub->current_period_end)->format('d M Y');
-                } catch (\Throwable) {
-                    $nextBillingDate = null;
-                }
-            }
-        }
+        $user      = $request->user();
+        $isPro     = $user->effectivePlan() === 'pro';
+        $expiresAt = $isPro && $user->plan_expires_at
+            ? $user->plan_expires_at->format('d M Y')
+            : null;
 
         return Inertia::render('waste/Subscription', [
-            'plan'              => $user->effectivePlan(),
-            'interval'          => $interval,
-            'scans_used'        => $user->aiScansUsedThisMonth(),
-            'scan_quota'        => $user->aiScanQuota(),
-            'exports_used'      => $user->exportsUsedThisMonth(),
-            'export_quota'      => $user->exportQuota(),
-            'next_billing_date' => $nextBillingDate,
-            'on_grace_period'   => $onGracePeriod,
-            'flash'             => session('subscription_success') ? 'activated' : null,
+            'plan'        => $user->effectivePlan(),
+            'scans_used'  => $user->aiScansUsedThisMonth(),
+            'scan_quota'  => $user->aiScanQuota(),
+            'exports_used'=> $user->exportsUsedThisMonth(),
+            'export_quota'=> $user->exportQuota(),
+            'expires_at'  => $expiresAt,
+            'flash'       => session('subscription_success') ? 'activated' : null,
         ]);
     }
 
@@ -55,17 +33,17 @@ class SubscriptionController extends Controller
     {
         $request->validate(['interval' => 'required|in:monthly,annual']);
 
-        $priceId = $request->input('interval') === 'annual'
+        $interval = $request->input('interval');
+        $priceId  = $interval === 'annual'
             ? env('STRIPE_PRICE_ANNUAL')
             : env('STRIPE_PRICE_MONTHLY');
 
-        return $request->user()
-            ->newSubscription('default', $priceId)
-            ->checkout([
-                'success_url'        => route('waste.subscription.success') . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url'         => route('waste.subscription.index'),
-                'tax_id_collection'  => ['enabled' => true],
-            ]);
+        return $request->user()->checkout($priceId, [
+            'success_url'       => route('waste.subscription.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'        => route('waste.subscription.index'),
+            'metadata'          => ['interval' => $interval],
+            'tax_id_collection' => ['enabled' => true],
+        ]);
     }
 
     public function success(Request $request): RedirectResponse
@@ -73,10 +51,5 @@ class SubscriptionController extends Controller
         session()->flash('subscription_success', true);
 
         return redirect()->route('waste.subscription.index');
-    }
-
-    public function portal(Request $request): RedirectResponse
-    {
-        return $request->user()->redirectToBillingPortal(route('waste.subscription.index'));
     }
 }

@@ -205,6 +205,9 @@ export const messages = {
         next_billing: 'Next billing',
         cancel_info: 'Cancel any time via the portal',
         grace_period: 'Access until',
+        expires_on: 'Expires on',
+        renew: 'Renew',
+        renew_cta: 'Renew',
     },
 } as const;
 

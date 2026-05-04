@@ -7,29 +7,25 @@ use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookControll
 
 class WebhookController extends CashierWebhookController
 {
-    protected function handleCustomerSubscriptionCreated(array $payload): void
+    protected function handleCheckoutSessionCompleted(array $payload): void
     {
-        parent::handleCustomerSubscriptionCreated($payload);
-        $this->syncPlan($payload['data']['object']['customer'], 'pro');
-    }
+        $session = $payload['data']['object'];
 
-    protected function handleCustomerSubscriptionUpdated(array $payload): void
-    {
-        parent::handleCustomerSubscriptionUpdated($payload);
-        $status = $payload['data']['object']['status'] ?? '';
-        $plan   = in_array($status, ['active', 'trialing']) ? 'pro' : 'free';
-        $this->syncPlan($payload['data']['object']['customer'], $plan);
-    }
+        if (($session['payment_status'] ?? '') !== 'paid') {
+            return;
+        }
 
-    protected function handleCustomerSubscriptionDeleted(array $payload): void
-    {
-        parent::handleCustomerSubscriptionDeleted($payload);
-        $this->syncPlan($payload['data']['object']['customer'], 'free');
-    }
+        $stripeCustomerId = $session['customer'] ?? null;
+        if (! $stripeCustomerId) {
+            return;
+        }
 
-    private function syncPlan(string $stripeCustomerId, string $plan): void
-    {
-        User::where('stripe_id', $stripeCustomerId)
-            ->update(['plan' => $plan, 'plan_expires_at' => null]);
+        $interval  = $session['metadata']['interval'] ?? 'monthly';
+        $expiresAt = $interval === 'annual' ? now()->addYear() : now()->addMonth();
+
+        User::where('stripe_id', $stripeCustomerId)->update([
+            'plan'            => 'pro',
+            'plan_expires_at' => $expiresAt,
+        ]);
     }
 }

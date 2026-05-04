@@ -58,13 +58,8 @@ class User extends Authenticatable
 
     public function effectivePlan(): string
     {
-        // Admin-assigned plan expiry override
         if ($this->plan !== 'free' && $this->plan_expires_at && $this->plan_expires_at->isPast()) {
             return 'free';
-        }
-        // Active Stripe subscription
-        if ($this->subscribed('default')) {
-            return 'pro';
         }
 
         return $this->plan ?? 'free';
@@ -90,10 +85,10 @@ class User extends Authenticatable
 
     public function billingPeriodStart(): \Carbon\CarbonInterface
     {
-        // Stripe subscribers: anchor to subscription start; free users: registration date.
-        $subscription = $this->subscription('default');
-        $anchor = ($subscription && $subscription->active())
-            ? $subscription->created_at
+        // Pro users: anchor to expiry day (same day of month as purchase).
+        // Free users: anchor to registration day.
+        $anchor    = ($this->plan_expires_at && $this->plan_expires_at->isFuture())
+            ? $this->plan_expires_at
             : $this->created_at;
 
         $anchorDay = (int) $anchor->day;

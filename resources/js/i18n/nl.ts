@@ -203,5 +203,8 @@ export const messages: MessageSchema = {
         next_billing: 'Volgende facturering',
         cancel_info: 'Op elk moment opzeggen via het portaal',
         grace_period: 'Toegang tot',
+        expires_on: 'Verloopt op',
+        renew: 'Verlengen',
+        renew_cta: 'Verlengen',
     },
 };

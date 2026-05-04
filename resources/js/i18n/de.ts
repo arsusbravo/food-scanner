@@ -203,5 +203,8 @@ export const messages: MessageSchema = {
         next_billing: 'Nächste Abrechnung',
         cancel_info: 'Jederzeit über das Portal kündigen',
         grace_period: 'Zugang bis',
+        expires_on: 'Läuft ab am',
+        renew: 'Verlängern',
+        renew_cta: 'Verlängern',
     },
 };
