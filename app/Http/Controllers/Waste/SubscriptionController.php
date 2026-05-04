@@ -43,6 +43,7 @@ class SubscriptionController extends Controller
             'cancel_url'        => route('waste.subscription.index'),
             'metadata'          => ['interval' => $interval],
             'tax_id_collection' => ['enabled' => true],
+            'customer_update'   => ['address' => 'auto'],
         ]);
     }
 
