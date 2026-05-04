@@ -42,6 +42,7 @@ class SubscriptionController extends Controller
             'success_url'       => route('waste.subscription.success') . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url'        => route('waste.subscription.index'),
             'metadata'          => ['interval' => $interval],
+            'automatic_tax'     => ['enabled' => true],
             'tax_id_collection' => ['enabled' => true],
             'customer_update'   => ['address' => 'auto'],
         ]);
