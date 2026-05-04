@@ -88,7 +88,7 @@ class User extends Authenticatable
         return config("plans.{$this->effectivePlan()}.exports");
     }
 
-    public function billingPeriodStart(): \Carbon\Carbon
+    public function billingPeriodStart(): \Carbon\CarbonInterface
     {
         // Stripe subscribers: anchor to subscription start; free users: registration date.
         $subscription = $this->subscription('default');
