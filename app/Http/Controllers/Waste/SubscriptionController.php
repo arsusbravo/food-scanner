@@ -38,16 +38,18 @@ class SubscriptionController extends Controller
             ? env('STRIPE_PRICE_ANNUAL')
             : env('STRIPE_PRICE_MONTHLY');
 
-        return $request->user()->checkout($priceId, [
+        $checkout = $request->user()->checkout($priceId, [
             'success_url'       => route('waste.subscription.success') . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url'        => route('waste.subscription.index'),
             'metadata'          => ['interval' => $interval],
             'tax_id_collection' => ['enabled' => true],
             'customer_update'   => ['address' => 'auto'],
         ]);
+
+        return Inertia::location($checkout->url);
     }
 
-    public function success(Request $request): RedirectResponse
+    public function success(): RedirectResponse
     {
         session()->flash('subscription_success', true);
 
