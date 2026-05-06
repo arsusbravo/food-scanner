@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'tagline'              => 'Rastreador de desperdicio alimentario',
+    'subtitle'             => 'Seguimiento inteligente del desperdicio alimentario para cocinas comerciales — diseñado para el cumplimiento de la UE.',
+    'cta_register'         => 'Empezar — es gratis',
+    'cta_login'            => 'Iniciar sesión',
+    'features_title'       => 'Todo lo que necesitas',
+    'feature_log_title'    => 'Registra rápido el desperdicio',
+    'feature_log_desc'     => 'Registra el desperdicio alimentario por categoría, peso y motivo en segundos. Funciona sin conexión en cualquier dispositivo.',
+    'feature_scan_title'   => 'Escaneo fotográfico con IA',
+    'feature_scan_desc'    => 'Toma una foto del desperdicio — la IA identifica el artículo, estima el peso y rellena el formulario automáticamente.',
+    'feature_report_title' => 'Informes de cumplimiento UE',
+    'feature_report_desc'  => 'Genera informes del Protocolo FLW para la Directiva UE 2018/851. Exporta como CSV o PDF para tu auditor.',
+    'highlights_title'     => 'Incluido',
+    'highlight_1'          => 'Conforme con la Directiva UE 2018/851',
+    'highlight_2'          => 'Categorías del Protocolo FLW',
+    'highlight_3'          => 'Exportación CSV y PDF',
+    'highlight_4'          => 'Escaneo de fotos con IA',
+    'highlight_5'          => 'Multilingüe (EN, NL, DE, FR, ES)',
+    'highlight_6'          => 'Listo para HORECA',
+    'footer'               => 'KitchenLog · Conforme con la Directiva UE 2018/851 y el Protocolo FLW',
+];

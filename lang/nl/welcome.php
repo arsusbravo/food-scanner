@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'tagline'              => 'Voedselverspilling Tracker',
+    'subtitle'             => 'Slim voedselverspilling bijhouden voor professionele keukens — gebouwd voor EU-naleving.',
+    'cta_register'         => 'Aan de slag — gratis',
+    'cta_login'            => 'Inloggen',
+    'features_title'       => 'Alles wat u nodig heeft',
+    'feature_log_title'    => 'Snel afval registreren',
+    'feature_log_desc'     => 'Registreer voedselverspilling per categorie, gewicht en reden in seconden. Werkt offline op elk apparaat.',
+    'feature_scan_title'   => 'AI-fotoscan',
+    'feature_scan_desc'    => 'Maak een foto van het afval — AI identificeert het product, schat het gewicht en vult het formulier automatisch in.',
+    'feature_report_title' => 'EU-nalevingsrapporten',
+    'feature_report_desc'  => 'Genereer FLW Protocol-rapporten voor EU-richtlijn 2018/851. Exporteer als CSV of PDF voor uw auditor.',
+    'highlights_title'     => 'Inbegrepen',
+    'highlight_1'          => 'EU-richtlijn 2018/851 conform',
+    'highlight_2'          => 'FLW Protocol categorieën',
+    'highlight_3'          => 'CSV & PDF export',
+    'highlight_4'          => 'AI-aangedreven fotoscan',
+    'highlight_5'          => 'Meertalig (EN, NL, DE, FR, ES)',
+    'highlight_6'          => 'HORECA klaar',
+    'footer'               => 'KitchenLog · Conform EU-richtlijn 2018/851 & FLW Protocol',
+];

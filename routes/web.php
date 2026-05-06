@@ -6,9 +6,11 @@ use App\Http\Controllers\Stripe\WebhookController as StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::inertia('/', 'Welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+Route::get('/', function () {
+    return view('welcome', ['canRegister' => Features::enabled(Features::registration())]);
+})->name('home');
+
+Route::get('/docs', fn () => view('docs'))->name('docs');
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');

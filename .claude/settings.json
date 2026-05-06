@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -v \".js$\")",
+      "Bash(curl -s http://kitchenlog.test/)",
+      "Bash(curl -s http://kitchenlog.test/docs)"
+    ]
+  }
+}

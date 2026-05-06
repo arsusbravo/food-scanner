@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { usePage, Link } from '@inertiajs/vue3';
+import { docs } from '@/routes';
 import { Toaster } from '@/components/ui/sonner';
 import { ref, computed } from 'vue';
-import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe, Lightbulb } from 'lucide-vue-next';
+import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe, Lightbulb, CircleHelp } from 'lucide-vue-next';
 import { useLocale, type SupportedLocale } from '@/composables/useLocale';
 
 const page = usePage<{ auth: { user: { name: string; email: string } } }>();
@@ -101,6 +102,17 @@ function isActive(href: string) {
                             </button>
                         </div>
                     </div>
+
+                    <!-- Docs link — plain <a> so the Blade page gets a full load -->
+                    <a
+                        :href="docs().url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="size-10 rounded-full flex items-center justify-center shrink-0"
+                        style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);"
+                    >
+                        <CircleHelp style="width: 18px; height: 18px; color: white;" />
+                    </a>
 
                     <!-- Avatar → Settings -->
                     <Link
