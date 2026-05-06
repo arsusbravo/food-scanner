@@ -28,7 +28,7 @@ return [
     'insights_title' => 'Convierte los datos en acción',
     'insights_body'  => 'Saber cuánto desperdicias es solo el primer paso. Insights te muestra dónde crece el desperdicio, qué categoría te cuesta más y por qué — con consejos prácticos para solucionarlo. Un gráfico semanal te permite seguir la mejora de las últimas 8 semanas. Menos desperdicio significa menores costes y una cocina más verde.',
     'settings_title' => 'Tu cuenta, a tu manera',
-    'settings_body'  => 'Toca tu avatar en la esquina superior derecha para abrir Configuración. Aquí puedes consultar tu plan y los escaneos de IA restantes del mes, actualizar tu perfil y los datos de tu empresa (impresos en los informes PDF), configurar el idioma de los documentos exportados, cambiar tu contraseña y cerrar sesión.',
+    'settings_body'  => 'Toca tu avatar en la esquina superior derecha para abrir Configuración. Aquí puedes consultar tu plan y los escaneos de IA restantes, actualizar tu perfil y los datos de tu empresa (impresos en los informes PDF), cambiar tu contraseña y cerrar sesión. Una configuración merece especial atención: Idioma del documento. Te permite elegir un idioma independiente para los informes PDF exportados y los resultados de escaneo IA — separado del idioma de la app. Puedes usar la app en español pero generar informes listos para auditoría en inglés para un inspector internacional. Configúralo una vez y cada exportación lo usará automáticamente.',
     'cta_register'   => 'Empezar — es gratis',
     'cta_login'      => 'Iniciar sesión',
 ];

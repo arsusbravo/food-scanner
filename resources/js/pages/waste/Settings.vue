@@ -253,7 +253,7 @@ const selectMd = 'width:100%;height:44px;border-radius:12px;border:1.5px solid #
         </div>
 
         <!-- Document language card -->
-        <div class="bg-white rounded-2xl border border-slate-100 p-5 space-y-4" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+        <div id="document-language" class="bg-white rounded-2xl border border-slate-100 p-5 space-y-4" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
             <div class="flex items-center gap-2">
                 <div class="size-7 rounded-xl flex items-center justify-center" style="background:#eff6ff;">
                     <FileText style="width:14px;height:14px;color:#2563eb;" />

@@ -11,9 +11,17 @@ use Inertia\Response;
 
 class WasteEntryController extends Controller
 {
-    public function home(Request $request): Response
+    public function home(Request $request): Response|RedirectResponse
     {
-        $userId = $request->user()->id;
+        $user = $request->user();
+
+        // New users who haven't set a document language yet: send them to settings once.
+        if (is_null($user->document_locale) && !$request->session()->has('doc_lang_onboarded')) {
+            $request->session()->put('doc_lang_onboarded', true);
+            return redirect()->to(route('waste.settings.index') . '#document-language');
+        }
+
+        $userId = $user->id;
 
         $todayStats = WasteEntry::where('user_id', $userId)
             ->whereDate('logged_at', today())

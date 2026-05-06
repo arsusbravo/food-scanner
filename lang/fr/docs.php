@@ -28,7 +28,7 @@ return [
     'insights_title' => 'Transformez les données en actions',
     'insights_body'  => "Savoir combien vous gaspillez n'est que la première étape. Insights vous montre où les déchets augmentent, quelle catégorie vous coûte le plus et pourquoi — avec des conseils pratiques pour y remédier. Un graphique hebdomadaire vous permet de suivre les progrès des 8 dernières semaines. Moins de gaspillage signifie des coûts réduits et une cuisine plus verte.",
     'settings_title' => 'Votre compte, à votre façon',
-    'settings_body'  => "Appuyez sur votre avatar en haut à droite pour ouvrir les Paramètres. Ici, vous pouvez vérifier votre plan et les scans IA restants pour le mois, mettre à jour votre profil et les coordonnées de votre entreprise (imprimés sur les rapports PDF), définir la langue pour les documents exportés, changer votre mot de passe et vous déconnecter.",
+    'settings_body'  => "Appuyez sur votre avatar en haut à droite pour ouvrir les Paramètres. Ici, vous pouvez vérifier votre plan et les scans IA restants, mettre à jour votre profil et les coordonnées de votre entreprise (imprimés sur les rapports PDF), changer votre mot de passe et vous déconnecter. Un réglage mérite d'être souligné : Langue du document. Il vous permet de choisir une langue distincte pour les rapports PDF exportés et les résultats de scan IA — indépendante de la langue de l'application. Vous pouvez utiliser l'application en français mais générer des rapports prêts pour l'audit en anglais pour un inspecteur international. Configurez-le une fois et chaque export l'utilisera automatiquement.",
     'cta_register'   => "Commencer — c'est gratuit",
     'cta_login'      => 'Se connecter',
 ];

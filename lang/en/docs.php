@@ -28,7 +28,7 @@ return [
     'insights_title' => 'Turn data into action',
     'insights_body'  => "Knowing how much you waste is only the first step. Insights shows you where waste is growing, which category costs you the most, and why it's happening — with practical tips to fix it. A weekly chart lets you track improvement over the last 8 weeks. Less waste means lower costs and a greener kitchen.",
     'settings_title' => 'Your account, your way',
-    'settings_body'  => 'Tap your avatar in the top-right corner to open Settings. Here you can check your plan and remaining AI scans for the month, update your profile and company details (printed on PDF reports), set the language for exported documents, change your password, and log out.',
+    'settings_body'  => 'Tap your avatar in the top-right corner to open Settings. Here you can check your plan and remaining AI scans, update your profile and company details (printed on PDF reports), change your password, and log out. One setting worth highlighting: Document Language. This lets you choose a separate language for exported PDF reports and AI scan results — independent from the app language. For example, you can use the app in Dutch but generate audit-ready reports in English for an international inspector. Set it once and every export will use it automatically.',
     'cta_register'   => "Get started — it's free",
     'cta_login'      => 'Log in',
 ];

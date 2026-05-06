@@ -28,7 +28,7 @@ return [
     'insights_title' => 'Zet data om in actie',
     'insights_body'  => 'Weten hoeveel u verspilt is slechts de eerste stap. Inzichten laat u zien waar verspilling groeit, welke categorie u het meest kost en waarom — met praktische tips om dit op te lossen. Een wekelijks diagram laat u de voortgang van de afgelopen 8 weken bijhouden. Minder verspilling betekent lagere kosten en een groenere keuken.',
     'settings_title' => 'Uw account, op uw manier',
-    'settings_body'  => 'Tik op uw avatar rechtsboven om Instellingen te openen. Hier kunt u uw abonnement en resterende AI-scans voor de maand controleren, uw profiel en bedrijfsgegevens bijwerken (afgedrukt op PDF-rapporten), de taal voor geëxporteerde documenten instellen, uw wachtwoord wijzigen en uitloggen.',
+    'settings_body'  => 'Tik op uw avatar rechtsboven om Instellingen te openen. Hier kunt u uw abonnement en resterende AI-scans controleren, uw profiel en bedrijfsgegevens bijwerken (afgedrukt op PDF-rapporten), uw wachtwoord wijzigen en uitloggen. Een instelling die extra aandacht verdient: Documenttaal. Hiermee kiest u een aparte taal voor geëxporteerde PDF-rapporten en AI-scanresultaten — onafhankelijk van de app-taal. U kunt de app in het Nederlands gebruiken, maar auditklare rapporten in het Engels genereren voor een internationale inspecteur. Stel het eenmalig in en elke export gebruikt het automatisch.',
     'cta_register'   => 'Aan de slag — gratis',
     'cta_login'      => 'Inloggen',
 ];

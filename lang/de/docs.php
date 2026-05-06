@@ -28,7 +28,7 @@ return [
     'insights_title' => 'Daten in Maßnahmen umwandeln',
     'insights_body'  => 'Zu wissen, wie viel Sie verschwenden, ist nur der erste Schritt. Einblicke zeigt Ihnen, wo Abfall zunimmt, welche Kategorie Sie am meisten kostet und warum — mit praktischen Tipps zur Behebung. Ein wöchentliches Diagramm lässt Sie die Fortschritte der letzten 8 Wochen verfolgen. Weniger Abfall bedeutet niedrigere Kosten und eine umweltfreundlichere Küche.',
     'settings_title' => 'Ihr Konto, Ihre Art',
-    'settings_body'  => 'Tippen Sie auf Ihren Avatar oben rechts, um Einstellungen zu öffnen. Hier können Sie Ihr Abonnement und verbleibende KI-Scans für den Monat prüfen, Ihr Profil und Unternehmensdaten aktualisieren (gedruckt auf PDF-Berichte), die Sprache für exportierte Dokumente festlegen, Ihr Passwort ändern und sich abmelden.',
+    'settings_body'  => 'Tippen Sie auf Ihren Avatar oben rechts, um Einstellungen zu öffnen. Hier können Sie Ihr Abonnement und verbleibende KI-Scans prüfen, Ihr Profil und Unternehmensdaten aktualisieren (gedruckt auf PDF-Berichte), Ihr Passwort ändern und sich abmelden. Eine Einstellung verdient besondere Beachtung: Dokumentsprache. Damit wählen Sie eine separate Sprache für exportierte PDF-Berichte und KI-Scan-Ergebnisse — unabhängig von der App-Sprache. Sie können die App auf Deutsch nutzen, aber prüffertige Berichte auf Englisch für einen internationalen Prüfer erstellen. Einmal eingestellt, verwenden alle Exporte diese Sprache automatisch.',
     'cta_register'   => 'Loslegen — kostenlos',
     'cta_login'      => 'Anmelden',
 ];
