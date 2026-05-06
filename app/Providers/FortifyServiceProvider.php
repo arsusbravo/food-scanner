@@ -72,12 +72,22 @@ class FortifyServiceProvider extends ServiceProvider
             $mode = SiteSetting::get('registration_mode', 'invite_only');
 
             if ($mode === 'invite_only') {
-                $token = $request->query('token', '');
-                $valid = $token && Invitation::valid()->where('token', $token)->exists();
+                // Token from URL takes priority, fall back to session
+                $token = $request->query('token') ?: $request->session()->get('invite_token', '');
 
-                if (! $valid) {
+                $invitation = $token ? Invitation::valid()->where('token', $token)->first() : null;
+
+                if (! $invitation) {
                     return Inertia::render('auth/InviteOnly');
                 }
+
+                // Count click once per session per token
+                if ($request->query('token') && $request->session()->get('invite_click_counted') !== $token) {
+                    $invitation->increment('clicks');
+                    $request->session()->put('invite_click_counted', $token);
+                }
+
+                $request->session()->put('invite_token', $token);
 
                 return Inertia::render('auth/Register', [
                     'inviteToken'      => $token,

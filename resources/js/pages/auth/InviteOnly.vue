@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
 import { login } from '@/routes';
 import { Lock } from 'lucide-vue-next';
+
+onMounted(() => {
+    const token = localStorage.getItem('invite_token');
+    if (token) {
+        window.location.href = '/register?token=' + encodeURIComponent(token);
+    }
+});
 </script>
 
 <template>

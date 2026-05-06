@@ -143,3 +143,9 @@
     </div>
 
 @endsection
+
+@if(!empty($inviteToken))
+@push('scripts')
+<script>localStorage.setItem('invite_token', '{{ $inviteToken }}');</script>
+@endpush
+@endif

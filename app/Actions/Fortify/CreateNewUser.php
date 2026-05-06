@@ -5,7 +5,6 @@ namespace App\Actions\Fortify;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\Company;
-use App\Models\Invitation;
 use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
@@ -32,7 +31,6 @@ class CreateNewUser implements CreatesNewUsers
             $rules['invite_token'] = [
                 'required',
                 Rule::exists('invitations', 'token')
-                    ->whereNull('accepted_at')
                     ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now())),
             ];
         } elseif ($mode === 'open') {
@@ -61,10 +59,6 @@ class CreateNewUser implements CreatesNewUsers
             'user_id' => $user->id,
             'name'    => $input['company_name'],
         ]);
-
-        if ($mode === 'invite_only') {
-            Invitation::where('token', $input['invite_token'])->first()?->markAccepted($user);
-        }
 
         return $user;
     }

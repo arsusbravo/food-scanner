@@ -3,11 +3,30 @@
 use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Stripe\WebhookController as StripeWebhookController;
+use App\Models\Invitation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return view('welcome', ['canRegister' => Features::enabled(Features::registration())]);
+Route::get('/', function (Request $request) {
+    $token = $request->query('token');
+
+    if ($token) {
+        $invitation = Invitation::valid()->where('token', $token)->first();
+        if ($invitation) {
+            // Count click once per session per token
+            if ($request->session()->get('invite_click_counted') !== $token) {
+                $invitation->increment('clicks');
+                $request->session()->put('invite_click_counted', $token);
+            }
+            $request->session()->put('invite_token', $token);
+        }
+    }
+
+    return view('welcome', [
+        'canRegister' => Features::enabled(Features::registration()),
+        'inviteToken' => $request->session()->get('invite_token'),
+    ]);
 })->name('home');
 
 Route::get('/docs', fn () => view('docs'))->name('docs');

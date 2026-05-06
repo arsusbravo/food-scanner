@@ -17,19 +17,19 @@ class RegistrationController extends Controller
     {
         return Inertia::render('admin/Registrations', [
             'mode' => SiteSetting::get('registration_mode', 'invite_only'),
-            'invitations' => Invitation::with(['createdBy:id,name', 'acceptedBy:id,name'])
+            'invitations' => Invitation::with('createdBy:id,name')
                 ->latest()
                 ->get()
                 ->map(fn($inv) => [
-                    'id'          => $inv->id,
-                    'email'       => $inv->email,
-                    'note'        => $inv->note,
-                    'created_by'  => $inv->createdBy?->name,
-                    'expires_at'  => $inv->expires_at?->toDateString(),
-                    'accepted_at' => $inv->accepted_at?->toDateTimeString(),
-                    'accepted_by' => $inv->acceptedBy?->name,
-                    'status'      => $inv->status,
-                    'url'         => url('/register?token=' . $inv->token),
+                    'id'           => $inv->id,
+                    'email'        => $inv->email,
+                    'note'         => $inv->note,
+                    'created_by'   => $inv->createdBy?->name,
+                    'expires_at'   => $inv->expires_at?->toDateString(),
+                    'clicks'       => $inv->clicks,
+                    'status'       => $inv->status,
+                    'home_url'     => url('/?token=' . $inv->token),
+                    'register_url' => url('/register?token=' . $inv->token),
                 ]),
         ]);
     }
