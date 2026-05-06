@@ -12,8 +12,14 @@ class SetLocale
     public function handle(Request $request, Closure $next): Response
     {
         $supported = ['en', 'nl', 'de', 'fr', 'es'];
-        $locale    = $request->cookie('locale', 'en');
-        App::setLocale(in_array($locale, $supported) ? $locale : 'en');
+
+        if ($request->hasCookie('locale') && in_array($request->cookie('locale'), $supported)) {
+            $locale = $request->cookie('locale');
+        } else {
+            $locale = $request->getPreferredLanguage($supported) ?? 'en';
+        }
+
+        App::setLocale($locale);
 
         return $next($request);
     }

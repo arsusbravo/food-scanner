@@ -58,6 +58,15 @@ function saveCompany() {
     companyForm.patch(companyRoute().url, { preserveScroll: true });
 }
 
+// ── Countries ─────────────────────────────────────────────────
+const COUNTRIES = [
+    { code: 'NL', label: 'Netherlands' },
+    { code: 'BE', label: 'Belgium' },
+    { code: 'LU', label: 'Luxembourg' },
+    { code: 'DE', label: 'Germany' },
+    { code: 'FR', label: 'France' },
+];
+
 // ── Document language ─────────────────────────────────────────
 const LOCALES = [
     { code: 'en', label: 'English' },
@@ -237,7 +246,12 @@ const selectMd = 'width:100%;height:44px;border-radius:12px;border:1.5px solid #
                 </div>
                 <div>
                     <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">{{ t('settings.country') }}</label>
-                    <input v-model="companyForm.country" type="text" :style="inputMd" />
+                    <div style="position:relative;">
+                        <select v-model="companyForm.country" :style="selectMd">
+                            <option value="">—</option>
+                            <option v-for="c in COUNTRIES" :key="c.code" :value="c.code">{{ c.label }}</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 

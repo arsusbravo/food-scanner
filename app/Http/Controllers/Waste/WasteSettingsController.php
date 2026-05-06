@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Waste;
 
 use App\Http\Controllers\Controller;
-use App\Models\Company;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -63,13 +62,20 @@ class WasteSettingsController extends Controller
             'address'     => ['nullable', 'string', 'max:255'],
             'city'        => ['nullable', 'string', 'max:100'],
             'postal_code' => ['nullable', 'string', 'max:20'],
-            'country'     => ['nullable', 'string', 'max:100'],
+            'country'     => ['nullable', Rule::in(['NL', 'BE', 'LU', 'DE', 'FR'])],
         ]);
 
         $request->user()->company()->updateOrCreate(
             ['user_id' => $request->user()->id],
             $validated,
         );
+
+        // Auto-set document language on first save (does not overwrite manual choice)
+        $country = $validated['country'] ?? null;
+        if ($country && is_null($request->user()->document_locale)) {
+            $map = ['NL' => 'nl', 'BE' => 'nl', 'DE' => 'de', 'FR' => 'fr', 'LU' => 'en'];
+            $request->user()->update(['document_locale' => $map[$country]]);
+        }
 
         return back()->with('success', 'Company updated.');
     }
