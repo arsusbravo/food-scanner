@@ -11,6 +11,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/docs', fn () => view('docs'))->name('docs');
+Route::get('/faq', fn () => view('faq'))->name('faq');
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');

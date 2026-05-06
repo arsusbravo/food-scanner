@@ -1,74 +1,38 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>KitchenLog — EU Food Waste Tracker</title>
-    <meta name="description" content="{{ __('welcome.subtitle') }}">
-    <meta property="og:title" content="KitchenLog — EU Food Waste Tracker">
-    <meta property="og:description" content="{{ __('welcome.subtitle') }}">
-    <meta property="og:type" content="website">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; }
-        body { margin: 0; }
-        button { cursor: pointer; font-family: inherit; }
-        a { text-decoration: none; }
-    </style>
-</head>
-<body style="min-height: 100dvh; background: #f8fafc; font-family: Inter, system-ui, sans-serif;">
+@extends('layouts.public')
 
-    @php
-    $locale = app()->getLocale();
-    $langs  = ['en', 'nl', 'de', 'fr', 'es'];
-    @endphp
+@section('page_title', 'KitchenLog — EU Food Waste Tracker')
+@section('meta_description', __('welcome.subtitle'))
 
-    <!-- Hero -->
-    <div style="background: linear-gradient(160deg, #064e3b 0%, #059669 55%, #0d9488 100%); padding: 56px 24px 64px;">
-        <div style="max-width: 480px; margin: 0 auto; text-align: center;">
-
-            <!-- Language switcher -->
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                <div style="display: inline-flex; gap: 2px; background: rgba(0,0,0,0.2); border-radius: 999px; padding: 3px;">
-                    @foreach($langs as $code)
-                    <button
-                        onclick="setLocale('{{ $code }}')"
-                        style="border: none; font-size: 11px; padding: 4px 9px; border-radius: 999px; letter-spacing: 0.04em; {{ $locale === $code ? 'background: white; color: #059669; font-weight: 700;' : 'background: transparent; color: rgba(209,250,229,0.85); font-weight: 600;' }}"
-                    >{{ strtoupper($code) }}</button>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Logo -->
-            <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: rgba(255,255,255,0.15); border-radius: 20px; margin-bottom: 20px; border: 1.5px solid rgba(255,255,255,0.25);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/>
-                    <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/>
-                    <path d="m2.1 21.8 6.4-6.3"/>
-                    <path d="m19 5-7 7"/>
-                </svg>
-            </div>
-
-            <p style="color: rgba(167,243,208,0.85); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">
-                {{ __('welcome.tagline') }}
-            </p>
-            <h1 style="color: white; font-size: 40px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 12px;">
-                KitchenLog
-            </h1>
-            <p style="color: rgba(209,250,229,0.9); font-size: 17px; line-height: 1.5; margin: 0 0 28px;">
-                {{ __('welcome.subtitle') }}
-            </p>
-
-            <!-- Badges -->
-            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-                <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">EU Directive 2018/851</span>
-                <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">FLW Protocol</span>
-                <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">HORECA</span>
-            </div>
-        </div>
+@section('hero')
+    <!-- Logo -->
+    <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: rgba(255,255,255,0.15); border-radius: 20px; margin-bottom: 20px; border: 1.5px solid rgba(255,255,255,0.25);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/>
+            <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/>
+            <path d="m2.1 21.8 6.4-6.3"/>
+            <path d="m19 5-7 7"/>
+        </svg>
     </div>
+
+    <p style="color: rgba(167,243,208,0.85); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">
+        {{ __('welcome.tagline') }}
+    </p>
+    <h1 style="color: white; font-size: 40px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 12px;">
+        KitchenLog
+    </h1>
+    <p style="color: rgba(209,250,229,0.9); font-size: 17px; line-height: 1.5; margin: 0 0 28px;">
+        {{ __('welcome.subtitle') }}
+    </p>
+
+    <!-- Badges -->
+    <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+        <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">EU Directive 2018/851</span>
+        <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">FLW Protocol</span>
+        <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">HORECA</span>
+    </div>
+@endsection
+
+@section('content')
 
     <!-- CTA buttons -->
     <div style="max-width: 480px; margin: -28px auto 0; padding: 0 24px; position: relative; z-index: 10;">
@@ -91,7 +55,6 @@
         </h2>
         <div style="display: flex; flex-direction: column; gap: 12px;">
 
-            <!-- Log Waste Fast -->
             <div style="background: white; border-radius: 18px; padding: 20px; display: flex; gap: 16px; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
                 <div style="width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #ecfdf5;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -107,7 +70,6 @@
                 </div>
             </div>
 
-            <!-- AI Photo Scan -->
             <div style="background: white; border-radius: 18px; padding: 20px; display: flex; gap: 16px; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
                 <div style="width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #f0fdfa;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -124,7 +86,6 @@
                 </div>
             </div>
 
-            <!-- EU Compliance Reports -->
             <div style="background: white; border-radius: 18px; padding: 20px; display: flex; gap: 16px; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
                 <div style="width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #f0f9ff;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -166,22 +127,19 @@
 
     <!-- Footer -->
     <div style="max-width: 480px; margin: 0 auto; padding: 32px 24px 48px; text-align: center;">
-        <a href="{{ route('docs') }}" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; margin-bottom: 16px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                <path d="M12 17h.01"/>
-            </svg>
-        </a>
+        <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
+            <a href="{{ route('docs') }}" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+            </a>
+            <a href="{{ route('faq') }}" style="display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 14px; border-radius: 999px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; font-size: 12px; font-weight: 700; color: #059669; letter-spacing: 0.02em;">
+                FAQ
+            </a>
+        </div>
         <p style="font-size: 12px; color: #94a3b8;">{{ __('welcome.footer') }}</p>
     </div>
 
-    <script>
-        function setLocale(code) {
-            document.cookie = 'locale=' + code + ';path=/;max-age=31536000;SameSite=Lax';
-            location.reload();
-        }
-    </script>
-
-</body>
-</html>
+@endsection
