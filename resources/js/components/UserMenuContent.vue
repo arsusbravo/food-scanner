@@ -8,7 +8,6 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import UserInfo from '@/components/UserInfo.vue';
-import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
 
@@ -18,6 +17,16 @@ type Props = {
 
 const handleLogout = () => {
     router.flushAll();
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/logout';
+    const token = document.createElement('input');
+    token.type = 'hidden';
+    token.name = '_token';
+    token.value = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+    document.body.appendChild(form);
+    form.appendChild(token);
+    form.submit();
 };
 
 defineProps<Props>();
@@ -40,15 +49,13 @@ defineProps<Props>();
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">
-        <Link
-            class="block w-full cursor-pointer"
-            :href="logout()"
-            @click="handleLogout"
-            as="button"
+        <button
+            class="flex w-full cursor-pointer items-center"
             data-test="logout-button"
+            @click="handleLogout"
         >
             <LogOut class="mr-2 h-4 w-4" />
             Log out
-        </Link>
+        </button>
     </DropdownMenuItem>
 </template>

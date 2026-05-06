@@ -103,7 +103,17 @@ function savePassword() {
 
 // ── Logout ────────────────────────────────────────────────────
 function logout() {
-    router.post('/logout');
+    router.flushAll();
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/logout';
+    const token = document.createElement('input');
+    token.type = 'hidden';
+    token.name = '_token';
+    token.value = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+    document.body.appendChild(form);
+    form.appendChild(token);
+    form.submit();
 }
 
 // ── Helpers ───────────────────────────────────────────────────
