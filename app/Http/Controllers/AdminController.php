@@ -7,6 +7,7 @@ use App\Models\WasteEntry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,10 +35,16 @@ class AdminController extends Controller
             $response = Http::withToken(config('services.openrouter.key'))
                 ->timeout(5)
                 ->get('https://openrouter.ai/api/v1/auth/key');
+            Log::info('OpenRouter key check', [
+                'status' => $response->status(),
+                'body'   => $response->json(),
+            ]);
             if ($response->successful()) {
                 $openrouter = $response->json('data');
             }
-        } catch (\Throwable) {}
+        } catch (\Throwable $e) {
+            Log::error('OpenRouter key check failed', ['error' => $e->getMessage()]);
+        }
 
         return Inertia::render('Dashboard', [
             'stats'         => $stats,
