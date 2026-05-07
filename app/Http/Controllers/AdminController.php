@@ -16,8 +16,6 @@ class AdminController extends Controller
 {
     public function dashboard(): Response
     {
-        Log::info('ADMIN DASHBOARD HIT', ['key_set' => !empty(config('services.openrouter.key'))]);
-
         $stats = [
             'total_users'       => User::where('is_admin', false)->count(),
             'total_entries'     => WasteEntry::count(),
@@ -37,10 +35,6 @@ class AdminController extends Controller
             $response = Http::withToken(config('services.openrouter.key'))
                 ->timeout(5)
                 ->get('https://openrouter.ai/api/v1/auth/key');
-            Log::info('OpenRouter key check', [
-                'status' => $response->status(),
-                'body'   => $response->json(),
-            ]);
             if ($response->successful()) {
                 $openrouter = $response->json('data');
             }
