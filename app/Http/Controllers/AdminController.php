@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\WasteEntry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,9 +29,20 @@ class AdminController extends Controller
             ->limit(10)
             ->get(['id', 'user_id', 'item_name', 'category', 'weight_kg', 'reason', 'source', 'logged_at']);
 
+        $openrouter = null;
+        try {
+            $response = Http::withToken(config('services.openrouter.key'))
+                ->timeout(5)
+                ->get('https://openrouter.ai/api/v1/auth/key');
+            if ($response->successful()) {
+                $openrouter = $response->json('data');
+            }
+        } catch (\Throwable) {}
+
         return Inertia::render('Dashboard', [
             'stats'         => $stats,
             'recentEntries' => $recentEntries,
+            'openrouter'    => $openrouter,
         ]);
     }
 
