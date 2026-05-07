@@ -16,6 +16,8 @@ class AdminController extends Controller
 {
     public function dashboard(): Response
     {
+        Log::info('ADMIN DASHBOARD HIT', ['key_set' => !empty(config('services.openrouter.key'))]);
+
         $stats = [
             'total_users'       => User::where('is_admin', false)->count(),
             'total_entries'     => WasteEntry::count(),
