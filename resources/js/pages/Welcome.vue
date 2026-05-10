@@ -54,9 +54,7 @@ const highlightKeys = [
                 </div>
 
                 <!-- Logo mark -->
-                <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: rgba(255,255,255,0.15); border-radius: 20px; margin-bottom: 20px; border: 1.5px solid rgba(255,255,255,0.25);">
-                    <UtensilsCrossed style="width: 30px; height: 30px; color: white;" />
-                </div>
+                <img src="/images/doc/logo-dark.png" alt="KitchenLog" style="width: 64px; height: 64px; object-fit: contain; display: block; margin: 0 auto 20px;" />
 
                 <p style="color: rgba(167,243,208,0.85); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">
                     {{ t('welcome.tagline') }}

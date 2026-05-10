@@ -50,10 +50,43 @@
 
     @yield('content')
 
+    <!-- Global footer -->
+    <div style="border-top: 1px solid #e2e8f0; padding: 24px; text-align: center;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; font-size: 12px;">
+            <a href="{{ route('privacy') }}" style="color: #64748b; font-weight: 600;">Privacy Policy</a>
+            <a href="{{ route('terms') }}" style="color: #64748b; font-weight: 600;">Terms &amp; Conditions</a>
+            <a href="{{ route('cookies') }}" style="color: #64748b; font-weight: 600;">Cookie Policy</a>
+            <a href="{{ route('faq') }}" style="color: #64748b; font-weight: 600;">FAQ</a>
+            <a href="{{ route('docs') }}" style="color: #64748b; font-weight: 600;">Docs</a>
+        </div>
+        <p style="font-size: 11px; color: #94a3b8; margin: 12px 0 0;">&copy; {{ date('Y') }} KitchenLog &mdash; Arsus B.V.</p>
+    </div>
+
+    <!-- Cookie consent banner -->
+    <div id="cookie-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:white; border-top:1px solid #e2e8f0; padding:16px 20px; box-shadow:0 -4px 24px rgba(0,0,0,0.08);">
+        <div style="max-width:680px; margin:0 auto; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+            <p style="flex:1; font-size:13px; color:#374151; margin:0; min-width:200px;">
+                We use essential cookies for login and language preference. No tracking or advertising cookies.
+                <a href="{{ route('cookies') }}" style="color:#059669; font-weight:600;">Cookie Policy</a>
+            </p>
+            <div style="display:flex; gap:8px; flex-shrink:0;">
+                <button onclick="acceptCookies()" style="background:#059669; color:white; border:none; padding:9px 20px; border-radius:10px; font-size:13px; font-weight:700;">Accept</button>
+                <button onclick="acceptCookies()" style="background:#f1f5f9; color:#374151; border:none; padding:9px 20px; border-radius:10px; font-size:13px; font-weight:600;">Essential only</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function setLocale(code) {
             document.cookie = 'locale=' + code + ';path=/;max-age=31536000;SameSite=Lax';
             location.reload();
+        }
+        function acceptCookies() {
+            localStorage.setItem('cookie_consent', '1');
+            document.getElementById('cookie-banner').style.display = 'none';
+        }
+        if (!localStorage.getItem('cookie_consent')) {
+            document.getElementById('cookie-banner').style.display = 'block';
         }
     </script>
     @stack('scripts')
