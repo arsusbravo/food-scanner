@@ -9,6 +9,7 @@ import WeightInput from '@/components/waste/WeightInput.vue';
 import InputError from '@/components/InputError.vue';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { store as entriesStore } from '@/routes/waste/entries';
+import { index as subscriptionRoute } from '@/routes/waste/subscription';
 import { type WasteCategory } from '@/types/waste';
 
 type AiResult = {
@@ -236,8 +237,14 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                     {{ analyseError }}
                 </p>
 
-                <div v-if="quotaReached" class="mt-4 text-center text-sm font-semibold" style="color:#dc2626;">
-                    Monthly scan limit reached. Upgrade to Pro for unlimited photo scans.
+                <div v-if="quotaReached" class="mt-4 rounded-xl p-4 text-center" style="background:#fef2f2; border:1px solid #fecaca;">
+                    <p class="text-sm font-bold mb-3" style="color:#dc2626;">{{ $t('ai_scan.limit_reached_msg') }}</p>
+                    <a
+                        :href="subscriptionRoute().url"
+                        class="inline-flex items-center justify-center gap-2 w-full h-11 rounded-xl font-semibold text-sm text-white no-underline mb-2"
+                        style="background: linear-gradient(135deg, #0284c7, #0ea5e9); box-shadow: 0 4px 14px rgba(2,132,199,0.3);"
+                    >{{ $t('ai_scan.upgrade_pro') }}</a>
+                    <a href="/waste/contact/new" class="block text-xs font-semibold" style="color:#059669;">{{ $t('ai_scan.contact_question') }}</a>
                 </div>
                 <button
                     v-else
@@ -343,6 +350,9 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                         </button>
                     </div>
                 </form>
+
+                <!-- Feedback nudge -->
+                <a href="/waste/contact/new" class="block text-center text-xs mt-4" style="color:#94a3b8;">{{ $t('ai_scan.feedback') }}</a>
             </div>
         </div>
     </div>

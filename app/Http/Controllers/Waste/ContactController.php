@@ -19,9 +19,14 @@ class ContactController extends Controller
     {
         $conversations = ContactConversation::where('user_id', $request->user()->id)
             ->withCount('messages')
-            ->with(['messages' => fn ($q) => $q->latest()->limit(1)])
+            ->addSelect([
+                'preview' => ContactMessage::select('body')
+                    ->whereColumn('conversation_id', 'contact_conversations.id')
+                    ->orderByDesc('created_at')
+                    ->limit(1),
+            ])
             ->orderByDesc('last_message_at')
-            ->get(['id', 'subject', 'unread_by_user', 'last_message_at', 'created_at', 'user_id']);
+            ->get(['id', 'subject', 'unread_by_user', 'last_message_at', 'user_id']);
 
         return Inertia::render('waste/Contact', [
             'conversations' => $conversations->map(fn ($c) => [
@@ -30,7 +35,7 @@ class ContactController extends Controller
                 'unread'         => $c->unread_by_user,
                 'last_message_at'=> $c->last_message_at,
                 'messages_count' => $c->messages_count,
-                'preview'        => $c->messages->first()?->body,
+                'preview'        => $c->preview,
             ]),
         ]);
     }

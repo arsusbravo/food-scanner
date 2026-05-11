@@ -236,6 +236,7 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                     <Zap style="width: 15px; height: 15px;" />
                     {{ $t('report.upgrade_for_exports') }}
                 </a>
+                <a v-if="exportQuotaReached" href="/waste/contact/new" class="block text-center text-xs font-semibold" style="color:#059669;">{{ $t('report.contact_question') }}</a>
 
                 <div class="flex gap-3">
                     <button
@@ -259,6 +260,9 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                         {{ exporting === 'pdf' ? $t('report.preparing') : $t('report.export_pdf') }}
                     </button>
                 </div>
+
+                <!-- Feedback link after export -->
+                <a href="/waste/contact/new" class="block text-center text-xs mt-3" style="color:#94a3b8;">{{ $t('report.feedback') }}</a>
             </div>
 
         </template>

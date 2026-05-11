@@ -18,7 +18,12 @@ class ContactController extends Controller
     {
         $conversations = ContactConversation::with('user:id,name,email')
             ->withCount('messages')
-            ->with(['messages' => fn ($q) => $q->latest()->limit(1)])
+            ->addSelect([
+                'preview' => ContactMessage::select('body')
+                    ->whereColumn('conversation_id', 'contact_conversations.id')
+                    ->orderByDesc('created_at')
+                    ->limit(1),
+            ])
             ->orderByDesc('last_message_at')
             ->get(['id', 'user_id', 'subject', 'unread_by_admin', 'last_message_at']);
 
@@ -29,7 +34,7 @@ class ContactController extends Controller
                 'unread'         => $c->unread_by_admin,
                 'last_message_at'=> $c->last_message_at,
                 'messages_count' => $c->messages_count,
-                'preview'        => $c->messages->first()?->body,
+                'preview'        => $c->preview,
                 'user'           => $c->user,
             ]),
         ]);
