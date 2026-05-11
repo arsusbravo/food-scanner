@@ -2,11 +2,11 @@
 import { usePage, Link } from '@inertiajs/vue3';
 import { docs } from '@/routes';
 import { Toaster } from '@/components/ui/sonner';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe, Lightbulb, CircleHelp, MessageSquare } from 'lucide-vue-next';
 import { useLocale, type SupportedLocale } from '@/composables/useLocale';
 
-const page = usePage<{ auth: { user: { name: string; email: string; is_pro: boolean } }; contactUnread: number }>();
+const page = usePage<{ auth: { user: { name: string; email: string; is_pro: boolean } }; contactUnread: number; locale: string }>();
 
 const userInitials = computed(() => {
     const name = page.props.auth?.user?.name ?? '';
@@ -19,6 +19,16 @@ const contactUnread = computed(() => page.props.contactUnread ?? 0);
 const url = computed(() => page.url);
 const { locale, setLocale } = useLocale();
 
+// The server always knows the true locale (from the cookie).
+// Force-sync on every mount so switching language on the public pages
+// is immediately reflected when entering the app.
+onMounted(() => {
+    const serverLocale = page.props.locale as SupportedLocale;
+    if (serverLocale && serverLocale !== locale.value) {
+        setLocale(serverLocale);
+    }
+});
+
 const langOpen = ref(false);
 
 const LANG_LABELS: Record<SupportedLocale, string> = {
@@ -27,6 +37,9 @@ const LANG_LABELS: Record<SupportedLocale, string> = {
     de: 'Deutsch',
     fr: 'Français',
     es: 'Español',
+    'zh-TW': '繁體中文',
+    'zh-CN': '简体中文',
+    tr: 'Türkçe',
 };
 
 function selectLocale(code: SupportedLocale) {
@@ -91,7 +104,7 @@ function isActive(href: string) {
                             style="position: absolute; right: 0; top: calc(100% + 8px); background: white; border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); min-width: 160px; overflow: hidden; z-index: 99;"
                         >
                             <button
-                                v-for="code in (['en','nl','de','fr','es'] as SupportedLocale[])"
+                                v-for="code in (['en','nl','de','fr','es','zh-TW','zh-CN','tr'] as SupportedLocale[])"
                                 :key="code"
                                 type="button"
                                 class="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-left transition-colors"

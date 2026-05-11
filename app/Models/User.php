@@ -134,4 +134,27 @@ class User extends Authenticatable
 
         return $quota === null || $this->exportsUsedThisMonth() < $quota;
     }
+
+    /**
+     * Resolve the locale to use for documents (PDF exports, AI scan prompts).
+     * Priority: explicit document_locale → app locale (if supported) → company country → 'en'.
+     * Ensures unsupported app languages (zh-TW, zh-CN, tr) never reach the document pipeline.
+     */
+    public function resolveDocumentLocale(string $appLocale = 'en'): string
+    {
+        $supported = ['en', 'nl', 'de', 'fr', 'es'];
+
+        if ($this->document_locale && in_array($this->document_locale, $supported)) {
+            return $this->document_locale;
+        }
+
+        if (in_array($appLocale, $supported)) {
+            return $appLocale;
+        }
+
+        $countryMap = ['NL' => 'nl', 'BE' => 'nl', 'DE' => 'de', 'FR' => 'fr', 'LU' => 'en'];
+        $country    = $this->company?->country;
+
+        return ($country && isset($countryMap[$country])) ? $countryMap[$country] : 'nl';
+    }
 }

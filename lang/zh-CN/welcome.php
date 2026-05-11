@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'tagline'              => '食物废弃物追踪器',
+    'subtitle'             => '为商业厨房设计的智能食物废弃物追踪系统——符合 EU 法规。',
+    'cta_register'         => '立即开始——免费',
+    'cta_login'            => '登录',
+    'features_title'       => '您所需的一切',
+    'feature_log_title'    => '快速记录废弃物',
+    'feature_log_desc'     => '按类别、重量和原因在几秒钟内记录食物废弃物，支持任何设备。',
+    'feature_scan_title'   => 'AI 拍照扫描',
+    'feature_scan_desc'    => '拍摄废弃物照片——AI 自动识别品项、估算重量并填写表单。',
+    'feature_report_title' => 'EU 合规报告',
+    'feature_report_desc'  => '为 EU 指令 2018/851 生成 FLW 协议报告，可导出 CSV 或 PDF 供稽核使用。',
+    'highlights_title'     => '功能亮点',
+    'highlight_1'          => '符合 EU 指令 2018/851',
+    'highlight_2'          => 'FLW 协议类别',
+    'highlight_3'          => 'CSV 与 PDF 导出',
+    'highlight_4'          => 'AI 驱动拍照扫描',
+    'highlight_5'          => '多语言支持（EN、NL、DE、FR、ES）',
+    'highlight_6'          => '适合 HORECA 使用',
+    'footer'               => 'KitchenLog · 符合 EU 指令 2018/851 及 FLW 协议',
+];

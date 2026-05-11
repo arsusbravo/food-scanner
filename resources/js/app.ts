@@ -12,16 +12,21 @@ import { messages as nl } from '@/i18n/nl';
 import { messages as de } from '@/i18n/de';
 import { messages as fr } from '@/i18n/fr';
 import { messages as es } from '@/i18n/es';
+import { messages as zhTW } from '@/i18n/zh-TW';
+import { messages as zhCN } from '@/i18n/zh-CN';
+import { messages as tr } from '@/i18n/tr';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+// useLocale.ts already resolved the correct locale from the Inertia page data
+// (= server cookie) and synced it to localStorage, so we just read from there.
 const storedLocale = (typeof window !== 'undefined' && localStorage.getItem('locale')) || 'en';
 
 const i18n = createI18n({
     legacy: false,
     locale: storedLocale,
     fallbackLocale: 'en',
-    messages: { en, nl, de, fr, es },
+    messages: { en, nl, de, fr, es, 'zh-TW': zhTW, 'zh-CN': zhCN, tr },
 });
 
 createInertiaApp({

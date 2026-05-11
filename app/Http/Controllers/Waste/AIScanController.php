@@ -87,7 +87,7 @@ PROMPT;
             'photo_bytes' => (int) (strlen($imageData) * 0.75), // approx decoded bytes
         ]);
 
-        $locale       = $user->document_locale ?? $request->cookie('locale', 'en');
+        $locale       = $user->resolveDocumentLocale($request->cookie('locale', 'en'));
         $systemPrompt = $this->buildSystemPrompt($locale);
 
         try {

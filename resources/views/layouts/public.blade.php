@@ -24,7 +24,16 @@
 
     @php
         $locale = app()->getLocale();
-        $langs  = ['en', 'nl', 'de', 'fr', 'es'];
+        $langs  = [
+            'en'    => 'EN',
+            'nl'    => 'NL',
+            'de'    => 'DE',
+            'fr'    => 'FR',
+            'es'    => 'ES',
+            'zh-TW' => '繁中',
+            'zh-CN' => '简中',
+            'tr'    => 'TR',
+        ];
     @endphp
 
     <!-- Hero -->
@@ -32,13 +41,13 @@
         <div style="max-width: 480px; margin: 0 auto; text-align: center;">
 
             <!-- Language switcher -->
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
                 <div style="display: inline-flex; gap: 2px; background: rgba(0,0,0,0.2); border-radius: 999px; padding: 3px;">
-                    @foreach($langs as $code)
+                    @foreach($langs as $code => $label)
                     <button
                         onclick="setLocale('{{ $code }}')"
                         style="border: none; font-size: 11px; padding: 4px 9px; border-radius: 999px; letter-spacing: 0.04em; {{ $locale === $code ? 'background: white; color: #059669; font-weight: 700;' : 'background: transparent; color: rgba(209,250,229,0.85); font-weight: 600;' }}"
-                    >{{ strtoupper($code) }}</button>
+                    >{{ $label }}</button>
                     @endforeach
                 </div>
             </div>
@@ -79,6 +88,7 @@
     <script>
         function setLocale(code) {
             document.cookie = 'locale=' + code + ';path=/;max-age=31536000;SameSite=Lax';
+            localStorage.setItem('locale', code);
             location.reload();
         }
         function acceptCookies() {

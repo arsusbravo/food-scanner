@@ -11,7 +11,7 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $supported = ['en', 'nl', 'de', 'fr', 'es'];
+        $supported = ['en', 'nl', 'de', 'fr', 'es', 'zh-TW', 'zh-CN', 'tr'];
 
         if ($request->hasCookie('locale') && in_array($request->cookie('locale'), $supported)) {
             $locale = $request->cookie('locale');

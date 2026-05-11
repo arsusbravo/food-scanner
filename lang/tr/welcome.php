@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'tagline'              => 'Yiyecek Atığı Takip Sistemi',
+    'subtitle'             => 'Ticari mutfaklar için akıllı yiyecek atığı takip sistemi — AB mevzuatına uygun.',
+    'cta_register'         => 'Hemen başlayın — ücretsiz',
+    'cta_login'            => 'Giriş yap',
+    'features_title'       => 'İhtiyacınız olan her şey',
+    'feature_log_title'    => 'Hızlı Atık Kaydı',
+    'feature_log_desc'     => 'Herhangi bir cihazdan saniyeler içinde kategori, ağırlık ve nedene göre yiyecek atığı kaydedin.',
+    'feature_scan_title'   => 'AI Fotoğraf Taraması',
+    'feature_scan_desc'    => 'Atık fotoğrafı çekin — AI ürünleri otomatik tanır, ağırlığı tahmin eder ve formu doldurur.',
+    'feature_report_title' => 'AB Uyumluluk Raporu',
+    'feature_report_desc'  => 'AB Direktifi 2018/851 için FLW Protokolü raporu oluşturun, denetim için CSV veya PDF olarak dışa aktarın.',
+    'highlights_title'     => 'Özellikler',
+    'highlight_1'          => 'AB Direktifi 2018/851 uyumlu',
+    'highlight_2'          => 'FLW Protokolü kategorileri',
+    'highlight_3'          => 'CSV ve PDF dışa aktarma',
+    'highlight_4'          => 'AI destekli fotoğraf taraması',
+    'highlight_5'          => 'Çok dil desteği (EN, NL, DE, FR, ES)',
+    'highlight_6'          => 'HORECA için ideal',
+    'footer'               => 'KitchenLog · AB Direktifi 2018/851 ve FLW Protokolü uyumlu',
+];

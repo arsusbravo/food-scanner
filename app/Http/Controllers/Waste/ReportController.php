@@ -129,7 +129,7 @@ class ReportController extends Controller
 
         $summary = $this->buildSummary($rows);
 
-        $locale = $user->document_locale ?? $request->cookie('locale', 'en');
+        $locale = $user->resolveDocumentLocale($request->cookie('locale', 'en'));
 
         $pdf = Pdf::loadView('reports.waste-compliance', [
             'summary'            => $summary,
