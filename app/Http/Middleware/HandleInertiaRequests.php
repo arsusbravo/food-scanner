@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\ContactConversation;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,14 +36,31 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
+        $contactUnread = 0;
+        $adminContactUnread = 0;
+
+        if ($user) {
+            if ($user->is_admin) {
+                $adminContactUnread = ContactConversation::where('unread_by_admin', true)->count();
+            } else {
+                $contactUnread = ContactConversation::where('user_id', $user->id)
+                    ->where('unread_by_user', true)
+                    ->count();
+            }
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'locale' => $request->cookie('locale', 'en'),
+            'sidebarOpen'        => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'locale'             => $request->cookie('locale', 'en'),
+            'contactUnread'      => $contactUnread,
+            'adminContactUnread' => $adminContactUnread,
         ];
     }
 }

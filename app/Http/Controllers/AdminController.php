@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContactConversation;
 use App\Models\User;
 use App\Models\WasteEntry;
 use Illuminate\Http\RedirectResponse;
@@ -102,6 +103,11 @@ class AdminController extends Controller
             'this_month'    => $entries->where('logged_at', '>=', now()->startOfMonth())->count(),
         ];
 
+        $conversations = ContactConversation::where('user_id', $user->id)
+            ->withCount('messages')
+            ->orderByDesc('last_message_at')
+            ->get(['id', 'subject', 'unread_by_admin', 'last_message_at']);
+
         return Inertia::render('admin/UserShow', [
             'user'    => [
                 'id'              => $user->id,
@@ -119,8 +125,15 @@ class AdminController extends Controller
                 'export_quota'    => $user->exportQuota(),
                 'created_at'      => $user->created_at,
             ],
-            'entries' => $entries,
-            'stats'   => $stats,
+            'entries'       => $entries,
+            'stats'         => $stats,
+            'conversations' => $conversations->map(fn ($c) => [
+                'id'             => $c->id,
+                'subject'        => $c->subject,
+                'unread'         => $c->unread_by_admin,
+                'last_message_at'=> $c->last_message_at,
+                'messages_count' => $c->messages_count,
+            ]),
         ]);
     }
 

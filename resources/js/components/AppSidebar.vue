@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, LayoutGrid, Leaf, Users, UserPlus } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, LayoutGrid, Leaf, MessageSquare, Users, UserPlus } from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,26 +16,17 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { users as adminUsers, registrations as adminRegistrations } from '@/routes/admin';
+import { users as adminUsers, registrations as adminRegistrations, contact as adminContactRoute } from '@/routes/admin';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Users',
-        href: adminUsers(),
-        icon: Users,
-    },
-    {
-        title: 'Registrations',
-        href: adminRegistrations(),
-        icon: UserPlus,
-    },
-];
+const page = usePage<{ adminContactUnread: number }>();
+
+const mainNavItems = computed<NavItem[]>(() => [
+    { title: 'Dashboard',      href: dashboard(),              icon: LayoutGrid },
+    { title: 'Users',          href: adminUsers(),             icon: Users },
+    { title: 'Registrations',  href: adminRegistrations(),     icon: UserPlus },
+    { title: 'Contact',        href: adminContactRoute.url(),  icon: MessageSquare, badge: page.props.adminContactUnread || 0 },
+]);
 
 const footerNavItems: NavItem[] = [
     {

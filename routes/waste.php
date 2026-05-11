@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Waste\AIScanController;
+use App\Http\Controllers\Waste\ContactController;
 use App\Http\Controllers\Waste\InsightsController;
 use App\Http\Controllers\Waste\ReportController;
 use App\Http\Controllers\Waste\SubscriptionController;
@@ -32,4 +33,10 @@ Route::middleware(['auth', 'verified', 'user-active'])->prefix('waste')->name('w
     Route::post('subscription/checkout', [SubscriptionController::class, 'checkout'])->name('subscription.checkout');
     Route::get('subscription/success',   [SubscriptionController::class, 'success'])->name('subscription.success');
     Route::get('subscription/portal',    [SubscriptionController::class, 'portal'])->name('subscription.portal');
+
+    Route::get('contact',                              [ContactController::class, 'index'])->name('contact.index');
+    Route::post('contact',                             [ContactController::class, 'store'])->name('contact.store');
+    Route::get('contact/new',                          fn () => inertia('waste/ContactNew'))->name('contact.new');
+    Route::get('contact/{conversation}',               [ContactController::class, 'show'])->name('contact.show');
+    Route::post('contact/{conversation}/reply',        [ContactController::class, 'reply'])->name('contact.reply');
 });

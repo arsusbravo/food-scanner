@@ -62,10 +62,19 @@ type Stats = {
     this_month: number;
 };
 
+type ConversationRow = {
+    id: number;
+    subject: string;
+    unread: boolean;
+    last_message_at: string;
+    messages_count: number;
+};
+
 const props = defineProps<{
     user: UserProp;
     entries: EntryRow[];
     stats: Stats;
+    conversations: ConversationRow[];
 }>();
 
 // ── Edit profile ──────────────────────────────────────────────
@@ -600,6 +609,43 @@ const inputMd  = 'width:100%;height:40px;border-radius:10px;border:1.5px solid #
                             </template>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Support Conversations -->
+            <div class="rounded-xl border bg-card overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b">
+                    <h2 class="font-semibold text-sm">Support Conversations</h2>
+                    <span class="text-xs text-muted-foreground">{{ conversations.length }} total</span>
+                </div>
+
+                <div v-if="conversations.length === 0" class="p-10 text-center text-sm text-muted-foreground">
+                    No conversations yet.
+                </div>
+
+                <div v-else class="divide-y">
+                    <Link
+                        v-for="conv in conversations"
+                        :key="conv.id"
+                        :href="`/admin/contact/${conv.id}`"
+                        class="flex items-center gap-4 px-5 py-3 hover:bg-muted/40 transition-colors"
+                    >
+                        <span
+                            class="text-[10px] font-bold px-2 py-0.5 rounded-full capitalize"
+                            :style="{
+                                question:  'background:#dbeafe; color:#1d4ed8;',
+                                feedback:  'background:#dcfce7; color:#059669;',
+                                complaint: 'background:#fee2e2; color:#dc2626;',
+                                other:     'background:#f1f5f9; color:#475569;',
+                            }[conv.subject] ?? 'background:#f1f5f9; color:#475569;'"
+                        >{{ conv.subject }}</span>
+                        <span v-if="conv.unread" class="size-2 rounded-full bg-emerald-500 shrink-0" />
+                        <span class="flex-1 text-xs text-muted-foreground">{{ conv.messages_count }} messages</span>
+                        <span class="text-xs text-muted-foreground">
+                            {{ new Date(conv.last_message_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }}
+                        </span>
+                        <span class="text-xs font-semibold" style="color:#059669;">Open →</span>
+                    </Link>
                 </div>
             </div>
 

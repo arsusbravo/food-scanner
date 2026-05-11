@@ -51,6 +51,11 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::patch('admin/entries/{entry}', [AdminController::class, 'updateEntry'])->name('admin.entries.update');
     Route::delete('admin/entries/{entry}', [AdminController::class, 'destroyEntry'])->name('admin.entries.destroy');
 
+    // Contact conversations
+    Route::get('admin/contact',                                   [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('admin.contact');
+    Route::get('admin/contact/{conversation}',                    [\App\Http\Controllers\Admin\ContactController::class, 'show'])->name('admin.contact.show');
+    Route::post('admin/contact/{conversation}/reply',             [\App\Http\Controllers\Admin\ContactController::class, 'reply'])->name('admin.contact.reply');
+
     // Registration management
     Route::get('admin/registrations', [RegistrationController::class, 'index'])->name('admin.registrations');
     Route::patch('admin/registrations/mode', [RegistrationController::class, 'updateMode'])->name('admin.registrations.mode');

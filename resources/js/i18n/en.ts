@@ -262,6 +262,25 @@ export const messages = {
         highlight_6: 'HORECA ready',
         footer: 'KitchenLog · Compliant with EU Directive 2018/851 & FLW Protocol',
     },
+    contact: {
+        title: 'Support',
+        subtitle: 'Send us a message, we reply within 24 hours.',
+        subject_label: 'Subject',
+        subject_question: 'Question',
+        subject_feedback: 'Feedback',
+        subject_complaint: 'Complaint',
+        subject_other: 'Other',
+        message_label: 'Message',
+        placeholder: 'Type your message…',
+        send: 'Send message',
+        empty: 'No messages yet.',
+        empty_sub: 'Start a new conversation using the button above.',
+        no_preview: 'No messages yet',
+        you: 'You',
+        support: 'Support Team',
+        new_conversation: 'New conversation',
+        back: 'Back',
+    },
 } as const;
 
 export type MessageSchema = Stringified<typeof messages>;

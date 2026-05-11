@@ -27,9 +27,14 @@ const { isCurrentUrl } = useCurrentUrl();
                     :is-active="isCurrentUrl(item.href)"
                     :tooltip="item.title"
                 >
-                    <Link :href="item.href">
+                    <Link :href="item.href" class="flex items-center gap-2 w-full">
                         <component :is="item.icon" />
                         <span>{{ item.title }}</span>
+                        <span
+                            v-if="item.badge && item.badge > 0"
+                            class="ml-auto min-w-4.5 h-4.5 rounded-full text-[10px] font-bold flex items-center justify-center px-1"
+                            style="background: #ef4444; color: white;"
+                        >{{ item.badge > 99 ? '99+' : item.badge }}</span>
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>
