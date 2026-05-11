@@ -3,15 +3,18 @@ import { usePage, Link } from '@inertiajs/vue3';
 import { docs } from '@/routes';
 import { Toaster } from '@/components/ui/sonner';
 import { ref, computed } from 'vue';
-import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe, Lightbulb, CircleHelp } from 'lucide-vue-next';
+import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe, Lightbulb, CircleHelp, MessageSquare } from 'lucide-vue-next';
 import { useLocale, type SupportedLocale } from '@/composables/useLocale';
 
-const page = usePage<{ auth: { user: { name: string; email: string } } }>();
+const page = usePage<{ auth: { user: { name: string; email: string; is_pro: boolean } }; contactUnread: number }>();
 
 const userInitials = computed(() => {
     const name = page.props.auth?.user?.name ?? '';
     return name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase() || '?';
 });
+
+const isPro = computed(() => page.props.auth?.user?.is_pro ?? false);
+const contactUnread = computed(() => page.props.contactUnread ?? 0);
 
 const url = computed(() => page.url);
 const { locale, setLocale } = useLocale();
@@ -113,6 +116,20 @@ function isActive(href: string) {
                     >
                         <CircleHelp style="width: 18px; height: 18px; color: white;" />
                     </a>
+
+                    <!-- Contact — Pro users only -->
+                    <Link
+                        v-if="isPro"
+                        href="/waste/contact"
+                        class="size-10 rounded-full flex items-center justify-center shrink-0"
+                        style="position: relative; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);"
+                    >
+                        <MessageSquare style="width: 18px; height: 18px; color: white;" />
+                        <span
+                            v-if="contactUnread > 0"
+                            style="position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid #059669;"
+                        />
+                    </Link>
 
                     <!-- Avatar → Settings -->
                     <Link
