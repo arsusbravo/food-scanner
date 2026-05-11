@@ -3,13 +3,15 @@ import { usePage, Link } from '@inertiajs/vue3';
 import { docs } from '@/routes';
 import { Toaster } from '@/components/ui/sonner';
 import { ref, computed, onMounted } from 'vue';
-import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe, Lightbulb, CircleHelp, MessageSquare } from 'lucide-vue-next';
+import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe, Lightbulb, Settings2, BookOpen, MessageSquare, ExternalLink } from 'lucide-vue-next';
 import { useLocale, type SupportedLocale } from '@/composables/useLocale';
 
 const page = usePage<{ auth: { user: { name: string; email: string; is_pro: boolean } }; contactUnread: number; locale: string }>();
 
+const userName = computed(() => page.props.auth?.user?.name ?? '');
+const userEmail = computed(() => page.props.auth?.user?.email ?? '');
 const userInitials = computed(() => {
-    const name = page.props.auth?.user?.name ?? '';
+    const name = userName.value;
     return name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase() || '?';
 });
 
@@ -30,6 +32,7 @@ onMounted(() => {
 });
 
 const langOpen = ref(false);
+const avatarOpen = ref(false);
 
 const LANG_LABELS: Record<SupportedLocale, string> = {
     en: 'English',
@@ -79,16 +82,16 @@ function isActive(href: string) {
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <!-- Language switcher -->
+
+                    <!-- Language switcher — globe icon only -->
                     <div class="relative">
                         <button
                             type="button"
-                            class="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors"
-                            style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);"
-                            @click="langOpen = !langOpen"
+                            class="size-10 rounded-full flex items-center justify-center shrink-0 transition-colors"
+                            style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);"
+                            @click="langOpen = !langOpen; avatarOpen = false"
                         >
-                            <Globe style="width: 13px; height: 13px;" />
-                            {{ locale.toUpperCase() }}
+                            <Globe style="width: 18px; height: 18px; color: white;" />
                         </button>
 
                         <!-- Backdrop -->
@@ -119,39 +122,83 @@ function isActive(href: string) {
                         </div>
                     </div>
 
-                    <!-- Docs link — plain <a> so the Blade page gets a full load -->
-                    <a
-                        :href="docs().url"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="size-10 rounded-full flex items-center justify-center shrink-0"
-                        style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);"
-                    >
-                        <CircleHelp style="width: 18px; height: 18px; color: white;" />
-                    </a>
+                    <!-- Avatar — opens dropdown menu -->
+                    <div class="relative">
+                        <button
+                            type="button"
+                            class="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0 transition-colors"
+                            style="position: relative; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);"
+                            @click="avatarOpen = !avatarOpen; langOpen = false"
+                        >
+                            {{ userInitials }}
+                            <!-- Unread dot (Pro + unread contact messages) -->
+                            <span
+                                v-if="isPro && contactUnread > 0"
+                                style="position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid #059669;"
+                            />
+                        </button>
 
-                    <!-- Contact — Pro users only -->
-                    <Link
-                        v-if="isPro"
-                        href="/waste/contact"
-                        class="size-10 rounded-full flex items-center justify-center shrink-0"
-                        style="position: relative; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);"
-                    >
-                        <MessageSquare style="width: 18px; height: 18px; color: white;" />
-                        <span
-                            v-if="contactUnread > 0"
-                            style="position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid #059669;"
+                        <!-- Backdrop -->
+                        <div
+                            v-if="avatarOpen"
+                            style="position: fixed; inset: 0; z-index: 98;"
+                            @click="avatarOpen = false"
                         />
-                    </Link>
 
-                    <!-- Avatar → Settings -->
-                    <Link
-                        href="/waste/settings"
-                        class="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
-                        style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);"
-                    >
-                        {{ userInitials }}
-                    </Link>
+                        <!-- Dropdown -->
+                        <div
+                            v-if="avatarOpen"
+                            style="position: absolute; right: 0; top: calc(100% + 8px); background: white; border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); min-width: 200px; overflow: hidden; z-index: 99;"
+                        >
+                            <!-- User info header -->
+                            <div class="px-4 py-3" style="border-bottom: 1px solid #f1f5f9;">
+                                <p class="text-sm font-bold text-slate-800 truncate">{{ userName }}</p>
+                                <p class="text-xs text-slate-400 truncate mt-0.5">{{ userEmail }}</p>
+                            </div>
+
+                            <!-- Settings -->
+                            <Link
+                                href="/waste/settings"
+                                class="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-left transition-colors"
+                                style="color: #475569; display: flex;"
+                                @click="avatarOpen = false"
+                            >
+                                <Settings2 style="width: 16px; height: 16px; shrink-0: 1; color: #94a3b8;" />
+                                Settings
+                            </Link>
+
+                            <!-- Docs — full page load -->
+                            <a
+                                :href="docs().url"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-colors"
+                                style="color: #475569; display: flex;"
+                                @click="avatarOpen = false"
+                            >
+                                <BookOpen style="width: 16px; height: 16px; color: #94a3b8;" />
+                                Docs
+                                <ExternalLink style="width: 12px; height: 12px; color: #cbd5e1; margin-left: auto;" />
+                            </a>
+
+                            <!-- Support — Pro only -->
+                            <Link
+                                v-if="isPro"
+                                href="/waste/contact"
+                                class="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-left transition-colors"
+                                style="color: #475569; display: flex; border-top: 1px solid #f1f5f9;"
+                                @click="avatarOpen = false"
+                            >
+                                <MessageSquare style="width: 16px; height: 16px; color: #94a3b8;" />
+                                Support
+                                <span
+                                    v-if="contactUnread > 0"
+                                    style="margin-left: auto; width: 8px; height: 8px; background: #ef4444; border-radius: 50%;"
+                                />
+                            </Link>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </header>
