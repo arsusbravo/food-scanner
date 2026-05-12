@@ -5,7 +5,17 @@ import { login } from '@/routes';
 import { Lock } from 'lucide-vue-next';
 
 onMounted(() => {
+    // The server rendered this page because there is no valid token.
+    // If the URL already has a token param it means the server just rejected it —
+    // clear localStorage and stop so we never loop.
+    if (new URLSearchParams(window.location.search).get('token')) {
+        localStorage.removeItem('invite_token');
+        return;
+    }
+    // Try once with a locally saved token, then clear it regardless so a future
+    // redirect can't loop back here with the same stale value.
     const token = localStorage.getItem('invite_token');
+    localStorage.removeItem('invite_token');
     if (token) {
         window.location.href = '/register?token=' + encodeURIComponent(token);
     }

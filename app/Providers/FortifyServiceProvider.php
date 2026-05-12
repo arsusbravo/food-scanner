@@ -78,6 +78,9 @@ class FortifyServiceProvider extends ServiceProvider
                 $invitation = $token ? Invitation::valid()->where('token', $token)->first() : null;
 
                 if (! $invitation) {
+                    // Token was invalid or expired — remove it from the session so
+                    // the homepage stops re-writing it to localStorage on next visit.
+                    $request->session()->forget('invite_token');
                     return Inertia::render('auth/InviteOnly');
                 }
 
