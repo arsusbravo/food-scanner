@@ -5,9 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('page_title')</title>
     <meta name="description" content="@yield('meta_description')">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta name="theme-color" content="#059669">
+
+    {{-- Open Graph (Facebook, LinkedIn, WhatsApp, Slack, etc.) --}}
+    <meta property="og:site_name" content="KitchenLog">
     <meta property="og:title" content="@yield('page_title')">
     <meta property="og:description" content="@yield('meta_description')">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:locale" content="{{ str_replace('-', '_', app()->getLocale()) }}">
+    <meta property="og:image" content="@yield('og_image', asset('images/doc/logo-light.png'))">
+    <meta property="og:image:secure_url" content="@yield('og_image', secure_asset('images/doc/logo-light.png'))">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="164">
+    <meta property="og:image:height" content="229">
+    <meta property="og:image:alt" content="KitchenLog logo">
+
+    {{-- Twitter / X card --}}
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="@yield('page_title')">
+    <meta name="twitter:description" content="@yield('meta_description')">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/doc/logo-light.png'))">
+    <meta name="twitter:image:alt" content="KitchenLog logo">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
