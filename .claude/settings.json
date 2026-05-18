@@ -3,7 +3,11 @@
     "allow": [
       "Bash(grep -v \".js$\")",
       "Bash(curl -s http://kitchenlog.test/)",
-      "Bash(curl -s http://kitchenlog.test/docs)"
+      "Bash(curl -s http://kitchenlog.test/docs)",
+      "Bash(php -l app/Support/Turnstile.php)",
+      "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\(JSON.stringify\\(p.scripts,null,1\\)\\)\")",
+      "Bash(npx vue-tsc *)",
+      "Bash(php -l app/Providers/FortifyServiceProvider.php)"
     ]
   }
 }

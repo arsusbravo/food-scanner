@@ -7,7 +7,7 @@ use App\Concerns\ProfileValidationRules;
 use App\Models\Company;
 use App\Models\SiteSetting;
 use App\Models\User;
-use Illuminate\Support\Facades\Http;
+use App\Support\Turnstile;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -27,24 +27,20 @@ class CreateNewUser implements CreatesNewUsers
             'company_name' => ['required', 'string', 'max:255'],
         ];
 
+        // Cloudflare Turnstile is enforced for every registration, regardless
+        // of mode (invite-only or open).
+        if (! Turnstile::verify($input['cf-turnstile-response'] ?? null, request()->ip())) {
+            throw ValidationException::withMessages([
+                'cf-turnstile-response' => 'CAPTCHA verification failed. Please try again.',
+            ]);
+        }
+
         if ($mode === 'invite_only') {
             $rules['invite_token'] = [
                 'required',
                 Rule::exists('invitations', 'token')
                     ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now())),
             ];
-        } elseif ($mode === 'open') {
-            $turnstileToken = $input['cf-turnstile-response'] ?? '';
-            $verify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v1/siteverify', [
-                'secret'   => config('services.turnstile.secret'),
-                'response' => $turnstileToken,
-            ]);
-
-            if (! ($verify->json('success') ?? false)) {
-                throw ValidationException::withMessages([
-                    'cf-turnstile-response' => 'CAPTCHA verification failed. Please try again.',
-                ]);
-            }
         }
 
         Validator::make($input, $rules)->validate();

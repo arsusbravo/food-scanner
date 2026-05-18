@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { Eye, EyeOff } from 'lucide-vue-next';
 import InputError from '@/components/InputError.vue';
 import { Spinner } from '@/components/ui/spinner';
+import { useTurnstile } from '@/composables/useTurnstile';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 
@@ -23,15 +24,8 @@ const props = defineProps<{
 const showPassword = ref(false);
 const showConfirm  = ref(false);
 
-onMounted(() => {
-    if (props.mode === 'open' && props.turnstileSiteKey) {
-        const script = document.createElement('script');
-        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-    }
-});
+// Cloudflare Turnstile is required for every registration (invite-only or open).
+const { container: turnstileEl, reset: resetTurnstile } = useTurnstile(props.turnstileSiteKey);
 
 const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 15px; padding: 0 14px; outline: none; box-sizing: border-box; transition: border-color 0.15s;';
 </script>
@@ -43,6 +37,7 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
         :action="store.url()"
         method="post"
         :reset-on-success="['password', 'password_confirmation']"
+        @error="resetTurnstile"
         v-slot="{ errors, processing }"
         class="flex flex-col gap-5"
     >
@@ -152,9 +147,9 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
         <!-- Invite token (hidden, invite_only mode) -->
         <input v-if="mode === 'invite_only' && inviteToken" type="hidden" name="invite_token" :value="inviteToken" />
 
-        <!-- Turnstile CAPTCHA (open mode) -->
-        <div v-if="mode === 'open' && turnstileSiteKey">
-            <div class="cf-turnstile" :data-sitekey="turnstileSiteKey" data-theme="light" />
+        <!-- Cloudflare Turnstile CAPTCHA (required for all registrations) -->
+        <div v-if="turnstileSiteKey">
+            <div ref="turnstileEl" />
             <InputError :message="(errors as Record<string, string>)['cf-turnstile-response']" />
         </div>
 

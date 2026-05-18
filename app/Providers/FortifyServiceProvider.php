@@ -6,11 +6,15 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Models\Invitation;
 use App\Models\SiteSetting;
+use App\Models\User;
+use App\Support\Turnstile;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -18,11 +22,38 @@ use Laravel\Fortify\Fortify;
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
+     * Number of failed login attempts (per IP, within the decay window) after
+     * which the Cloudflare Turnstile challenge is required on login.
+     *
+     * Keep in sync with LOGIN_TURNSTILE_AFTER in resources/js/pages/auth/Login.vue.
+     */
+    private const LOGIN_TURNSTILE_AFTER = 2;
+
+    /** Seconds the failed-login counter is kept before it decays. */
+    private const LOGIN_TURNSTILE_DECAY = 900;
+
+    /**
      * Register any application services.
      */
     public function register(): void
     {
         //
+    }
+
+    /**
+     * Cache key tracking failed login attempts for the request's IP.
+     */
+    private function loginTurnstileKey(Request $request): string
+    {
+        return 'turnstile-login:'.$request->ip();
+    }
+
+    /**
+     * Whether the login form should present a Turnstile challenge for this IP.
+     */
+    private function loginTurnstileRequired(Request $request): bool
+    {
+        return RateLimiter::attempts($this->loginTurnstileKey($request)) >= self::LOGIN_TURNSTILE_AFTER;
     }
 
     /**
@@ -42,6 +73,39 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        // Adaptive (step-up) Turnstile on login: the challenge is only required
+        // once an IP has accumulated repeated failed attempts. This runs inside
+        // Fortify's pipeline, so the login rate limiter and two-factor flow
+        // still apply afterwards.
+        //
+        // Note: for users without 2FA this callback runs twice per request
+        // (RedirectIfTwoFactorAuthenticatable, then AttemptToAuthenticate).
+        // Turnstile::verify() is memoised by token, and the failure counter is
+        // gated on a request attribute so it only moves once per attempt.
+        Fortify::authenticateUsing(function (Request $request) {
+            $key = $this->loginTurnstileKey($request);
+
+            if ($this->loginTurnstileRequired($request)
+                && ! Turnstile::verify($request->input('cf-turnstile-response'), $request->ip())) {
+                throw ValidationException::withMessages([
+                    'cf-turnstile-response' => 'CAPTCHA verification failed. Please try again.',
+                ]);
+            }
+
+            $user = User::where(Fortify::username(), $request->input(Fortify::username()))->first();
+            $passed = $user && Hash::check($request->input('password'), $user->password);
+
+            if (! $request->attributes->get('turnstile_login_counted')) {
+                $request->attributes->set('turnstile_login_counted', true);
+
+                $passed
+                    ? RateLimiter::clear($key)
+                    : RateLimiter::hit($key, self::LOGIN_TURNSTILE_DECAY);
+            }
+
+            return $passed ? $user : null;
+        });
     }
 
     /**
@@ -53,6 +117,8 @@ class FortifyServiceProvider extends ServiceProvider
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'canRegister' => Features::enabled(Features::registration()),
             'status' => $request->session()->get('status'),
+            'turnstileSiteKey' => config('services.turnstile.site_key'),
+            'requireTurnstile' => $this->loginTurnstileRequired($request),
         ]));
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/ResetPassword', [
@@ -95,7 +161,7 @@ class FortifyServiceProvider extends ServiceProvider
                 return Inertia::render('auth/Register', [
                     'inviteToken'      => $token,
                     'mode'             => 'invite_only',
-                    'turnstileSiteKey' => null,
+                    'turnstileSiteKey' => config('services.turnstile.site_key'),
                 ]);
             }
 

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Eye, EyeOff } from 'lucide-vue-next';
 import InputError from '@/components/InputError.vue';
 import { Spinner } from '@/components/ui/spinner';
+import { useTurnstile } from '@/composables/useTurnstile';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
@@ -15,13 +16,33 @@ defineOptions({
     },
 });
 
-defineProps<{
+const props = defineProps<{
     status?: string;
     canResetPassword: boolean;
     canRegister: boolean;
+    turnstileSiteKey: string | null;
+    // Server already saw enough failed attempts from this IP to demand the CAPTCHA.
+    requireTurnstile: boolean;
 }>();
 
 const showPassword = ref(false);
+
+// Adaptive Turnstile: only challenge after repeated failures. Keep this
+// threshold in sync with LOGIN_TURNSTILE_AFTER in FortifyServiceProvider.
+const LOGIN_TURNSTILE_AFTER = 2;
+const failedAttempts = ref(0);
+
+const { container: turnstileEl, reset: resetTurnstile } = useTurnstile(props.turnstileSiteKey);
+
+const showTurnstile = computed(
+    () => !!props.turnstileSiteKey
+        && (props.requireTurnstile || failedAttempts.value >= LOGIN_TURNSTILE_AFTER),
+);
+
+function onLoginError() {
+    failedAttempts.value += 1;
+    resetTurnstile();
+}
 
 const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-size: 15px; padding: 0 14px; outline: none; box-sizing: border-box; transition: border-color 0.15s;';
 </script>
@@ -37,6 +58,7 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
         :action="store.url()"
         method="post"
         :reset-on-success="['password']"
+        @error="onLoginError"
         v-slot="{ errors, processing }"
         class="flex flex-col gap-5"
     >
@@ -96,6 +118,12 @@ const inputStyle = 'width: 100%; height: 48px; border-radius: 12px; border: 1.5p
 
         <!-- Remember me — always on -->
         <input type="hidden" name="remember" value="1" />
+
+        <!-- Cloudflare Turnstile CAPTCHA — only after repeated failed attempts -->
+        <div v-if="showTurnstile">
+            <div ref="turnstileEl" />
+            <InputError :message="(errors as Record<string, string>)['cf-turnstile-response']" />
+        </div>
 
         <!-- Submit -->
         <button
