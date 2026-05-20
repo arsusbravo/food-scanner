@@ -9,6 +9,7 @@ import {
     documentLocale as documentLocaleRoute,
 } from '@/routes/waste/settings';
 import { index as subscriptionRoute } from '@/routes/waste/subscription';
+import { csrfFetch } from '@/lib/csrf';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -102,18 +103,13 @@ function savePassword() {
 }
 
 // ── Logout ────────────────────────────────────────────────────
-function logout() {
+async function logout() {
     router.flushAll();
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/logout';
-    const token = document.createElement('input');
-    token.type = 'hidden';
-    token.name = '_token';
-    token.value = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
-    document.body.appendChild(form);
-    form.appendChild(token);
-    form.submit();
+    try {
+        await csrfFetch('/logout', { method: 'POST', headers: { Accept: 'text/html' } });
+    } finally {
+        window.location.href = '/';
+    }
 }
 
 // ── Helpers ───────────────────────────────────────────────────

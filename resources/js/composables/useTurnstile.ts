@@ -5,6 +5,7 @@ const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
 type TurnstileApi = {
     render: (el: HTMLElement, opts: { sitekey: string; theme?: string }) => string;
     reset: (el?: HTMLElement) => void;
+    getResponse: (el?: HTMLElement) => string | undefined;
 };
 
 const getApi = (): TurnstileApi | undefined =>
@@ -38,6 +39,18 @@ export function useTurnstile(siteKey: string | null | undefined) {
         if (api && container.value) api.reset(container.value);
     }
 
+    // The current solved token, for manual (fetch/XHR) submissions. Forms can
+    // ignore this — Turnstile injects a hidden cf-turnstile-response input.
+    function getToken(): string {
+        const api = getApi();
+        if (!api || !container.value) return '';
+        try {
+            return api.getResponse(container.value) ?? '';
+        } catch {
+            return '';
+        }
+    }
+
     function ensureScriptThenRender() {
         if (!siteKey) return;
 
@@ -67,5 +80,5 @@ export function useTurnstile(siteKey: string | null | undefined) {
         if (el) ensureScriptThenRender();
     });
 
-    return { container, reset };
+    return { container, reset, getToken };
 }

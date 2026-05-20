@@ -3,6 +3,7 @@
 return [
     'tagline'              => 'Yiyecek Atığı Takip Sistemi',
     'subtitle'             => 'Ticari mutfaklar için akıllı yiyecek atığı takip sistemi — AB mevzuatına uygun.',
+    'try_demo'             => 'Ücretsiz deneyin',
     'cta_register'         => 'Hemen başlayın — ücretsiz',
     'cta_login'            => 'Giriş yap',
     'features_title'       => 'İhtiyacınız olan her şey',

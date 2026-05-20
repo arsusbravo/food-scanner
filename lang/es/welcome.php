@@ -3,6 +3,7 @@
 return [
     'tagline'              => 'Rastreador de desperdicio alimentario',
     'subtitle'             => 'Seguimiento inteligente del desperdicio alimentario para cocinas comerciales — diseñado para el cumplimiento de la UE.',
+    'try_demo'             => 'Pruébalo gratis',
     'cta_register'         => 'Empezar — es gratis',
     'cta_login'            => 'Iniciar sesión',
     'features_title'       => 'Todo lo que necesitas',

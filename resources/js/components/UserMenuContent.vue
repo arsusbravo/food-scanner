@@ -9,24 +9,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import UserInfo from '@/components/UserInfo.vue';
 import { edit } from '@/routes/profile';
+import { csrfFetch } from '@/lib/csrf';
 import type { User } from '@/types';
 
 type Props = {
     user: User;
 };
 
-const handleLogout = () => {
+// Use csrfFetch so a stale meta token after long idle is auto-refreshed and
+// retried (the previous DOM-form approach would surface as 419).
+const handleLogout = async () => {
     router.flushAll();
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/logout';
-    const token = document.createElement('input');
-    token.type = 'hidden';
-    token.name = '_token';
-    token.value = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
-    document.body.appendChild(form);
-    form.appendChild(token);
-    form.submit();
+    try {
+        await csrfFetch('/logout', { method: 'POST', headers: { Accept: 'text/html' } });
+    } finally {
+        window.location.href = '/';
+    }
 };
 
 defineProps<Props>();

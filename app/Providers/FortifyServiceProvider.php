@@ -117,7 +117,7 @@ class FortifyServiceProvider extends ServiceProvider
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'canRegister' => Features::enabled(Features::registration()),
             'status' => $request->session()->get('status'),
-            'turnstileSiteKey' => config('services.turnstile.site_key'),
+            'turnstileSiteKey' => Turnstile::siteKey(),
             'requireTurnstile' => $this->loginTurnstileRequired($request),
         ]));
 
@@ -161,14 +161,14 @@ class FortifyServiceProvider extends ServiceProvider
                 return Inertia::render('auth/Register', [
                     'inviteToken'      => $token,
                     'mode'             => 'invite_only',
-                    'turnstileSiteKey' => config('services.turnstile.site_key'),
+                    'turnstileSiteKey' => Turnstile::siteKey(),
                 ]);
             }
 
             return Inertia::render('auth/Register', [
                 'inviteToken'      => null,
                 'mode'             => 'open',
-                'turnstileSiteKey' => config('services.turnstile.site_key'),
+                'turnstileSiteKey' => Turnstile::siteKey(),
             ]);
         });
 

@@ -3,6 +3,7 @@
 return [
     'tagline'              => 'Traceur de gaspillage alimentaire',
     'subtitle'             => "Suivi intelligent des déchets alimentaires pour les cuisines professionnelles — conçu pour la conformité UE.",
+    'try_demo'             => "Essayer gratuitement",
     'cta_register'         => "Commencer — c'est gratuit",
     'cta_login'            => 'Se connecter',
     'features_title'       => "Tout ce qu'il vous faut",

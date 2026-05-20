@@ -7,7 +7,10 @@
       "Bash(php -l app/Support/Turnstile.php)",
       "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\(JSON.stringify\\(p.scripts,null,1\\)\\)\")",
       "Bash(npx vue-tsc *)",
-      "Bash(php -l app/Providers/FortifyServiceProvider.php)"
+      "Bash(php -l app/Providers/FortifyServiceProvider.php)",
+      "Bash(grep -n 'export const messages = {' resources/js/i18n/__TRACKED_VAR__.ts)",
+      "Bash(php artisan *)",
+      "Bash(php -r ' *)"
     ]
   }
 }

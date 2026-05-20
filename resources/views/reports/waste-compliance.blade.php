@@ -12,23 +12,22 @@
         h2 { font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
         h3 { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px; }
 
-        .header { margin-bottom: 20px; border-bottom: 2px solid #111; padding-bottom: 14px; }
+        .header { margin-bottom: 14px; border-bottom: 2px solid #111; padding-bottom: 10px; }
         .header-meta { display: flex; justify-content: space-between; margin-top: 6px; }
-        .meta-block { }
         .meta-label { font-size: 9px; color: #777; text-transform: uppercase; letter-spacing: 0.05em; }
         .meta-value { font-size: 11px; font-weight: bold; }
 
-        .regulatory { background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 8px 12px; margin-bottom: 18px; font-size: 10px; color: #555; }
+        .regulatory { background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 7px 12px; margin-bottom: 12px; font-size: 10px; color: #555; }
 
-        table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
-        th { background: #f0f0f0; font-weight: bold; padding: 7px 10px; text-align: left; border: 1px solid #ccc; font-size: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        th { background: #f0f0f0; font-weight: bold; padding: 6px 10px; text-align: left; border: 1px solid #ccc; font-size: 10px; }
         th.num { text-align: right; }
-        td { padding: 6px 10px; border: 1px solid #ddd; font-size: 10px; vertical-align: top; }
+        td { padding: 5px 10px; border: 1px solid #ddd; font-size: 10px; vertical-align: top; }
         td.num { text-align: right; font-variant-numeric: tabular-nums; }
         tr:nth-child(even) td { background: #fafafa; }
         tfoot td { font-weight: bold; background: #eee !important; border-top: 2px solid #999; }
 
-        .grand-total { background: #111; color: #fff; border-radius: 6px; padding: 12px 16px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+        .grand-total { background: #111; color: #fff; border-radius: 6px; padding: 10px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
         .grand-total .label { font-size: 11px; opacity: 0.75; }
         .grand-total .value { font-size: 22px; font-weight: bold; }
         .grand-total .right { text-align: right; }
@@ -39,19 +38,79 @@
         .badge-dairy { background: #fef9c3; color: #a16207; }
         .badge-prepared { background: #ffedd5; color: #c2410c; }
 
-        .section { margin-bottom: 22px; }
+        .section { margin-bottom: 14px; }
 
-        .attestation { border: 1px solid #ccc; border-radius: 4px; padding: 12px 16px; margin-top: 20px; }
-        .signature-line { border-bottom: 1px solid #999; width: 200px; display: inline-block; margin-top: 20px; }
-        .signature-row { display: flex; gap: 40px; margin-top: 8px; }
+        /* Wrapper provides the breathing room above the bordered card.
+           `padding-top` is part of the wrapper element and IS re-applied at the
+           top of a continuation page (unlike `.page` block padding, which only
+           draws at the start of the whole block, or `margin-top`, which
+           collapses at page breaks). */
+        .attestation-wrap { padding-top: 56px; page-break-inside: avoid; }
+        .attestation { border: 1px solid #ccc; border-radius: 4px; padding: 14px 16px; margin-top: 16px; }
+        .attestation p { margin-top: 4px !important; }
+        .signature-inline { margin-top: 14px; font-size: 10px; color: #555; }
+        .signature-inline .sig-label { margin-right: 6px; }
+        .signature-inline .sig-fill {
+            display: inline-block;
+            border-bottom: 1px solid #999;
+            width: 130px;
+            margin-right: 18px;
+            vertical-align: middle;
+            height: 12px;
+        }
 
         .entries-note { font-size: 9px; color: #888; margin-bottom: 6px; }
 
         .page-break { page-break-after: always; }
+
+        /* Keep atomic blocks together across pages — fixes orphaned headings
+           (e.g. "Attestation" on one page, body on the next). */
+        .grand-total { page-break-inside: avoid; }
+        h2 { page-break-after: avoid; }
+        h3 { page-break-after: avoid; }
+        tr { page-break-inside: avoid; }
+        thead { display: table-header-group; }
+        tfoot { display: table-row-group; }
+
+        .demo-watermark {
+            position: fixed;
+            top: 38%;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            transform: rotate(-30deg);
+            font-size: 64px;
+            font-weight: bold;
+            color: #000;
+            opacity: 0.06;
+            z-index: 0;
+        }
+        .demo-banner {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #b91c1c;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-bottom: 14px;
+            font-size: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
+@php $demo = $demo ?? false; @endphp
+@if($demo)
+<div class="demo-watermark">SAMPLE — NOT FOR COMPLIANCE FILING</div>
+@endif
 <div class="page">
+
+    @if($demo)
+    <div class="demo-banner">
+        SAMPLE / DEMO — This document was generated from the public demo and is
+        not valid for regulatory filing. Create an account to produce official,
+        unwatermarked compliance reports.
+    </div>
+    @endif
 
     <!-- Header -->
     <div class="header">
@@ -230,24 +289,18 @@
     </div>
     @endif
 
-    <!-- Attestation block -->
-    <div class="attestation">
-        <h3>{{ $tr['attestation_title'] }}</h3>
-        <p style="margin-top: 6px; font-size: 10px; color: #555;">
-            {{ str_replace([':name', ':from', ':to'], [$company?->name ?? $user->name, $dateFrom, $dateTo], $tr['attestation_text']) }}
-        </p>
-        <div class="signature-row">
-            <div>
-                <div class="signature-line"></div>
-                <div style="margin-top: 4px; font-size: 9px; color: #777;">{{ $tr['sig_signature'] }}</div>
-            </div>
-            <div>
-                <div class="signature-line"></div>
-                <div style="margin-top: 4px; font-size: 9px; color: #777;">{{ $tr['sig_date'] }}</div>
-            </div>
-            <div>
-                <div class="signature-line"></div>
-                <div style="margin-top: 4px; font-size: 9px; color: #777;">{{ $tr['sig_title'] }}</div>
+    <!-- Attestation block — wrapper owns the breathing space so the card
+         never butts against the top edge of a continuation page. -->
+    <div class="attestation-wrap">
+        <div class="attestation">
+            <h3>{{ $tr['attestation_title'] }}</h3>
+            <p style="margin-top: 6px; font-size: 10px; color: #555;">
+                {{ str_replace([':name', ':from', ':to'], [$company?->name ?? $user->name, $dateFrom, $dateTo], $tr['attestation_text']) }}
+            </p>
+            <div class="signature-inline">
+                <span class="sig-label">{{ $tr['sig_signature'] }}:</span><span class="sig-fill"></span>
+                <span class="sig-label">{{ $tr['sig_date'] }}:</span><span class="sig-fill"></span>
+                <span class="sig-label">{{ $tr['sig_title'] }}:</span><span class="sig-fill"></span>
             </div>
         </div>
     </div>

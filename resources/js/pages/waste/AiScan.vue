@@ -10,6 +10,7 @@ import InputError from '@/components/InputError.vue';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { store as entriesStore } from '@/routes/waste/entries';
 import { index as subscriptionRoute } from '@/routes/waste/subscription';
+import { csrfFetch } from '@/lib/csrf';
 import { type WasteCategory } from '@/types/waste';
 
 type AiResult = {
@@ -96,18 +97,12 @@ async function analyse() {
         reader.readAsDataURL(compressed);
     });
 
-    const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
-    console.log('[AIScan] sending request', {
-        base64Length: base64.length,
-        csrfPresent: !!csrfToken,
-        url: '/waste/ai-scan',
-    });
+    console.log('[AIScan] sending request', { base64Length: base64.length, url: '/waste/ai-scan' });
 
     try {
-        const res = await fetch('/waste/ai-scan', {
+        const res = await csrfFetch('/waste/ai-scan', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': csrfToken,
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },

@@ -6,6 +6,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import WasteLayout from '@/layouts/WasteLayout.vue';
+import DemoLayout from '@/layouts/DemoLayout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { messages as en } from '@/i18n/en';
 import { messages as nl } from '@/i18n/nl';
@@ -39,6 +40,8 @@ createInertiaApp({
                 return [AppLayout, SettingsLayout];
             case name.startsWith('waste/'):
                 return WasteLayout;
+            case name.startsWith('demo/'):
+                return DemoLayout;
             default:
                 return AppLayout;
         }

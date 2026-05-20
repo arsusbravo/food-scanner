@@ -82,6 +82,9 @@
     <!-- Global footer -->
     <div style="border-top: 1px solid #e2e8f0; padding: 24px; text-align: center;">
         <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; font-size: 12px;">
+            @guest
+            <a href="{{ route('register') }}" style="color: #64748b; font-weight: 600;">{{ __('welcome.cta_register') }}</a>
+            @endguest
             <a href="{{ route('privacy') }}" style="color: #64748b; font-weight: 600;">Privacy Policy</a>
             <a href="{{ route('terms') }}" style="color: #64748b; font-weight: 600;">Terms &amp; Conditions</a>
             <a href="{{ route('cookies') }}" style="color: #64748b; font-weight: 600;">Cookie Policy</a>

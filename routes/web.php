@@ -2,11 +2,17 @@
 
 use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DemoController;
 use App\Http\Controllers\Stripe\WebhookController as StripeWebhookController;
 use App\Models\Invitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+
+// Refresh-only endpoint for SPA fetch callers. Reading this in a GET ensures
+// the response sets/refreshes the XSRF cookie and returns the current token,
+// so a stale meta tag (after long idle) can be recovered without a reload.
+Route::get('/csrf-token', fn () => response()->json(['token' => csrf_token()]));
 
 Route::get('/', function (Request $request) {
     $token = $request->query('token');
@@ -28,6 +34,15 @@ Route::get('/', function (Request $request) {
         'inviteToken' => $request->session()->get('invite_token'),
     ]);
 })->name('home');
+
+// Public, no-signup demo (real AI scan + report). Metered per device by
+// DemoQuota; Turnstile-gated; throttled as a network-level backstop.
+Route::prefix('demo')->name('demo.')->middleware('throttle:20,1')->group(function () {
+    Route::get('/',           [DemoController::class, 'index'])->name('index');
+    Route::post('scan',       [DemoController::class, 'scan'])->name('scan');
+    Route::post('report',     [DemoController::class, 'report'])->name('report');
+    Route::post('report/pdf', [DemoController::class, 'reportPdf'])->name('report.pdf');
+});
 
 Route::get('/docs', fn () => view('docs'))->name('docs');
 Route::get('/faq', fn () => view('faq'))->name('faq');

@@ -30,11 +30,11 @@
     <!-- CTA buttons -->
     <div style="max-width: 480px; margin: -28px auto 0; padding: 0 24px; position: relative; z-index: 10;">
         <div style="display: flex; flex-direction: column; gap: 12px;">
-            @if($canRegister)
-            <a href="{{ route('register') }}" style="display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 16px; background: linear-gradient(135deg, #059669, #047857); color: white; font-size: 16px; font-weight: 700; box-shadow: 0 8px 24px rgba(5,150,105,0.4);">
-                {{ __('welcome.cta_register') }}
+            @guest
+            <a href="{{ route('demo.index') }}" style="display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 16px; background: linear-gradient(135deg, #059669, #047857); color: white; font-size: 16px; font-weight: 700; box-shadow: 0 8px 24px rgba(5,150,105,0.4);">
+                {{ __('welcome.try_demo') }}
             </a>
-            @endif
+            @endguest
             <a href="{{ route('login') }}" style="display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 16px; background: white; color: #059669; font-size: 16px; font-weight: 700; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 2px solid #d1fae5;">
                 {{ __('welcome.cta_login') }}
             </a>

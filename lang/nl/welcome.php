@@ -3,6 +3,7 @@
 return [
     'tagline'              => 'Voedselverspilling Tracker',
     'subtitle'             => 'Slim voedselverspilling bijhouden voor professionele keukens — gebouwd voor EU-naleving.',
+    'try_demo'             => 'Gratis uitproberen',
     'cta_register'         => 'Aan de slag — gratis',
     'cta_login'            => 'Inloggen',
     'features_title'       => 'Alles wat u nodig heeft',

@@ -3,6 +3,7 @@
 return [
     'tagline'              => 'Food Waste Tracker',
     'subtitle'             => 'Smart food waste tracking for commercial kitchens — built for EU compliance.',
+    'try_demo'             => 'Try it free',
     'cta_register'         => "Get started — it's free",
     'cta_login'            => 'Log in',
     'features_title'       => 'Everything you need',

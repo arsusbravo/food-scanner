@@ -20,19 +20,43 @@ class Turnstile
     protected static array $verified = [];
 
     /**
+     * Whether Turnstile is active. Disabled in the local environment (the
+     * Cloudflare widget rejects unauthorised domains like *.test and throws),
+     * and when keys are not configured. Production with keys → enabled.
+     */
+    public static function enabled(): bool
+    {
+        if (app()->environment('local')) {
+            return false;
+        }
+
+        return ! empty(config('services.turnstile.site_key'))
+            && ! empty(config('services.turnstile.secret'));
+    }
+
+    /**
+     * Site key for the frontend widget, or null when Turnstile is disabled
+     * (so no widget is rendered).
+     */
+    public static function siteKey(): ?string
+    {
+        return self::enabled() ? config('services.turnstile.site_key') : null;
+    }
+
+    /**
      * Verify a Cloudflare Turnstile token against the siteverify endpoint.
      *
-     * When no secret is configured (e.g. local dev) the check is skipped so
-     * the auth flows keep working — this mirrors the frontend, which only
-     * renders the widget when a site key is present.
+     * When Turnstile is disabled (local env / no keys) the check is skipped so
+     * the auth and demo flows keep working — this mirrors the frontend, which
+     * only renders the widget when a site key is present.
      */
     public static function verify(?string $token, ?string $ip = null): bool
     {
-        $secret = config('services.turnstile.secret');
-
-        if (! $secret) {
+        if (! self::enabled()) {
             return true;
         }
+
+        $secret = config('services.turnstile.secret');
 
         if (! $token) {
             return false;

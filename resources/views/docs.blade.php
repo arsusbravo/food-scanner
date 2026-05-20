@@ -41,12 +41,9 @@
 
 @section('content')
 
-    <!-- CTA buttons -->
+    <!-- CTA buttons — register moved to the page footer (single entry point) -->
     <div style="max-width: 480px; margin: -28px auto 0; padding: 0 24px; position: relative; z-index: 10;">
         <div style="display: flex; flex-direction: column; gap: 12px;">
-            <a href="{{ route('register') }}" style="display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 16px; background: linear-gradient(135deg, #059669, #047857); color: white; font-size: 16px; font-weight: 700; box-shadow: 0 8px 24px rgba(5,150,105,0.4);">
-                {{ __('docs.cta_register') }}
-            </a>
             <a href="{{ route('login') }}" style="display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 16px; background: white; color: #059669; font-size: 16px; font-weight: 700; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 2px solid #d1fae5;">
                 {{ __('docs.cta_login') }}
             </a>
@@ -120,9 +117,6 @@
             <h3 style="color: white; font-size: 22px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.01em;">{{ __('docs.hero_title') }}</h3>
             <p style="color: rgba(209,250,229,0.9); font-size: 14px; margin: 0 0 24px; line-height: 1.5;">{{ __('docs.why_3') }}</p>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <a href="{{ route('register') }}" style="display: flex; align-items: center; justify-content: center; height: 50px; border-radius: 14px; background: white; color: #059669; font-size: 15px; font-weight: 700;">
-                    {{ __('docs.cta_register') }}
-                </a>
                 <a href="{{ route('login') }}" style="display: flex; align-items: center; justify-content: center; height: 50px; border-radius: 14px; background: rgba(255,255,255,0.15); color: white; font-size: 15px; font-weight: 700; border: 1.5px solid rgba(255,255,255,0.3);">
                     {{ __('docs.cta_login') }}
                 </a>

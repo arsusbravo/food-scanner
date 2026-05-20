@@ -3,6 +3,7 @@
 return [
     'tagline'              => '食物廢棄物追蹤器',
     'subtitle'             => '為商業廚房設計的智能食物廢棄物追蹤系統——符合 EU 法規。',
+    'try_demo'             => '免費試用',
     'cta_register'         => '立即開始——免費',
     'cta_login'            => '登入',
     'features_title'       => '您所需的一切',

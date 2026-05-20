@@ -119,9 +119,6 @@
                 {{ __('faq.cta_sub') }}
             </p>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <a href="{{ route('register') }}" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 14px; background: white; color: #059669; font-size: 15px; font-weight: 700;">
-                    {{ __('faq.cta_register') }}
-                </a>
                 <a href="{{ route('login') }}" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 14px; background: rgba(255,255,255,0.15); color: white; font-size: 15px; font-weight: 700; border: 1px solid rgba(255,255,255,0.25);">
                     {{ __('faq.cta_login') }}
                 </a>
