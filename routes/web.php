@@ -46,9 +46,20 @@ Route::prefix('demo')->name('demo.')->middleware('throttle:20,1')->group(functio
 
 Route::get('/docs', fn () => view('docs'))->name('docs');
 Route::get('/faq', fn () => view('faq'))->name('faq');
-Route::get('/privacy', fn () => view('privacy'))->name('privacy');
-Route::get('/terms', fn () => view('terms'))->name('terms');
-Route::get('/cookies', fn () => view('cookies'))->name('cookies');
+
+// Legal pages are translated into the EU document languages only — other
+// UI locales (zh-TW, zh-CN, tr) fall back to English on these pages so
+// nobody sees a half-translated policy. The user's chosen UI locale and
+// cookie are untouched; only the request-local app locale is coerced.
+$legal = function (string $view) {
+    if (! in_array(app()->getLocale(), ['en', 'nl', 'de', 'fr', 'es'], true)) {
+        app()->setLocale('en');
+    }
+    return view($view);
+};
+Route::get('/privacy', fn () => $legal('privacy'))->name('privacy');
+Route::get('/terms', fn () => $legal('terms'))->name('terms');
+Route::get('/cookies', fn () => $legal('cookies'))->name('cookies');
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
