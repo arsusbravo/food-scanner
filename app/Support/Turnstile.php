@@ -75,7 +75,7 @@ class Turnstile
             return static::$verified[$token];
         }
 
-        $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v1/siteverify', array_filter([
+        $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', array_filter([
             'secret'   => $secret,
             'response' => $token,
             'remoteip' => $ip,

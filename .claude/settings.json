@@ -10,7 +10,8 @@
       "Bash(php -l app/Providers/FortifyServiceProvider.php)",
       "Bash(grep -n 'export const messages = {' resources/js/i18n/__TRACKED_VAR__.ts)",
       "Bash(php artisan *)",
-      "Bash(php -r ' *)"
+      "Bash(php -r ' *)",
+      "WebFetch(domain:developers.cloudflare.com)"
     ]
   }
 }
