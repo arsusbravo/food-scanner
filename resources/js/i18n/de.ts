@@ -32,6 +32,7 @@ export const messages: MessageSchema = {
         back_to_scan: 'Mehr scannen',
         sample_banner: 'Demo-Berichte sind Muster mit Wasserzeichen. Erstellen Sie ein Konto für offizielle PDFs ohne Wasserzeichen.',
         verify_required: 'Bitte zuerst die Verifizierung abschließen.',
+        verify_loading: 'Verifizierung wird geladen…',
         error_generic: 'Etwas ist schiefgelaufen. Bitte erneut versuchen.',
         error_network: 'Netzwerkfehler. Bitte erneut versuchen.',
         exhausted_title: 'Kostenlose Demo aufgebraucht',

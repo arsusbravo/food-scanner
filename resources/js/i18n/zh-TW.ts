@@ -30,6 +30,7 @@ export const messages = {
         back_to_scan: '繼續掃描',
         sample_banner: '示範報告為含浮水印的範例。建立帳戶以取得無浮水印的正式合規 PDF。',
         verify_required: '請先完成驗證。',
+        verify_loading: '驗證載入中…',
         error_generic: '發生錯誤，請再試一次。',
         error_network: '網路錯誤，請再試一次。',
         exhausted_title: '免費示範已用完',

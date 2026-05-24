@@ -30,6 +30,7 @@ export const messages = {
         back_to_scan: '继续扫描',
         sample_banner: '演示报告为含水印的示例。创建账户以获取无水印的正式合规 PDF。',
         verify_required: '请先完成验证。',
+        verify_loading: '验证加载中…',
         error_generic: '出现错误，请重试。',
         error_network: '网络错误，请重试。',
         exhausted_title: '免费演示已用完',

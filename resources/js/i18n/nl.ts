@@ -32,6 +32,7 @@ export const messages: MessageSchema = {
         back_to_scan: 'Meer scannen',
         sample_banner: 'Demorapporten zijn voorbeelden met watermerk. Maak een account voor officiële nalevings-PDF zonder watermerk.',
         verify_required: 'Voltooi eerst de verificatie.',
+        verify_loading: 'Verificatie laden…',
         error_generic: 'Er ging iets mis. Probeer het opnieuw.',
         error_network: 'Netwerkfout. Probeer het opnieuw.',
         exhausted_title: 'Gratis demo opgebruikt',

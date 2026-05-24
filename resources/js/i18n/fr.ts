@@ -32,6 +32,7 @@ export const messages: MessageSchema = {
         back_to_scan: "Scanner plus",
         sample_banner: "Les rapports de démo sont des échantillons filigranés. Créez un compte pour des PDF de conformité officiels sans filigrane.",
         verify_required: "Veuillez d'abord compléter la vérification.",
+        verify_loading: "Chargement de la vérification…",
         error_generic: "Une erreur est survenue. Veuillez réessayer.",
         error_network: "Erreur réseau. Veuillez réessayer.",
         exhausted_title: "Démo gratuite épuisée",

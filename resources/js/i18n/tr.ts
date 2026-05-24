@@ -30,6 +30,7 @@ export const messages = {
         back_to_scan: 'Daha fazla tara',
         sample_banner: 'Demo raporları filigranlı örneklerdir. Filigransız resmi uyum PDF dosyaları için bir hesap oluşturun.',
         verify_required: 'Lütfen önce doğrulamayı tamamlayın.',
+        verify_loading: 'Doğrulama yükleniyor…',
         error_generic: 'Bir şeyler ters gitti. Lütfen tekrar deneyin.',
         error_network: 'Ağ hatası. Lütfen tekrar deneyin.',
         exhausted_title: 'Ücretsiz demo tükendi',

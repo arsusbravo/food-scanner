@@ -32,6 +32,7 @@ export const messages: MessageSchema = {
         back_to_scan: 'Escanear más',
         sample_banner: 'Los informes de demo son muestras con marca de agua. Crea una cuenta para PDF de cumplimiento oficiales sin marca de agua.',
         verify_required: 'Completa primero la verificación.',
+        verify_loading: 'Cargando verificación…',
         error_generic: 'Algo salió mal. Inténtalo de nuevo.',
         error_network: 'Error de red. Inténtalo de nuevo.',
         exhausted_title: 'Demo gratuita agotada',

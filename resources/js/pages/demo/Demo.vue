@@ -70,7 +70,27 @@ const reportCount = ref(0);
 const generating = ref(false);
 const downloading = ref(false);
 
-const { container: turnstileEl, reset: resetTurnstile, getToken } = useTurnstile(props.turnstileSiteKey);
+// One Turnstile widget per action, placed directly above its button so the
+// user can see when it has finished loading. Each instance is independent —
+// the scan widget resets after each photo, the PDF widget after each download.
+const {
+    container: scanTurnstileEl,
+    reset: resetScanTurnstile,
+    getToken: getScanToken,
+    ready: scanReady,
+} = useTurnstile(props.turnstileSiteKey);
+const {
+    container: pdfTurnstileEl,
+    reset: resetPdfTurnstile,
+    getToken: getPdfToken,
+    ready: pdfReady,
+} = useTurnstile(props.turnstileSiteKey);
+
+// Buttons that need a Turnstile token must wait until the widget has actually
+// produced one — otherwise a quick click submits an empty token and the
+// server rejects it as a CAPTCHA failure.
+const scanTurnstileBusy = computed(() => !!props.turnstileSiteKey && !scanReady.value);
+const pdfTurnstileBusy = computed(() => !!props.turnstileSiteKey && !pdfReady.value);
 
 const scansLeft = computed(() => remaining.value.scans);
 const reportsLeft = computed(() => remaining.value.reports);
@@ -123,7 +143,7 @@ async function analyse() {
     const file = fileInput.value?.files?.[0];
     if (!file) return;
 
-    const token = getToken();
+    const token = getScanToken();
     if (props.turnstileSiteKey && !token) {
         errorMsg.value = t('demo.verify_required');
         return;
@@ -155,7 +175,7 @@ async function analyse() {
         if (!res.ok) {
             if (body.remaining) remaining.value = body.remaining;
             errorMsg.value = body.error || t('demo.error_generic');
-            resetTurnstile();
+            resetScanTurnstile();
             return;
         }
 
@@ -169,10 +189,10 @@ async function analyse() {
             notes: body.notes ?? '',
         };
         step.value = 'review';
-        resetTurnstile();
+        resetScanTurnstile();
     } catch {
         errorMsg.value = t('demo.error_network');
-        resetTurnstile();
+        resetScanTurnstile();
     } finally {
         analysing.value = false;
     }
@@ -238,7 +258,7 @@ async function generateReport() {
 }
 
 async function downloadPdf() {
-    const token = getToken();
+    const token = getPdfToken();
     if (props.turnstileSiteKey && !token) {
         errorMsg.value = t('demo.verify_required');
         return;
@@ -259,7 +279,7 @@ async function downloadPdf() {
             const body = await res.json().catch(() => ({}));
             if (body.remaining) remaining.value = body.remaining;
             errorMsg.value = body.error || t('demo.error_generic');
-            resetTurnstile();
+            resetPdfTurnstile();
             return;
         }
 
@@ -274,10 +294,10 @@ async function downloadPdf() {
         URL.revokeObjectURL(url);
 
         remaining.value = { ...remaining.value, reports: Math.max(0, remaining.value.reports - 1) };
-        resetTurnstile();
+        resetPdfTurnstile();
     } catch {
         errorMsg.value = t('demo.error_network');
-        resetTurnstile();
+        resetPdfTurnstile();
     } finally {
         downloading.value = false;
     }
@@ -344,14 +364,22 @@ const summaryRows = computed(() =>
                 </template>
             </label>
 
+            <!-- Cloudflare widget — placed directly above the button so the
+                 user can see when verification has finished loading -->
+            <div v-if="turnstileSiteKey" class="mt-4 flex justify-center">
+                <div ref="scanTurnstileEl" />
+            </div>
+
             <button
                 class="mt-4 w-full h-12 rounded-xl font-semibold text-base text-white disabled:opacity-50 flex items-center justify-center gap-2"
                 style="background: linear-gradient(135deg, #059669, #047857);"
-                :disabled="!previewUrl || analysing"
+                :disabled="!previewUrl || analysing || scanTurnstileBusy"
                 @click="analyse"
             >
-                <Spinner v-if="analysing" class="text-white" />
-                {{ analysing ? $t('demo.analysing') : $t('demo.analyse') }}
+                <Spinner v-if="analysing || (previewUrl && scanTurnstileBusy)" class="text-white" />
+                {{ analysing
+                    ? $t('demo.analysing')
+                    : (previewUrl && scanTurnstileBusy ? $t('demo.verify_loading') : $t('demo.analyse')) }}
             </button>
         </div>
 
@@ -473,14 +501,21 @@ const summaryRows = computed(() =>
                 </tbody>
             </table>
 
+            <!-- Cloudflare widget — placed directly above the download button -->
+            <div v-if="turnstileSiteKey && reportsLeft > 0" class="mt-5 flex justify-center">
+                <div ref="pdfTurnstileEl" />
+            </div>
+
             <button
                 class="mt-5 w-full h-12 rounded-xl font-semibold text-base text-white disabled:opacity-50 flex items-center justify-center gap-2"
                 style="background: linear-gradient(135deg, #0284c7, #0ea5e9);"
-                :disabled="downloading || reportsLeft <= 0"
+                :disabled="downloading || reportsLeft <= 0 || pdfTurnstileBusy"
                 @click="downloadPdf"
             >
-                <Spinner v-if="downloading" class="text-white" />
-                {{ downloading ? $t('demo.downloading') : $t('demo.download_pdf') }}
+                <Spinner v-if="downloading || pdfTurnstileBusy" class="text-white" />
+                {{ downloading
+                    ? $t('demo.downloading')
+                    : (pdfTurnstileBusy ? $t('demo.verify_loading') : $t('demo.download_pdf')) }}
             </button>
             <p v-if="reportsLeft <= 0" class="mt-2 text-xs text-center" style="color:#dc2626;">
                 {{ $t('demo.reports_exhausted_msg') }}
@@ -502,8 +537,4 @@ const summaryRows = computed(() =>
         <WhyRegister />
     </div>
 
-    <!-- Persistent Turnstile widget (token reused for scan + PDF) -->
-    <div v-if="turnstileSiteKey" class="mt-5 flex justify-center">
-        <div ref="turnstileEl" />
-    </div>
 </template>

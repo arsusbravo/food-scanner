@@ -34,6 +34,7 @@ export const messages = {
         back_to_scan: 'Scan more',
         sample_banner: 'Demo reports are watermarked samples. Create an account for official, unwatermarked compliance PDFs.',
         verify_required: 'Please complete the verification first.',
+        verify_loading: 'Loading verification…',
         error_generic: 'Something went wrong. Please try again.',
         error_network: 'Network error. Please try again.',
         exhausted_title: 'Free demo used up',
