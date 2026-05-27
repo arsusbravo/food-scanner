@@ -33,13 +33,13 @@ return [
     'expires_stripe'  => 'Up to 1 year',
     'expires_30m'     => '30 minutes',
 
-    'no_tracking_title' => 'No tracking or advertising cookies.',
-    'no_tracking_body'  => 'KitchenLog does not use Google Analytics, Facebook Pixel, or any other analytics or advertising cookies.',
+    'no_tracking_title' => 'No advertising cookies.',
+    'no_tracking_body'  => 'KitchenLog never loads advertising cookies. Analytics is only loaded if you click "Accept all" in the cookie banner — it stays off if you choose "Essential only", and you can change your mind at any time by clearing the kitchenlog_consent cookie.',
 
     'consent_title' => 'Consent',
     'consent_body'  => '
-        <p>The cookies above are <strong>strictly necessary</strong> to deliver the service you request (signing in, billing, security). Under Article 5(3) of the EU ePrivacy Directive and the corresponding national laws, strictly necessary cookies do not require prior consent and you cannot opt out of them while still using the corresponding feature.</p>
-        <p>We do not place any cookies for analytics, profiling or advertising. If this ever changes, we will ask for your explicit, freely-given, granular and revocable consent before doing so, in line with the EDPB <em>Guidelines 05/2020 on consent</em>.</p>
+        <p>The essential cookies above are <strong>strictly necessary</strong> to deliver the service you request (signing in, billing, security, remembering your language and your cookie choice). Under Article 5(3) of the EU ePrivacy Directive and the corresponding national laws, strictly necessary cookies do not require prior consent and you cannot opt out of them while still using the corresponding feature.</p>
+        <p><strong>Analytics is opt-in.</strong> Only if you click "Accept all" in the cookie banner do we load <strong>Google Tag Manager</strong> (container <code>GTM-PG3QTV73</code>), which fires our analytics tags so we can understand how the site is used. Choosing "Essential only" keeps GTM and all analytics off. Your choice is stored in the <code>kitchenlog_consent</code> cookie (1 year). You can withdraw consent at any time by clearing that cookie. We follow the EDPB <em>Guidelines 05/2020 on consent</em>.</p>
     ',
 
     'control_title' => 'How to control cookies',

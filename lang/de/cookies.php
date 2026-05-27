@@ -33,13 +33,13 @@ return [
     'expires_stripe'  => 'Bis zu 1 Jahr',
     'expires_30m'     => '30 Minuten',
 
-    'no_tracking_title' => 'Keine Tracking- oder Werbe-Cookies.',
-    'no_tracking_body'  => 'KitchenLog verwendet weder Google Analytics, Facebook Pixel noch sonstige Analyse- oder Werbe-Cookies.',
+    'no_tracking_title' => 'Keine Werbe-Cookies.',
+    'no_tracking_body'  => 'KitchenLog lädt niemals Werbe-Cookies. Analytik wird nur geladen, wenn Sie im Cookie-Banner „Alle akzeptieren“ wählen — sie bleibt deaktiviert bei „Nur erforderlich“, und Sie können Ihre Wahl jederzeit ändern, indem Sie das kitchenlog_consent-Cookie löschen.',
 
     'consent_title' => 'Einwilligung',
     'consent_body'  => '
-        <p>Die oben genannten Cookies sind <strong>unbedingt erforderlich</strong>, um den von Ihnen angeforderten Dienst bereitzustellen (Anmeldung, Abrechnung, Sicherheit). Nach Art. 5 Abs. 3 der EU-ePrivacy-Richtlinie und den entsprechenden nationalen Gesetzen benötigen unbedingt erforderliche Cookies keine vorherige Einwilligung; ein Opt-out ist bei gleichzeitiger Nutzung der zugehörigen Funktion nicht möglich.</p>
-        <p>Wir setzen keinerlei Cookies für Analyse, Profiling oder Werbung. Sollte sich dies jemals ändern, holen wir gemäß den EDSA-<em>Leitlinien 05/2020 zur Einwilligung</em> vorab Ihre ausdrückliche, freiwillige, granulare und widerrufliche Einwilligung ein.</p>
+        <p>Die oben genannten essenziellen Cookies sind <strong>unbedingt erforderlich</strong>, um den von Ihnen angeforderten Dienst bereitzustellen (Anmeldung, Abrechnung, Sicherheit, Speicherung Ihrer Sprache und Cookie-Wahl). Nach Art. 5 Abs. 3 der EU-ePrivacy-Richtlinie und den entsprechenden nationalen Gesetzen benötigen unbedingt erforderliche Cookies keine vorherige Einwilligung; ein Opt-out ist bei gleichzeitiger Nutzung der zugehörigen Funktion nicht möglich.</p>
+        <p><strong>Analytik ist Opt-in.</strong> Nur wenn Sie im Cookie-Banner auf „Alle akzeptieren“ klicken, laden wir den <strong>Google Tag Manager</strong> (Container <code>GTM-PG3QTV73</code>), der unsere Analyse-Tags auslöst, damit wir verstehen, wie die Seite genutzt wird. Mit der Wahl „Nur erforderlich“ bleiben GTM und alle Analytik deaktiviert. Ihre Wahl wird im <code>kitchenlog_consent</code>-Cookie (1 Jahr) gespeichert. Sie können die Einwilligung jederzeit widerrufen, indem Sie dieses Cookie löschen. Wir folgen den EDSA-<em>Leitlinien 05/2020 zur Einwilligung</em>.</p>
     ',
 
     'control_title' => 'Cookies verwalten',

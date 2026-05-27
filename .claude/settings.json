@@ -11,7 +11,8 @@
       "Bash(grep -n 'export const messages = {' resources/js/i18n/__TRACKED_VAR__.ts)",
       "Bash(php artisan *)",
       "Bash(php -r ' *)",
-      "WebFetch(domain:developers.cloudflare.com)"
+      "WebFetch(domain:developers.cloudflare.com)",
+      "Bash(php -l lang/__TRACKED_VAR__/cookies.php)"
     ]
   }
 }

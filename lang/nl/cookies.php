@@ -33,13 +33,13 @@ return [
     'expires_stripe'  => 'Tot 1 jaar',
     'expires_30m'     => '30 minuten',
 
-    'no_tracking_title' => 'Geen tracking- of advertentiecookies.',
-    'no_tracking_body'  => 'KitchenLog gebruikt geen Google Analytics, Facebook Pixel of andere analyse- of advertentiecookies.',
+    'no_tracking_title' => 'Geen advertentiecookies.',
+    'no_tracking_body'  => 'KitchenLog laadt nooit advertentiecookies. Analytics wordt alleen geladen als u op "Alles accepteren" klikt in de cookiebanner — het blijft uit bij "Alleen essentieel", en u kunt uw keuze op elk moment wijzigen door de kitchenlog_consent-cookie te verwijderen.',
 
     'consent_title' => 'Toestemming',
     'consent_body'  => '
-        <p>De hierboven genoemde cookies zijn <strong>strikt noodzakelijk</strong> om de door u gevraagde dienst te leveren (inloggen, facturatie, beveiliging). Op grond van artikel 5 lid 3 van de EU ePrivacy-richtlijn en de bijbehorende nationale wetgeving vereisen strikt noodzakelijke cookies geen voorafgaande toestemming en kunt u zich er niet voor afmelden terwijl u de bijbehorende functie blijft gebruiken.</p>
-        <p>Wij plaatsen geen cookies voor analyse, profilering of advertenties. Mocht dit ooit veranderen, dan vragen wij vooraf uw uitdrukkelijke, vrije, granulaire en intrekbare toestemming, overeenkomstig de EDPB-<em>Richtsnoeren 05/2020 over toestemming</em>.</p>
+        <p>De hierboven genoemde essentiële cookies zijn <strong>strikt noodzakelijk</strong> om de door u gevraagde dienst te leveren (inloggen, facturatie, beveiliging, onthouden van uw taal en cookiekeuze). Op grond van artikel 5 lid 3 van de EU ePrivacy-richtlijn en de bijbehorende nationale wetgeving vereisen strikt noodzakelijke cookies geen voorafgaande toestemming en kunt u zich er niet voor afmelden terwijl u de bijbehorende functie blijft gebruiken.</p>
+        <p><strong>Analytics is opt-in.</strong> Alleen wanneer u op "Alles accepteren" klikt in de cookiebanner laden wij <strong>Google Tag Manager</strong> (container <code>GTM-PG3QTV73</code>), die onze analysetags activeert zodat wij begrijpen hoe de site wordt gebruikt. Met de keuze "Alleen essentieel" blijven GTM en alle analytics uitgeschakeld. Uw keuze wordt opgeslagen in de <code>kitchenlog_consent</code>-cookie (1 jaar). U kunt uw toestemming op elk moment intrekken door deze cookie te verwijderen. Wij volgen de EDPB-<em>Richtsnoeren 05/2020 over toestemming</em>.</p>
     ',
 
     'control_title' => 'Cookies beheren',

@@ -33,13 +33,13 @@ return [
     'expires_stripe'  => 'Hasta 1 año',
     'expires_30m'     => '30 minutos',
 
-    'no_tracking_title' => 'Sin cookies de seguimiento ni publicidad.',
-    'no_tracking_body'  => 'KitchenLog no utiliza Google Analytics, Facebook Pixel ni ninguna otra cookie de análisis o publicidad.',
+    'no_tracking_title' => 'Sin cookies publicitarias.',
+    'no_tracking_body'  => 'KitchenLog nunca carga cookies publicitarias. La analítica solo se carga si pulsa «Aceptar todo» en el banner de cookies — permanece desactivada si elige «Solo esenciales», y puede cambiar de opinión en cualquier momento eliminando la cookie kitchenlog_consent.',
 
     'consent_title' => 'Consentimiento',
     'consent_body'  => '
-        <p>Las cookies anteriores son <strong>estrictamente necesarias</strong> para prestar el servicio solicitado (inicio de sesión, facturación, seguridad). Conforme al artículo 5.3 de la Directiva ePrivacy de la UE y a la legislación nacional correspondiente, las cookies estrictamente necesarias no requieren consentimiento previo y no pueden rechazarse mientras se utilice la funcionalidad asociada.</p>
-        <p>No colocamos cookies de analítica, perfilado ni publicidad. Si esto cambiara, solicitaríamos su consentimiento previo, explícito, libre, granular y revocable, conforme a las <em>Directrices 05/2020 sobre el consentimiento</em> del EDPB.</p>
+        <p>Las cookies esenciales anteriores son <strong>estrictamente necesarias</strong> para prestar el servicio solicitado (inicio de sesión, facturación, seguridad, recordar su idioma y su elección de cookies). Conforme al artículo 5.3 de la Directiva ePrivacy de la UE y a la legislación nacional correspondiente, las cookies estrictamente necesarias no requieren consentimiento previo y no pueden rechazarse mientras se utilice la funcionalidad asociada.</p>
+        <p><strong>La analítica es opt-in.</strong> Solo si pulsa «Aceptar todo» en el banner, cargamos <strong>Google Tag Manager</strong> (contenedor <code>GTM-PG3QTV73</code>), que activa nuestras etiquetas de analítica para entender cómo se utiliza el sitio. Elegir «Solo esenciales» mantiene GTM y toda la analítica desactivados. Su elección se conserva en la cookie <code>kitchenlog_consent</code> (1 año). Puede retirar el consentimiento en cualquier momento eliminando esa cookie. Seguimos las <em>Directrices 05/2020 sobre el consentimiento</em> del EDPB.</p>
     ',
 
     'control_title' => 'Cómo controlar las cookies',

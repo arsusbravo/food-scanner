@@ -33,13 +33,13 @@ return [
     'expires_stripe'  => 'Jusqu’à 1 an',
     'expires_30m'     => '30 minutes',
 
-    'no_tracking_title' => 'Aucun cookie de mesure d’audience ou publicitaire.',
-    'no_tracking_body'  => 'KitchenLog n’utilise pas Google Analytics, Facebook Pixel ni aucun autre cookie d’analyse ou de publicité.',
+    'no_tracking_title' => 'Aucun cookie publicitaire.',
+    'no_tracking_body'  => 'KitchenLog ne charge jamais de cookies publicitaires. L’analyse statistique n’est chargée que si vous cliquez sur « Tout accepter » dans le bandeau cookies — elle reste désactivée si vous choisissez « Strict nécessaire », et vous pouvez changer d’avis à tout moment en supprimant le cookie kitchenlog_consent.',
 
     'consent_title' => 'Consentement',
     'consent_body'  => '
-        <p>Les cookies ci-dessus sont <strong>strictement nécessaires</strong> à la fourniture du service demandé (connexion, facturation, sécurité). Conformément à l’article 5, §3 de la directive ePrivacy et aux lois nationales correspondantes, les cookies strictement nécessaires ne requièrent pas de consentement préalable et ne peuvent pas être refusés tout en utilisant la fonctionnalité associée.</p>
-        <p>Nous ne déposons aucun cookie à des fins d’analyse, de profilage ou de publicité. Si cela devait changer, nous solliciterions au préalable votre consentement explicite, libre, granulaire et révocable, conformément aux <em>Lignes directrices 05/2020 sur le consentement</em> de l’EDPB.</p>
+        <p>Les cookies essentiels ci-dessus sont <strong>strictement nécessaires</strong> à la fourniture du service demandé (connexion, facturation, sécurité, mémorisation de votre langue et de votre choix cookies). Conformément à l’article 5, §3 de la directive ePrivacy et aux lois nationales correspondantes, les cookies strictement nécessaires ne requièrent pas de consentement préalable et ne peuvent pas être refusés tout en utilisant la fonctionnalité associée.</p>
+        <p><strong>L’analyse est en opt-in.</strong> Uniquement si vous cliquez sur « Tout accepter » dans le bandeau, nous chargeons <strong>Google Tag Manager</strong> (conteneur <code>GTM-PG3QTV73</code>), qui déclenche nos balises d’analyse pour comprendre l’usage du site. Choisir « Strict nécessaire » maintient GTM et toute analyse désactivés. Votre choix est conservé dans le cookie <code>kitchenlog_consent</code> (1 an). Vous pouvez retirer votre consentement à tout moment en supprimant ce cookie. Nous suivons les <em>Lignes directrices 05/2020 sur le consentement</em> de l’EDPB.</p>
     ',
 
     'control_title' => 'Gérer les cookies',

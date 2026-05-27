@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@php
+    // Only load Google Tag Manager when the visitor has explicitly opted into
+    // analytics via the cookie-consent banner. The cookie is unencrypted
+    // (see bootstrap/app.php encryptCookies except list) so the JS that sets
+    // it from the banner and the PHP that reads it agree on the same value.
+    $gtmConsent = request()->cookie('kitchenlog_consent') === 'analytics';
+@endphp
 <head>
+    @if($gtmConsent)
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PG3QTV73');</script>
+    <!-- End Google Tag Manager -->
+    @endif
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('page_title')</title>
@@ -41,6 +57,12 @@
     @stack('styles')
 </head>
 <body style="min-height: 100dvh; background: #f8fafc; font-family: Inter, system-ui, sans-serif;">
+    @if($gtmConsent)
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PG3QTV73"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    @endif
 
     @php
         $locale = app()->getLocale();
@@ -98,12 +120,12 @@
     <div id="cookie-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:white; border-top:1px solid #e2e8f0; padding:16px 20px; box-shadow:0 -4px 24px rgba(0,0,0,0.08);">
         <div style="max-width:680px; margin:0 auto; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
             <p style="flex:1; font-size:13px; color:#374151; margin:0; min-width:200px;">
-                We use essential cookies for login and language preference. No tracking or advertising cookies.
+                We use essential cookies to keep you signed in and remember your language. With your consent we also load Google Tag Manager to understand how the site is used. No advertising cookies.
                 <a href="{{ route('cookies') }}" style="color:#059669; font-weight:600;">Cookie Policy</a>
             </p>
             <div style="display:flex; gap:8px; flex-shrink:0;">
-                <button onclick="acceptCookies()" style="background:#059669; color:white; border:none; padding:9px 20px; border-radius:10px; font-size:13px; font-weight:700;">Accept</button>
-                <button onclick="acceptCookies()" style="background:#f1f5f9; color:#374151; border:none; padding:9px 20px; border-radius:10px; font-size:13px; font-weight:600;">Essential only</button>
+                <button onclick="setConsent('analytics')" style="background:#059669; color:white; border:none; padding:9px 20px; border-radius:10px; font-size:13px; font-weight:700;">Accept all</button>
+                <button onclick="setConsent('essential')" style="background:#f1f5f9; color:#374151; border:none; padding:9px 20px; border-radius:10px; font-size:13px; font-weight:600;">Essential only</button>
             </div>
         </div>
     </div>
@@ -114,11 +136,34 @@
             localStorage.setItem('locale', code);
             location.reload();
         }
-        function acceptCookies() {
-            localStorage.setItem('cookie_consent', '1');
-            document.getElementById('cookie-banner').style.display = 'none';
+
+        // ── Cookie consent ────────────────────────────────────────────────
+        // We store the visitor's choice in a plain (unencrypted) cookie named
+        // kitchenlog_consent — see bootstrap/app.php encryptCookies except list.
+        // Server-side, the Blade head/body conditionally renders the GTM
+        // snippets when the cookie is set to "analytics". Client-side we also
+        // inject GTM on the spot when the user clicks "Accept all" so they
+        // don't have to reload before tracking begins (or, conversely, never
+        // gets loaded if they pick Essential only).
+        function readConsentCookie() {
+            const m = document.cookie.match(/(?:^|; )kitchenlog_consent=([^;]+)/);
+            return m ? decodeURIComponent(m[1]) : null;
         }
-        if (!localStorage.getItem('cookie_consent')) {
+        function setConsent(value) {
+            document.cookie = 'kitchenlog_consent=' + value + ';path=/;max-age=31536000;SameSite=Lax';
+            document.getElementById('cookie-banner').style.display = 'none';
+            if (value === 'analytics' && !window.dataLayer) {
+                injectGtm();
+            }
+        }
+        function injectGtm() {
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-PG3QTV73');
+        }
+        if (!readConsentCookie()) {
             document.getElementById('cookie-banner').style.display = 'block';
         }
     </script>
