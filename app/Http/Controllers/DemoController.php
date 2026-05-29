@@ -23,9 +23,12 @@ class DemoController extends Controller
 {
     public function index(Request $request, DemoQuota $quota): InertiaResponse
     {
+        $remaining = $quota->remaining();   // also triggers usage() — issues the cookie + writes the demo_usages row
+        $quota->logEvent('visit');
+
         return Inertia::render('demo/Demo', [
             'turnstileSiteKey' => Turnstile::siteKey(),
-            'remaining'        => $quota->remaining(),
+            'remaining'        => $remaining,
         ]);
     }
 
@@ -60,6 +63,7 @@ class DemoController extends Controller
         }
 
         $quota->recordScan();
+        $quota->logEvent('scan');
 
         return response()->json([
             ...$result,
@@ -127,6 +131,7 @@ class DemoController extends Controller
         ]);
 
         $quota->recordReport();
+        $quota->logEvent('report');
 
         return $pdf->download('eu-food-waste-report-SAMPLE.pdf');
     }

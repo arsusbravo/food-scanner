@@ -65,6 +65,9 @@ Route::get('/cookies', fn () => $legal('cookies'))->name('cookies');
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
+    // Demo statistics
+    Route::get('admin/demo', [\App\Http\Controllers\Admin\DemoStatsController::class, 'index'])->name('admin.demo');
+
     // Users management
     Route::get('admin/users', [AdminController::class, 'users'])->name('admin.users');
     Route::get('admin/users/{user}', [AdminController::class, 'showUser'])->name('admin.users.show');

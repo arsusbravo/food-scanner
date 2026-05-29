@@ -1,0 +1,1 @@
+import{B as e}from"./app-vpC_F3t5.js";var t=e(`PlusIcon`,[[`path`,{d:`M5 12h14`,key:`1ays0h`}],[`path`,{d:`M12 5v14`,key:`s699le`}]]);export{t};

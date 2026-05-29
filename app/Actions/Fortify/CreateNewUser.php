@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\SiteSetting;
 use App\Models\User;
 use App\Support\Turnstile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -55,6 +56,13 @@ class CreateNewUser implements CreatesNewUsers
             'user_id' => $user->id,
             'name'    => $input['company_name'],
         ]);
+
+        // Link the new account back to its demo device so we can compute
+        // demo → signup conversion in admin/DemoStats.
+        if ($deviceId = request()->cookie('demo_id')) {
+            $user->forceFill(['demo_device_id' => $deviceId])->save();
+            Log::info('[Demo] conversion', ['user_id' => $user->id, 'device_id' => $deviceId]);
+        }
 
         return $user;
     }

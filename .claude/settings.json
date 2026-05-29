@@ -12,7 +12,9 @@
       "Bash(php artisan *)",
       "Bash(php -r ' *)",
       "WebFetch(domain:developers.cloudflare.com)",
-      "Bash(php -l lang/__TRACKED_VAR__/cookies.php)"
+      "Bash(php -l lang/__TRACKED_VAR__/cookies.php)",
+      "Bash(grep -n 'Carbon $since' app/Http/Controllers/Admin/DemoStatsController.php)",
+      "Bash(grep -nE 'Carbon \\\\$since|CarbonInterface' app/Http/Controllers/Admin/DemoStatsController.php)"
     ]
   }
 }

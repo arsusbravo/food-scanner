@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, LayoutGrid, Leaf, MessageSquare, Users, UserPlus } from 'lucide-vue-next';
+import { Activity, BookOpen, LayoutGrid, Leaf, MessageSquare, Users, UserPlus } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -23,6 +23,10 @@ const page = usePage<{ adminContactUnread: number }>();
 
 const mainNavItems = computed<NavItem[]>(() => [
     { title: 'Dashboard',      href: dashboard(),              icon: LayoutGrid },
+    // Hard-coded href because Wayfinder regenerates `@/routes/admin` only on
+    // the next build; using the string keeps the sidebar working immediately
+    // and matches the actual URL behind `route('admin.demo')`.
+    { title: 'Demo',           href: '/admin/demo',            icon: Activity },
     { title: 'Users',          href: adminUsers(),             icon: Users },
     { title: 'Registrations',  href: adminRegistrations(),     icon: UserPlus },
     { title: 'Contact',        href: adminContactRoute.url(),  icon: MessageSquare, badge: page.props.adminContactUnread || 0 },

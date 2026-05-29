@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\DemoEvent;
 use App\Models\DemoUsage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -64,8 +65,50 @@ class DemoQuota
     {
         return DemoUsage::firstOrCreate(
             ['device_id' => $this->deviceId()],
-            ['ip' => $this->request->ip()],
+            $this->telemetry(),
         );
+    }
+
+    /**
+     * First-touch acquisition metadata for the `demo_usages` row + every
+     * event written by logEvent(). Country is taken from Cloudflare's
+     * CF-IPCountry header (free, accurate, set on every proxied request);
+     * null when the app isn't behind Cloudflare (e.g. local dev).
+     *
+     * @return array{ip:?string, country:?string, locale:?string, referer:?string, user_agent:?string}
+     */
+    private function telemetry(): array
+    {
+        $country = $this->request->header('CF-IPCountry');
+        // Cloudflare sends 'XX' for unknown / Tor; treat as null for clean stats.
+        if ($country === 'XX' || $country === 'T1') {
+            $country = null;
+        }
+
+        return [
+            'ip'         => $this->request->ip(),
+            'country'    => $country,
+            'locale'     => $this->request->cookie('locale'),
+            'referer'    => $this->request->header('referer'),
+            'user_agent' => $this->request->userAgent(),
+        ];
+    }
+
+    /**
+     * Insert an immutable demo-interaction event. Called once per visit /
+     * scan / report from DemoController. Telemetry is read from the live
+     * request so each event carries its own country/locale/referer (a
+     * device may roam between visits).
+     */
+    public function logEvent(string $type): void
+    {
+        // created_at is managed automatically by Eloquent; UPDATED_AT is null
+        // on the DemoEvent model so no updated_at column is written.
+        DemoEvent::create([
+            'device_id' => $this->deviceId(),
+            'type'      => $type,
+            ...$this->telemetry(),
+        ]);
     }
 
     /**
