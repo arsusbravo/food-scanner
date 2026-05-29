@@ -39,6 +39,11 @@
                 {{ __('welcome.cta_login') }}
             </a>
         </div>
+        <div style="text-align: center; margin-top: 14px;">
+            <a href="{{ route('prices') }}" style="font-size: 13px; font-weight: 700; color: #64748b; letter-spacing: 0.02em;">
+                {{ __('welcome.view_pricing') }} →
+            </a>
+        </div>
     </div>
 
     <!-- Features -->

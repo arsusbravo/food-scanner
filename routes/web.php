@@ -46,6 +46,7 @@ Route::prefix('demo')->name('demo.')->middleware('throttle:20,1')->group(functio
 
 Route::get('/docs', fn () => view('docs'))->name('docs');
 Route::get('/faq', fn () => view('faq'))->name('faq');
+Route::get('/prices', fn () => view('prices'))->name('prices');
 
 // Legal pages are translated into the EU document languages only — other
 // UI locales (zh-TW, zh-CN, tr) fall back to English on these pages so

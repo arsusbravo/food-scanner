@@ -116,13 +116,14 @@
             @guest
             <a href="{{ route('register') }}" style="color: #64748b; font-weight: 600;">{{ __('welcome.cta_register') }}</a>
             @endguest
+            <a href="{{ route('prices') }}" style="color: #64748b; font-weight: 600;">Pricing</a>
             <a href="{{ route('privacy') }}" style="color: #64748b; font-weight: 600;">Privacy Policy</a>
             <a href="{{ route('terms') }}" style="color: #64748b; font-weight: 600;">Terms &amp; Conditions</a>
             <a href="{{ route('cookies') }}" style="color: #64748b; font-weight: 600;">Cookie Policy</a>
             <a href="{{ route('faq') }}" style="color: #64748b; font-weight: 600;">FAQ</a>
             <a href="{{ route('docs') }}" style="color: #64748b; font-weight: 600;">Docs</a>
         </div>
-        <p style="font-size: 11px; color: #94a3b8; margin: 12px 0 0;">&copy; {{ date('Y') }} KitchenLog &mdash; Arsus B.V.</p>
+        <p style="font-size: 11px; color: #94a3b8; margin: 12px 0 0;">&copy; {{ date('Y') }} KitchenLog &mdash; ARSUS IT Solutions</p>
     </div>
 
     <!-- Cookie consent banner -->

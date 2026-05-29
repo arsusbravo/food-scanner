@@ -4,6 +4,7 @@ return [
     'tagline'              => 'Lebensmittelabfall-Tracker',
     'subtitle'             => 'Intelligente Lebensmittelabfallverfolgung für professionelle Küchen — für EU-Konformität entwickelt.',
     'try_demo'             => 'Kostenlos testen',
+    'view_pricing'         => 'Tarife & Preise ansehen',
     'cta_register'         => 'Loslegen — kostenlos',
     'cta_login'            => 'Anmelden',
     'features_title'       => 'Alles, was Sie brauchen',

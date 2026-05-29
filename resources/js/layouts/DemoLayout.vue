@@ -99,7 +99,7 @@ function selectLocale(code: SupportedLocale) {
 
         <footer style="border-top: 1px solid #e2e8f0; padding: 20px; text-align: center;">
             <p style="font-size: 11px; color: #94a3b8; margin: 0;">
-                &copy; {{ new Date().getFullYear() }} KitchenLog &mdash; Arsus B.V.
+                &copy; {{ new Date().getFullYear() }} KitchenLog &mdash; ARSUS IT Solutions
             </p>
         </footer>
     </div>

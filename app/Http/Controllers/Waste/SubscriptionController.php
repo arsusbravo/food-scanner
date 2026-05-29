@@ -48,7 +48,13 @@ class SubscriptionController extends Controller
             'customer_update'            => ['address' => 'auto', 'name' => 'auto'],
         ]);
 
-        return Inertia::location($checkout->url);
+        // From the in-app Inertia <Form> use Inertia::location so the SPA does
+        // a clean redirect. From the public /prices Blade form we get a normal
+        // browser POST — return a real HTTP redirect so the browser follows it
+        // to Stripe instead of receiving the Inertia-only 409 response.
+        return $request->header('X-Inertia')
+            ? Inertia::location($checkout->url)
+            : redirect()->away($checkout->url);
     }
 
     public function success(): RedirectResponse
