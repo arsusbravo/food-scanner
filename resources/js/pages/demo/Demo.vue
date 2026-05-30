@@ -139,39 +139,32 @@ watch(scanReady, (r) => {
 // Each click pre-fills the Review step with a plausible AI result — zero
 // AI cost, zero Turnstile, zero quota burn. The user can edit, add, and
 // download exactly as they would with a real scan.
+//
+// The factual fields (category / reason / weight_kg / confidence) are
+// properties of the image, not language — they live here. The localizable
+// strings (item_name, notes) come from `demo.sample_<key>` / `_notes` in
+// the i18n files so visitors see the demo result in their UI language.
 const SAMPLES = {
     chicken: {
         src: '/images/samples/waste-chicken.jpg',
-        result: {
-            item_name: 'Roast chicken legs',
-            weight_kg: 1.2,
-            category: 'protein' as WasteCategory,
-            reason: 'overproduction',
-            confidence: 'high' as const,
-            notes: 'Tray left over from lunch service.',
-        },
+        weight_kg: 18.5,
+        category: 'protein' as WasteCategory,
+        reason: 'prep_waste',
+        confidence: 'high' as const,
     },
     fruits: {
         src: '/images/samples/waste-fruits.jpg',
-        result: {
-            item_name: 'Mixed fruit — past prime',
-            weight_kg: 0.7,
-            category: 'veg' as WasteCategory,
-            reason: 'spoilage',
-            confidence: 'high' as const,
-            notes: 'Bruised fruit pulled from display.',
-        },
+        weight_kg: 5.4,
+        category: 'veg' as WasteCategory,
+        reason: 'prep_waste',
+        confidence: 'high' as const,
     },
     veggie: {
         src: '/images/samples/waste-veggie.jpeg',
-        result: {
-            item_name: 'Veggie trimmings',
-            weight_kg: 0.4,
-            category: 'veg' as WasteCategory,
-            reason: 'prep_waste',
-            confidence: 'medium' as const,
-            notes: 'Mise-en-place offcuts from morning prep.',
-        },
+        weight_kg: 1.5,
+        category: 'veg' as WasteCategory,
+        reason: 'prep_waste',
+        confidence: 'medium' as const,
     },
 } as const;
 
@@ -180,14 +173,24 @@ const SAMPLE_KEYS = Object.keys(SAMPLES) as SampleKey[];
 
 function useSample(key: SampleKey) {
     const s = SAMPLES[key];
+    const item_name = t(`demo.sample_${key}`);
+    const notes = t(`demo.sample_${key}_notes`);
+
     previewUrl.value = s.src;
-    aiResult.value = { ...s.result };
+    aiResult.value = {
+        item_name,
+        weight_kg: s.weight_kg,
+        category: s.category,
+        reason: s.reason,
+        confidence: s.confidence,
+        notes,
+    };
     reviewForm.value = {
-        category: s.result.category,
-        item_name: s.result.item_name,
-        weight_kg: s.result.weight_kg,
-        reason: s.result.reason,
-        notes: s.result.notes,
+        category: s.category,
+        item_name,
+        weight_kg: s.weight_kg,
+        reason: s.reason,
+        notes,
     };
     step.value = 'review';
     errorMsg.value = null;
