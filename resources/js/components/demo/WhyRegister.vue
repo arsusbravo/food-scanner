@@ -8,6 +8,11 @@ defineProps<{
     headingKey?: string;
 }>();
 
+// Lets the parent (Demo.vue) log a `register_clicked` diagnostic event when
+// the visitor follows any of this panel's CTAs. The Inertia <Link> still
+// handles navigation as before; we just notify the parent first.
+const emit = defineEmits<{ (e: 'register-click'): void }>();
+
 const benefits = [
     'demo.benefit_save',
     'demo.benefit_official',
@@ -42,12 +47,18 @@ const benefits = [
             :href="register()"
             class="inline-flex items-center justify-center w-full h-12 rounded-xl font-bold text-white no-underline"
             style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 16px rgba(5,150,105,0.25);"
+            @click="emit('register-click')"
         >
             {{ $t('demo.cta_register') }}
         </Link>
 
         <div class="mt-3 text-center">
-            <Link :href="login()" class="text-sm font-semibold no-underline" style="color: #059669;">
+            <Link
+                :href="login()"
+                class="text-sm font-semibold no-underline"
+                style="color: #059669;"
+                @click="emit('register-click')"
+            >
                 {{ $t('demo.cta_login') }}
             </Link>
         </div>

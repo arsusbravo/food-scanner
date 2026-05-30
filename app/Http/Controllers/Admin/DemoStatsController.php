@@ -23,6 +23,7 @@ class DemoStatsController extends Controller
         return Inertia::render('admin/DemoStats', [
             'stats'         => $this->stats(),
             'funnel'        => $this->funnel($since),
+            'dropoff'       => $this->dropoffDetail($since),
             'daily'         => $this->daily($since),
             'top_countries' => $this->topDistinctDevices('country', $since),
             'top_locales'   => $this->topDistinctDevices('locale', $since),
@@ -76,6 +77,78 @@ class DemoStatsController extends Controller
                 ->where('created_at', '>=', $since)
                 ->count(),
         ];
+    }
+
+    /**
+     * Granular drop-off across all 9 funnel stages so we can SEE the
+     * specific step where visitors disengage. Each step shows distinct
+     * device counts; "Engaged with upload area" merges file_selected and
+     * sample_clicked because both signal real intent.
+     *
+     * Returns: list of {key, label, devices, pct_visits, drop_pct}
+     * where drop_pct is how many of the *previous step's* devices made it
+     * to this one (so a step with drop_pct=20 means 80% bailed there).
+     *
+     * @return list<array{key:string, label:string, devices:int, pct_visits:?int, drop_pct:?int}>
+     */
+    private function dropoffDetail(CarbonInterface $since): array
+    {
+        // Single query that counts distinct devices per event type so we can
+        // look up each step in O(1) below.
+        $byType = DemoEvent::selectRaw('type, count(distinct device_id) as devices')
+            ->where('created_at', '>=', $since)
+            ->groupBy('type')
+            ->pluck('devices', 'type');
+
+        $countOf = fn (string $type): int => (int) ($byType[$type] ?? 0);
+
+        // "Engaged" = either selected a file OR clicked a sample. We count
+        // the UNION of device_ids — not the sum — so a visitor who did both
+        // counts once.
+        $engaged = DemoEvent::whereIn('type', ['file_selected', 'sample_clicked'])
+            ->where('created_at', '>=', $since)
+            ->distinct('device_id')
+            ->count('device_id');
+
+        $signups = User::whereNotNull('demo_device_id')
+            ->where('created_at', '>=', $since)
+            ->count();
+
+        $rawSteps = [
+            ['key' => 'visit',          'label' => 'Visit',              'devices' => $countOf('visit')],
+            ['key' => 'captcha_ready',  'label' => 'Captcha ready',      'devices' => $countOf('captcha_ready')],
+            ['key' => 'engaged',        'label' => 'Engaged (upload or sample)', 'devices' => $engaged],
+            ['key' => 'scan_clicked',   'label' => 'Clicked Analyse',    'devices' => $countOf('scan_clicked')],
+            ['key' => 'scan',           'label' => 'Scan succeeded',     'devices' => $countOf('scan')],
+            ['key' => 'entry_added',    'label' => 'Added to demo list', 'devices' => $countOf('entry_added')],
+            ['key' => 'report_clicked', 'label' => 'Generated report',   'devices' => $countOf('report_clicked')],
+            ['key' => 'pdf_clicked',    'label' => 'Downloaded PDF',     'devices' => $countOf('pdf_clicked')],
+            ['key' => 'signups',        'label' => 'Signed up',          'devices' => $signups],
+        ];
+
+        $visits = $rawSteps[0]['devices'];
+        $prev   = null;
+
+        return array_map(function (array $step) use ($visits, &$prev) {
+            // drop_pct = how many of the *previous step's* devices reached this one.
+            // The funnel can branch (sample click bypasses captcha_ready, file path
+            // requires it) so this ratio can technically exceed 100% — when it
+            // does we cap at 100 so the "kept" badge stays meaningful as a
+            // drop-off indicator (and never visually claims to "gain" devices).
+            $rawDrop = $prev !== null && $prev > 0
+                ? (int) round($step['devices'] / $prev * 100)
+                : null;
+
+            $row = [
+                'key'         => $step['key'],
+                'label'       => $step['label'],
+                'devices'     => $step['devices'],
+                'pct_visits'  => $visits > 0 ? (int) round($step['devices'] / $visits * 100) : null,
+                'drop_pct'    => $rawDrop === null ? null : min(100, $rawDrop),
+            ];
+            $prev = $step['devices'];
+            return $row;
+        }, $rawSteps);
     }
 
     /**

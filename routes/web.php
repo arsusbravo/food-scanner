@@ -42,6 +42,8 @@ Route::prefix('demo')->name('demo.')->middleware('throttle:20,1')->group(functio
     Route::post('scan',       [DemoController::class, 'scan'])->name('scan');
     Route::post('report',     [DemoController::class, 'report'])->name('report');
     Route::post('report/pdf', [DemoController::class, 'reportPdf'])->name('report.pdf');
+    // Lightweight diagnostic ping — no AI cost, no Turnstile, just an event row.
+    Route::post('event',      [DemoController::class, 'event'])->name('event');
 });
 
 Route::get('/docs', fn () => view('docs'))->name('docs');

@@ -20,6 +20,14 @@ type Stats = {
 
 type Funnel = { visits: number; scanned: number; reported: number; signups: number };
 
+type DropoffRow = {
+    key: string;
+    label: string;
+    devices: number;
+    pct_visits: number | null;
+    drop_pct: number | null;
+};
+
 type DailyRow = { date: string; visit: number; scan: number; report: number };
 
 type TopRow = { label: string; devices: number };
@@ -38,6 +46,7 @@ type RecentEvent = {
 const props = defineProps<{
     stats:         Stats;
     funnel:        Funnel;
+    dropoff:       DropoffRow[];
     daily:         DailyRow[];
     top_countries: TopRow[];
     top_locales:   TopRow[];
@@ -256,6 +265,52 @@ function barPct(value: number, list: TopRow[]): number {
                     </div>
                 </template>
             </div>
+        </div>
+
+        <!-- Drop-off detail — full 9-stage view so we see where exactly visitors bail. -->
+        <div class="rounded-xl border bg-card p-5">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-sm font-semibold">Drop-off detail — last {{ window_days }} days</p>
+                <p class="text-xs text-muted-foreground">distinct devices per stage; % of visits and % retained from previous stage</p>
+            </div>
+            <ul class="space-y-3">
+                <li v-for="(row, i) in dropoff" :key="row.key" class="text-sm">
+                    <div class="flex items-center justify-between gap-3 mb-1">
+                        <span class="font-medium flex items-center gap-2">
+                            <span class="inline-flex items-center justify-center size-5 rounded-full bg-slate-100 text-[10px] font-bold tabular-nums text-slate-600">{{ i + 1 }}</span>
+                            {{ row.label }}
+                        </span>
+                        <span class="flex items-center gap-3 text-muted-foreground shrink-0">
+                            <span v-if="row.pct_visits !== null" class="tabular-nums text-xs">{{ row.pct_visits }}% of visits</span>
+                            <span
+                                v-if="row.drop_pct !== null"
+                                class="tabular-nums text-xs px-2 py-0.5 rounded-full"
+                                :style="row.drop_pct >= 80
+                                    ? 'background:#ecfdf5;color:#059669;'
+                                    : row.drop_pct >= 40
+                                    ? 'background:#fef3c7;color:#b45309;'
+                                    : 'background:#fee2e2;color:#b91c1c;'"
+                                :title="`${row.drop_pct}% of devices from the previous stage made it here`"
+                            >
+                                {{ row.drop_pct }}% kept
+                            </span>
+                            <span class="font-bold tabular-nums text-foreground text-base min-w-10 text-right">{{ row.devices }}</span>
+                        </span>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                            class="h-full rounded-full"
+                            :style="{
+                                width: `${row.pct_visits ?? 0}%`,
+                                background: i === 0 ? '#94a3b8' : i < 4 ? '#34d399' : i < 7 ? '#10b981' : '#047857',
+                            }"
+                        ></div>
+                    </div>
+                </li>
+            </ul>
+            <p class="text-xs text-muted-foreground mt-4 leading-relaxed">
+                Read the table top-down. The biggest red <em>% kept</em> badge identifies the stage where visitors drop off most heavily — that's the friction worth fixing first.
+            </p>
         </div>
 
         <!-- Daily activity chart -->

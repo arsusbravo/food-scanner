@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Camera, RotateCcw, Trash2, FileBarChart2 } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
@@ -113,6 +113,87 @@ onMounted(() => {
     }
 });
 
+// ── Diagnostic events ─────────────────────────────────────────────────────
+// Fire-and-forget ping. Network glitches must never block the demo UX, so
+// every error is swallowed silently.
+function pingEvent(type: string): void {
+    void csrfFetch('/demo/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ type }),
+    }).catch(() => undefined);
+}
+
+// First time the scan-side Turnstile becomes ready, log it so we can see how
+// many visitors actually wait for the captcha to load vs bail before then.
+let captchaReadyLogged = false;
+watch(scanReady, (r) => {
+    if (r && !captchaReadyLogged) {
+        captchaReadyLogged = true;
+        pingEvent('captcha_ready');
+    }
+});
+
+// ── Sample photos ─────────────────────────────────────────────────────────
+// Three thumbnails for "I came to look, not to dig up a photo" visitors.
+// Each click pre-fills the Review step with a plausible AI result — zero
+// AI cost, zero Turnstile, zero quota burn. The user can edit, add, and
+// download exactly as they would with a real scan.
+const SAMPLES = {
+    chicken: {
+        src: '/images/samples/waste-chicken.jpg',
+        result: {
+            item_name: 'Roast chicken legs',
+            weight_kg: 1.2,
+            category: 'protein' as WasteCategory,
+            reason: 'overproduction',
+            confidence: 'high' as const,
+            notes: 'Tray left over from lunch service.',
+        },
+    },
+    fruits: {
+        src: '/images/samples/waste-fruits.jpg',
+        result: {
+            item_name: 'Mixed fruit — past prime',
+            weight_kg: 0.7,
+            category: 'veg' as WasteCategory,
+            reason: 'spoilage',
+            confidence: 'high' as const,
+            notes: 'Bruised fruit pulled from display.',
+        },
+    },
+    veggie: {
+        src: '/images/samples/waste-veggie.jpeg',
+        result: {
+            item_name: 'Veggie trimmings',
+            weight_kg: 0.4,
+            category: 'veg' as WasteCategory,
+            reason: 'prep_waste',
+            confidence: 'medium' as const,
+            notes: 'Mise-en-place offcuts from morning prep.',
+        },
+    },
+} as const;
+
+type SampleKey = keyof typeof SAMPLES;
+const SAMPLE_KEYS = Object.keys(SAMPLES) as SampleKey[];
+
+function useSample(key: SampleKey) {
+    const s = SAMPLES[key];
+    previewUrl.value = s.src;
+    aiResult.value = { ...s.result };
+    reviewForm.value = {
+        category: s.result.category,
+        item_name: s.result.item_name,
+        weight_kg: s.result.weight_kg,
+        reason: s.result.reason,
+        notes: s.result.notes,
+    };
+    step.value = 'review';
+    errorMsg.value = null;
+    pingEvent('sample_clicked');
+}
+
 function persist() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries.value));
 }
@@ -122,6 +203,7 @@ function onFileSelect(e: Event) {
     if (!file) return;
     previewUrl.value = URL.createObjectURL(file);
     errorMsg.value = null;
+    pingEvent('file_selected');
 }
 
 function compressImage(file: File, maxPx = 1920, quality = 0.85): Promise<Blob> {
@@ -151,6 +233,7 @@ async function analyse() {
 
     analysing.value = true;
     errorMsg.value = null;
+    pingEvent('scan_clicked');
 
     try {
         const compressed = await compressImage(file);
@@ -176,6 +259,7 @@ async function analyse() {
             if (body.remaining) remaining.value = body.remaining;
             errorMsg.value = body.error || t('demo.error_generic');
             resetScanTurnstile();
+            pingEvent('scan_failed');
             return;
         }
 
@@ -193,6 +277,7 @@ async function analyse() {
     } catch {
         errorMsg.value = t('demo.error_network');
         resetScanTurnstile();
+        pingEvent('scan_failed');
     } finally {
         analysing.value = false;
     }
@@ -204,6 +289,7 @@ function addEntry() {
     }
     entries.value.push({ ...reviewForm.value, weight_kg: Number(reviewForm.value.weight_kg) });
     persist();
+    pingEvent('entry_added');
     resetScan();
     step.value = 'scan';
 }
@@ -232,6 +318,7 @@ async function generateReport() {
     if (!entries.value.length) return;
     generating.value = true;
     errorMsg.value = null;
+    pingEvent('report_clicked');
     try {
         const res = await csrfFetch('/demo/report', {
             method: 'POST',
@@ -265,6 +352,7 @@ async function downloadPdf() {
     }
     downloading.value = true;
     errorMsg.value = null;
+    pingEvent('pdf_clicked');
     try {
         const res = await csrfFetch('/demo/report/pdf', {
             method: 'POST',
@@ -333,7 +421,7 @@ const summaryRows = computed(() =>
     <!-- STEP: scan -->
     <div v-if="step === 'scan'" class="space-y-4">
         <!-- Exhausted CTA — full benefits panel once scans are used up -->
-        <WhyRegister v-if="scansExhausted" heading-key="demo.exhausted_title" />
+        <WhyRegister v-if="scansExhausted" heading-key="demo.exhausted_title" @register-click="pingEvent('register_clicked')" />
 
         <!-- Uploader -->
         <div v-else class="bg-white rounded-2xl border border-slate-100 p-5" style="box-shadow:0 2px 12px rgba(0,0,0,0.05);">
@@ -363,6 +451,33 @@ const summaryRows = computed(() =>
                     <p v-if="!analysing" class="text-xs text-slate-400">{{ $t('demo.change_photo') }}</p>
                 </template>
             </label>
+
+            <!-- Sample photos — instant demo, no upload, no AI, no quota burn.
+                 The big unlock for "I came to look, not to do the work" visitors. -->
+            <div v-if="!previewUrl" class="mt-4">
+                <p class="text-xs font-semibold text-slate-500 mb-2 text-center">
+                    {{ $t('demo.sample_prompt') }}
+                </p>
+                <div class="flex gap-2 justify-center">
+                    <button
+                        v-for="key in SAMPLE_KEYS"
+                        :key="key"
+                        type="button"
+                        class="rounded-xl overflow-hidden border-2 border-transparent hover:border-emerald-400 transition-colors"
+                        :style="`width:84px;height:84px;background:#f1f5f9;`"
+                        :aria-label="$t(`demo.sample_${key}`)"
+                        :title="$t(`demo.sample_${key}`)"
+                        @click="useSample(key)"
+                    >
+                        <img
+                            :src="SAMPLES[key].src"
+                            :alt="$t(`demo.sample_${key}`)"
+                            loading="lazy"
+                            style="width:100%;height:100%;object-fit:cover;display:block;"
+                        />
+                    </button>
+                </div>
+            </div>
 
             <!-- Cloudflare widget — placed directly above the button so the
                  user can see when verification has finished loading -->
@@ -418,7 +533,7 @@ const summaryRows = computed(() =>
         <!-- Conversion: once they've added at least one entry, explain why
              registering matters. Hidden when scans are exhausted because the
              full panel already replaces the uploader card above. -->
-        <WhyRegister v-if="entries.length && !scansExhausted" />
+        <WhyRegister v-if="entries.length && !scansExhausted" @register-click="pingEvent('register_clicked')" />
     </div>
 
     <!-- STEP: review -->
@@ -534,7 +649,7 @@ const summaryRows = computed(() =>
         </div>
 
         <!-- Convert — the visitor has just seen the watermarked report; this is the moment. -->
-        <WhyRegister />
+        <WhyRegister @register-click="pingEvent('register_clicked')" />
     </div>
 
 </template>

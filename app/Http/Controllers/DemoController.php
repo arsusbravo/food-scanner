@@ -137,6 +137,27 @@ class DemoController extends Controller
     }
 
     /**
+     * Lightweight diagnostic ping from the demo SPA — used to see exactly
+     * where visitors drop off (file_selected, captcha_ready, scan_clicked,
+     * sample_clicked, …). Idempotent from the client side, validated
+     * against a strict whitelist, no AI cost, no Turnstile.
+     */
+    public function event(Request $request, DemoQuota $quota)
+    {
+        $validated = $request->validate([
+            'type' => [
+                'required',
+                'string',
+                'in:file_selected,captcha_ready,scan_clicked,scan_failed,sample_clicked,entry_added,report_clicked,pdf_clicked,register_clicked',
+            ],
+        ]);
+
+        $quota->logEvent($validated['type']);
+
+        return response()->noContent();
+    }
+
+    /**
      * @return array<int, array{category:string,item_name:string,weight_kg:float,reason:string}>
      */
     private function validateEntries(Request $request): array
