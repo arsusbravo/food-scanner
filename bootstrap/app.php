@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CaptureInviteToken;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureUserActive;
 use App\Http\Middleware\HandleAppearance;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             SetLocale::class,
+            CaptureInviteToken::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,

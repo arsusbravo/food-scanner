@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\Stripe\WebhookController as StripeWebhookController;
-use App\Models\Invitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -15,20 +14,8 @@ use Laravel\Fortify\Features;
 Route::get('/csrf-token', fn () => response()->json(['token' => csrf_token()]));
 
 Route::get('/', function (Request $request) {
-    $token = $request->query('token');
-
-    if ($token) {
-        $invitation = Invitation::valid()->where('token', $token)->first();
-        if ($invitation) {
-            // Count click once per session per token
-            if ($request->session()->get('invite_click_counted') !== $token) {
-                $invitation->increment('clicks');
-                $request->session()->put('invite_click_counted', $token);
-            }
-            $request->session()->put('invite_token', $token);
-        }
-    }
-
+    // `?token=…` is captured globally by CaptureInviteToken middleware,
+    // so it works on /demo, /prices, etc. — not just here.
     return view('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
         'inviteToken' => $request->session()->get('invite_token'),
