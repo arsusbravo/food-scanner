@@ -48,9 +48,15 @@ return [
         'provider' => env('AI_PROVIDER', 'anthropic'),
     ],
 
+    'stripe' => [
+        'price_monthly' => env('STRIPE_PRICE_MONTHLY'),
+        'price_annual' => env('STRIPE_PRICE_ANNUAL'),
+    ],
+
     'turnstile' => [
+        'enabled' => env('TURNSTILE_ENABLED', true),
         'site_key' => env('TURNSTILE_SITE_KEY'),
-        'secret'   => env('TURNSTILE_SECRET_KEY'),
+        'secret' => env('TURNSTILE_SECRET_KEY'),
     ],
 
 ];

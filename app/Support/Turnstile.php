@@ -29,7 +29,7 @@ class Turnstile
      */
     public static function enabled(): bool
     {
-        if (env('TURNSTILE_ENABLED') === false) {
+        if (config('services.turnstile.enabled') === false) {
             return false;
         }
 
@@ -76,7 +76,7 @@ class Turnstile
         }
 
         $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', array_filter([
-            'secret'   => $secret,
+            'secret' => $secret,
             'response' => $token,
             'remoteip' => $ip,
         ]));
@@ -85,11 +85,11 @@ class Turnstile
 
         if (! $success) {
             Log::warning('[Turnstile] verification failed', [
-                'status'      => $response->status(),
+                'status' => $response->status(),
                 'error_codes' => $response->json('error-codes'),
-                'hostname'    => $response->json('hostname'),
-                'ip'          => $ip,
-                'token_head'  => substr((string) $token, 0, 12),
+                'hostname' => $response->json('hostname'),
+                'ip' => $ip,
+                'token_head' => substr((string) $token, 0, 12),
                 'site_key_head' => substr((string) config('services.turnstile.site_key'), 0, 12),
             ]);
         }

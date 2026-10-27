@@ -12,20 +12,20 @@ class SubscriptionController extends Controller
 {
     public function index(Request $request): Response
     {
-        $user      = $request->user();
-        $isPro     = $user->effectivePlan() === 'pro';
+        $user = $request->user();
+        $isPro = $user->effectivePlan() === 'pro';
         $expiresAt = $isPro && $user->plan_expires_at
             ? $user->plan_expires_at->format('d M Y')
             : null;
 
         return Inertia::render('waste/Subscription', [
-            'plan'        => $user->effectivePlan(),
-            'scans_used'  => $user->aiScansUsedThisMonth(),
-            'scan_quota'  => $user->aiScanQuota(),
-            'exports_used'=> $user->exportsUsedThisMonth(),
-            'export_quota'=> $user->exportQuota(),
-            'expires_at'  => $expiresAt,
-            'flash'       => session('subscription_success') ? 'activated' : null,
+            'plan' => $user->effectivePlan(),
+            'scans_used' => $user->aiScansUsedThisMonth(),
+            'scan_quota' => $user->aiScanQuota(),
+            'exports_used' => $user->exportsUsedThisMonth(),
+            'export_quota' => $user->exportQuota(),
+            'expires_at' => $expiresAt,
+            'flash' => session('subscription_success') ? 'activated' : null,
         ]);
     }
 
@@ -34,18 +34,20 @@ class SubscriptionController extends Controller
         $request->validate(['interval' => 'required|in:monthly,annual']);
 
         $interval = $request->input('interval');
-        $priceId  = $interval === 'annual'
-            ? env('STRIPE_PRICE_ANNUAL')
-            : env('STRIPE_PRICE_MONTHLY');
+        $priceId = $interval === 'annual'
+            ? config('services.stripe.price_annual')
+            : config('services.stripe.price_monthly');
+
+        abort_if(empty($priceId), 503, 'Subscription pricing is not configured.');
 
         $checkout = $request->user()->checkout($priceId, [
-            'success_url'                => route('waste.subscription.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url'                 => route('waste.subscription.index'),
-            'metadata'                   => ['interval' => $interval],
-            'automatic_tax'              => ['enabled' => true],
-            'tax_id_collection'          => ['enabled' => true],
+            'success_url' => route('waste.subscription.success').'?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('waste.subscription.index'),
+            'metadata' => ['interval' => $interval],
+            'automatic_tax' => ['enabled' => true],
+            'tax_id_collection' => ['enabled' => true],
             'billing_address_collection' => 'required',
-            'customer_update'            => ['address' => 'auto', 'name' => 'auto'],
+            'customer_update' => ['address' => 'auto', 'name' => 'auto'],
         ]);
 
         // From the in-app Inertia <Form> use Inertia::location so the SPA does
