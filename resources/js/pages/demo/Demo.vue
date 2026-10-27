@@ -406,7 +406,21 @@ const summaryRows = computed(() =>
     <div class="mb-4">
         <h2 class="text-2xl font-bold text-slate-900">{{ $t('demo.title') }}</h2>
         <p class="text-sm text-slate-500 mt-1">{{ $t('demo.subtitle') }}</p>
+        <p class="text-sm font-semibold mt-2" style="color:#047857;">{{ $t('demo.what_is') }}</p>
     </div>
+
+    <!-- How the demo works — only before the visitor has started -->
+    <ol v-if="step === 'scan' && entries.length === 0" class="mb-4 grid grid-cols-3 gap-2">
+        <li
+            v-for="n in 3"
+            :key="n"
+            class="rounded-xl bg-white border border-slate-100 p-3 text-center"
+            style="box-shadow:0 2px 8px rgba(0,0,0,0.04);"
+        >
+            <span class="inline-flex size-6 items-center justify-center rounded-full text-xs font-bold text-white" style="background:#059669;">{{ n }}</span>
+            <p class="mt-1.5 text-xs font-medium text-slate-600 leading-snug">{{ $t(`demo.how_${n}`) }}</p>
+        </li>
+    </ol>
 
     <!-- Quota banner -->
     <div

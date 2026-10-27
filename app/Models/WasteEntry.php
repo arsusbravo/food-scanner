@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WasteEntry extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'category',
         'item_name',
         'weight_kg',
+        'cost',
         'reason',
         'notes',
         'logged_at',
@@ -24,6 +28,7 @@ class WasteEntry extends Model
     {
         return [
             'weight_kg' => 'decimal:4',
+            'cost' => 'decimal:2',
             'ai_raw_response' => 'array',
             'logged_at' => 'datetime',
         ];

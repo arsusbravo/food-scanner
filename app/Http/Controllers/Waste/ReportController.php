@@ -7,6 +7,7 @@ use App\Models\UserExport;
 use App\Models\WasteEntry;
 use App\Support\WasteReportBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Carbon;
@@ -29,34 +30,39 @@ class ReportController extends Controller
 
         $rows = WasteEntry::where('user_id', $request->user()->id)
             ->whereBetween('logged_at', [$from, $to])
-            ->selectRaw('category, reason, SUM(weight_kg) as total_kg, COUNT(*) as entry_count')
+            ->selectRaw('category, reason, SUM(weight_kg) as total_kg, COUNT(*) as entry_count, '.WasteReportBuilder::COST_SELECT)
             ->groupBy('category', 'reason')
             ->orderBy('category')
             ->get();
 
-        $summary = $this->builder->buildSummary($rows);
-
         $user = $request->user();
 
+        $summary = $this->builder->buildSummary($rows, $user->waste_prices);
+        $totals = $this->builder->totals($summary);
+
         return Inertia::render('waste/Report', [
-            'summary'      => $summary,
-            'dateFrom'     => $from->toDateString(),
-            'dateTo'       => $to->toDateString(),
-            'grandTotal'   => round($rows->sum('total_kg'), 2),
+            'summary' => $summary,
+            'totalCost' => $totals['cost'],
+            'totalCo2e' => $totals['co2e'],
+            'currency' => $user->currency,
+            'dateFrom' => $from->toDateString(),
+            'dateTo' => $to->toDateString(),
+            'grandTotal' => round($rows->sum('total_kg'), 2),
             'totalEntries' => $rows->sum('entry_count'),
-            'quota'        => [
-                'exports_used'   => $user->exportsUsedThisMonth(),
-                'export_quota'   => $user->exportQuota(),
+            'quota' => [
+                'exports_used' => $user->exportsUsedThisMonth(),
+                'export_quota' => $user->exportQuota(),
             ],
         ]);
     }
 
-    public function exportCsv(Request $request): HttpResponse|\Illuminate\Http\RedirectResponse
+    public function exportCsv(Request $request): HttpResponse|RedirectResponse
     {
         $user = $request->user();
 
         if (! $user->canExport()) {
             $quota = $user->exportQuota();
+
             return back()->withErrors(['quota' => "Monthly export limit reached ({$quota} exports). Upgrade to Pro for unlimited exports."]);
         }
 
@@ -70,23 +76,31 @@ class ReportController extends Controller
             ->orderBy('logged_at', 'desc')
             ->get();
 
-        $csv = "Date,Category,FLW Group,EU Code,Item,Weight (kg),Reason,Notes,Source\n";
+        $prices = $user->waste_prices ?? [];
+        $hasPrices = collect($prices)->contains(fn ($price) => $price !== null && $price !== '')
+            || $entries->contains(fn ($entry) => $entry->cost !== null);
+
+        $csv = 'Date,Category,FLW Group,EU Code,Item,Weight (kg),Reason,Notes,Source,CO2e (kg)'
+            .($hasPrices ? ",Cost ({$user->currency})" : '')."\n";
         foreach ($entries as $entry) {
             $flw = WasteReportBuilder::FLW_MAPPING[$entry->category];
-            $csv .= implode(',', [
+            $price = $prices[$entry->category] ?? null;
+            $csv .= implode(',', array_filter([
                 $entry->logged_at->toDateString(),
                 $entry->category,
-                '"' . $flw['group'] . '"',
+                '"'.$flw['group'].'"',
                 $flw['eu_code'],
-                '"' . str_replace('"', '""', $entry->item_name) . '"',
+                '"'.str_replace('"', '""', $entry->item_name).'"',
                 number_format((float) $entry->weight_kg, 4),
                 $entry->reason,
-                '"' . str_replace('"', '""', $entry->notes ?? '') . '"',
+                '"'.str_replace('"', '""', $entry->notes ?? '').'"',
                 $entry->source,
-            ]) . "\n";
+                number_format((float) $entry->weight_kg * WasteReportBuilder::CO2E_FACTORS[$entry->category], 2, '.', ''),
+                $hasPrices ? $this->entryCostCell($entry, $price) : null,
+            ], fn ($value) => $value !== null))."\n";
         }
 
-        $filename = 'food-waste-report-' . $from->toDateString() . '-to-' . $to->toDateString() . '.csv';
+        $filename = 'food-waste-report-'.$from->toDateString().'-to-'.$to->toDateString().'.csv';
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv',
@@ -94,12 +108,24 @@ class ReportController extends Controller
         ]);
     }
 
-    public function exportPdf(Request $request): HttpResponse|\Illuminate\Http\RedirectResponse
+    private function entryCostCell(WasteEntry $entry, mixed $price): string
+    {
+        if ($entry->cost !== null) {
+            return number_format((float) $entry->cost, 2, '.', '');
+        }
+
+        return $price !== null && $price !== ''
+            ? number_format((float) $entry->weight_kg * (float) $price, 2, '.', '')
+            : '';
+    }
+
+    public function exportPdf(Request $request): HttpResponse|RedirectResponse
     {
         $user = $request->user()->load('company');
 
         if (! $user->canExport()) {
             $quota = $user->exportQuota();
+
             return back()->withErrors(['quota' => "Monthly export limit reached ({$quota} exports). Upgrade to Pro for unlimited exports."]);
         }
 
@@ -110,7 +136,7 @@ class ReportController extends Controller
 
         $rows = WasteEntry::where('user_id', $user->id)
             ->whereBetween('logged_at', [$from, $to])
-            ->selectRaw('category, reason, SUM(weight_kg) as total_kg, COUNT(*) as entry_count')
+            ->selectRaw('category, reason, SUM(weight_kg) as total_kg, COUNT(*) as entry_count, '.WasteReportBuilder::COST_SELECT)
             ->groupBy('category', 'reason')
             ->orderBy('category')
             ->get();
@@ -123,26 +149,30 @@ class ReportController extends Controller
                 ->get()
             : collect();
 
-        $summary = $this->builder->buildSummary($rows);
+        $summary = $this->builder->buildSummary($rows, $user->waste_prices);
+        $totals = $this->builder->totals($summary);
 
         $locale = $user->resolveDocumentLocale($request->cookie('locale', 'en'));
 
         $pdf = Pdf::loadView('reports.waste-compliance', [
-            'summary'            => $summary,
-            'dateFrom'           => $from->toDateString(),
-            'dateTo'             => $to->toDateString(),
-            'grandTotal'         => round($rows->sum('total_kg'), 2),
-            'totalEntries'       => $rows->sum('entry_count'),
-            'individualEntries'  => $individualEntries,
-            'flwMapping'         => WasteReportBuilder::FLW_MAPPING,
-            'generatedAt'        => now()->toDateTimeString(),
-            'user'               => $user,
-            'company'            => $user->company,
-            'tr'                 => $this->builder->translations($locale),
-            'demo'               => false,
+            'summary' => $summary,
+            'dateFrom' => $from->toDateString(),
+            'dateTo' => $to->toDateString(),
+            'grandTotal' => round($rows->sum('total_kg'), 2),
+            'totalEntries' => $rows->sum('entry_count'),
+            'totalCost' => $totals['cost'],
+            'totalCo2e' => $totals['co2e'],
+            'currency' => $user->currency,
+            'individualEntries' => $individualEntries,
+            'flwMapping' => WasteReportBuilder::FLW_MAPPING,
+            'generatedAt' => now()->toDateTimeString(),
+            'user' => $user,
+            'company' => $user->company,
+            'tr' => $this->builder->translations($locale),
+            'demo' => false,
         ]);
 
-        $filename = 'eu-food-waste-report-' . $from->toDateString() . '-to-' . $to->toDateString() . '.pdf';
+        $filename = 'eu-food-waste-report-'.$from->toDateString().'-to-'.$to->toDateString().'.pdf';
 
         return $pdf->download($filename);
     }

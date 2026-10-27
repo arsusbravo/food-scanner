@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Head, useForm, usePage, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { ArrowLeft, User, Building2, FileText, KeyRound, Eye, EyeOff, Check, LogOut, Zap } from 'lucide-vue-next';
+import { ArrowLeft, User, Building2, FileText, KeyRound, Eye, EyeOff, Check, LogOut, Zap, Coins } from 'lucide-vue-next';
 import {
     profile as profileRoute,
     company as companyRoute,
     password as passwordRoute,
     documentLocale as documentLocaleRoute,
+    prices as pricesRoute,
 } from '@/routes/waste/settings';
 import { index as subscriptionRoute } from '@/routes/waste/subscription';
 import { csrfFetch } from '@/lib/csrf';
@@ -28,6 +29,8 @@ const props = defineProps<{
         postal_code: string | null;
         country: string | null;
     } | null;
+    prices: Record<'protein' | 'veg' | 'dairy' | 'prepared', number | null>;
+    currency: string;
     plan: 'free' | 'pro';
     scans_used: number;
     scan_quota: number | null;
@@ -57,6 +60,19 @@ const companyForm = useForm({
 
 function saveCompany() {
     companyForm.patch(companyRoute().url, { preserveScroll: true });
+}
+
+// ── Cost per kg ───────────────────────────────────────────────
+const PRICE_CATEGORIES = ['protein', 'veg', 'dairy', 'prepared'] as const;
+const CURRENCIES = ['EUR', 'GBP', 'USD', 'CHF', 'TRY'];
+
+const pricesForm = useForm({
+    currency: props.currency,
+    prices: { ...props.prices } as Record<string, number | string | null>,
+});
+
+function savePrices() {
+    pricesForm.patch(pricesRoute().url, { preserveScroll: true });
 }
 
 // ── Countries ─────────────────────────────────────────────────
@@ -269,6 +285,45 @@ const selectMd = 'width:100%;height:44px;border-radius:12px;border:1.5px solid #
             >
                 <Check v-if="companyForm.recentlySuccessful" style="width:16px;height:16px;" />
                 {{ companyForm.recentlySuccessful ? t('settings.saved') : companyForm.processing ? t('settings.saving') : t('settings.save_company') }}
+            </button>
+        </div>
+
+        <!-- Cost per kg card -->
+        <div id="cost-per-kg" class="bg-white rounded-2xl border border-slate-100 p-5 space-y-4" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+            <div class="flex items-center gap-2">
+                <div class="size-7 rounded-xl flex items-center justify-center" style="background:#ecfdf5;">
+                    <Coins style="width:14px;height:14px;color:#059669;" />
+                </div>
+                <p class="font-bold text-sm text-slate-800">{{ t('cost.card_title') }}</p>
+            </div>
+
+            <p class="text-xs text-slate-500 leading-relaxed">{{ t('cost.card_desc') }}</p>
+
+            <div>
+                <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">{{ t('cost.currency') }}</label>
+                <select v-model="pricesForm.currency" :style="selectMd">
+                    <option v-for="code in CURRENCIES" :key="code" :value="code">{{ code }}</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div v-for="cat in PRICE_CATEGORIES" :key="cat">
+                    <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">
+                        {{ t(`log_waste.categories.${cat}`) }} ({{ t('cost.per_kg') }})
+                    </label>
+                    <input v-model="pricesForm.prices[cat]" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" :style="inputMd" />
+                    <p v-if="pricesForm.errors[`prices.${cat}`]" class="text-xs mt-1" style="color:#dc2626;">{{ pricesForm.errors[`prices.${cat}`] }}</p>
+                </div>
+            </div>
+
+            <button
+                @click="savePrices"
+                :disabled="pricesForm.processing"
+                class="w-full h-11 rounded-xl font-semibold text-sm text-white disabled:opacity-60 flex items-center justify-center gap-2"
+                style="background: linear-gradient(135deg, #059669, #047857);"
+            >
+                <Check v-if="pricesForm.recentlySuccessful" style="width:16px;height:16px;" />
+                {{ pricesForm.recentlySuccessful ? t('cost.saved') : pricesForm.processing ? t('cost.saving') : t('cost.save') }}
             </button>
         </div>
 

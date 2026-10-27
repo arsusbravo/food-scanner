@@ -172,6 +172,12 @@
                     <th class="num">{{ $tr['col_total_kg'] }}</th>
                     <th class="num">{{ $tr['col_entries'] }}</th>
                     <th class="num">{{ $tr['col_pct'] }}</th>
+                    @if(isset($totalCo2e))
+                        <th class="num">{{ $tr['col_co2e'] }}</th>
+                    @endif
+                    @if(($totalCost ?? null) !== null)
+                        <th class="num">{{ $tr['col_cost'] }} ({{ $currency }})</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -189,6 +195,12 @@
                             —
                         @endif
                     </td>
+                    @if(isset($totalCo2e))
+                        <td class="num">{{ number_format($row['co2e'] ?? 0, 2) }}</td>
+                    @endif
+                    @if(($totalCost ?? null) !== null)
+                        <td class="num">{{ $row['cost'] !== null ? number_format($row['cost'], 2) : '—' }}</td>
+                    @endif
                 </tr>
                 @endforeach
             </tbody>
@@ -198,9 +210,18 @@
                     <td class="num">{{ number_format($grandTotal, 2) }}</td>
                     <td class="num">{{ $totalEntries }}</td>
                     <td class="num">100%</td>
+                    @if(isset($totalCo2e))
+                        <td class="num">{{ number_format($totalCo2e, 2) }}</td>
+                    @endif
+                    @if(($totalCost ?? null) !== null)
+                        <td class="num">{{ number_format($totalCost, 2) }}</td>
+                    @endif
                 </tr>
             </tfoot>
         </table>
+        @if(isset($totalCo2e))
+            <p style="font-size: 9px; color: #64748b; margin-top: 6px;">{{ $tr['co2e_note'] }}</p>
+        @endif
     </div>
 
     <!-- Breakdown by Waste Reason × Category cross-tab -->
@@ -277,7 +298,12 @@
                 @foreach ($individualEntries as $entry)
                 <tr>
                     <td>{{ $entry->logged_at->toDateString() }}</td>
-                    <td>{{ $entry->item_name }}</td>
+                    <td>
+                        {{ $entry->item_name }}
+                        @if ($entry->notes)
+                            <div style="font-size: 8px; color: #64748b; font-style: italic; margin-top: 2px;">{{ $entry->notes }}</div>
+                        @endif
+                    </td>
                     <td><span class="badge badge-{{ $entry->category }}">{{ $tr['categories'][$entry->category] ?? ucfirst($entry->category) }}</span></td>
                     <td class="num">{{ number_format((float) $entry->weight_kg, 3) }}</td>
                     <td>{{ $tr['reasons'][$entry->reason] ?? $entry->reason }}</td>

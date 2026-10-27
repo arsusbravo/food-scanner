@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Waste;
 
 use App\Http\Controllers\Controller;
+use App\Support\WasteReportBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,26 +16,30 @@ class WasteSettingsController extends Controller
 {
     public function index(Request $request): Response
     {
-        $user    = $request->user()->load('company');
+        $user = $request->user()->load('company');
         $company = $user->company;
 
         return Inertia::render('waste/Settings', [
             'user' => [
-                'name'            => $user->name,
-                'email'           => $user->email,
+                'name' => $user->name,
+                'email' => $user->email,
                 'document_locale' => $user->document_locale,
             ],
             'company' => $company ? [
-                'name'        => $company->name,
-                'phone'       => $company->phone,
-                'address'     => $company->address,
-                'city'        => $company->city,
+                'name' => $company->name,
+                'phone' => $company->phone,
+                'address' => $company->address,
+                'city' => $company->city,
                 'postal_code' => $company->postal_code,
-                'country'     => $company->country,
+                'country' => $company->country,
             ] : null,
-            'plan'        => $user->effectivePlan(),
-            'scans_used'  => $user->aiScansUsedThisMonth(),
-            'scan_quota'  => $user->aiScanQuota(),
+            'prices' => collect(array_keys(WasteReportBuilder::FLW_MAPPING))
+                ->mapWithKeys(fn (string $category) => [$category => $user->waste_prices[$category] ?? null])
+                ->all(),
+            'currency' => $user->currency,
+            'plan' => $user->effectivePlan(),
+            'scans_used' => $user->aiScansUsedThisMonth(),
+            'scan_quota' => $user->aiScanQuota(),
         ]);
     }
 
@@ -43,11 +48,11 @@ class WasteSettingsController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'name'  => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
         ]);
 
-        $user->name  = $validated['name'];
+        $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->save();
 
@@ -57,12 +62,12 @@ class WasteSettingsController extends Controller
     public function updateCompany(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'phone'       => ['nullable', 'string', 'max:50'],
-            'address'     => ['nullable', 'string', 'max:255'],
-            'city'        => ['nullable', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:100'],
             'postal_code' => ['nullable', 'string', 'max:20'],
-            'country'     => ['nullable', Rule::in(['NL', 'BE', 'LU', 'DE', 'FR'])],
+            'country' => ['nullable', Rule::in(['NL', 'BE', 'LU', 'DE', 'FR'])],
         ]);
 
         $request->user()->company()->updateOrCreate(
@@ -80,11 +85,32 @@ class WasteSettingsController extends Controller
         return back()->with('success', 'Company updated.');
     }
 
+    public function updatePrices(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'currency' => ['required', Rule::in(['EUR', 'GBP', 'USD', 'CHF', 'TRY'])],
+            'prices' => ['required', 'array'],
+            'prices.protein' => ['nullable', 'numeric', 'min:0', 'max:1000'],
+            'prices.veg' => ['nullable', 'numeric', 'min:0', 'max:1000'],
+            'prices.dairy' => ['nullable', 'numeric', 'min:0', 'max:1000'],
+            'prices.prepared' => ['nullable', 'numeric', 'min:0', 'max:1000'],
+        ]);
+
+        $request->user()->update([
+            'currency' => $validated['currency'],
+            'waste_prices' => collect($validated['prices'])
+                ->map(fn ($price) => $price === null || $price === '' ? null : round((float) $price, 2))
+                ->all(),
+        ]);
+
+        return back()->with('success', 'Prices updated.');
+    }
+
     public function updatePassword(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'current_password' => ['required', 'string'],
-            'password'         => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         if (! Hash::check($validated['current_password'], $request->user()->password)) {

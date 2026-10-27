@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { router, Head } from '@inertiajs/vue3';
+import { router, Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { formatMoney } from '@/lib/money';
 import { Download, FileText, Zap } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
 import { index as reportIndex } from '@/routes/waste/report';
@@ -14,6 +15,9 @@ type Props = {
     dateTo: string;
     grandTotal: number;
     totalEntries: number;
+    totalCost: number | null;
+    totalCo2e: number;
+    currency: string;
     quota: { exports_used: number; export_quota: number | null };
 };
 
@@ -115,10 +119,26 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                     <p class="text-4xl font-bold tabular-nums mt-1">{{ grandTotal.toFixed(2) }} kg</p>
                 </div>
                 <div class="text-right">
+                    <p v-if="totalCost !== null" class="text-lg font-bold">{{ formatMoney(totalCost, currency) }}</p>
                     <p class="text-sm" style="color: rgba(167,243,208,0.85);">{{ totalEntries }} {{ $t('report.entries') }}</p>
                     <p class="text-xs mt-1" style="color: rgba(167,243,208,0.6);">{{ dateFrom }} – {{ dateTo }}</p>
                 </div>
             </div>
+
+<Link
+                v-if="totalCost === null"
+                href="/waste/settings#cost-per-kg"
+                class="flex items-center justify-between rounded-2xl p-4 text-sm font-semibold"
+                style="background:#ecfdf5;border:1px solid #a7f3d0;color:#047857;"
+            >
+                {{ $t('cost.set_prices') }}
+                <span class="text-xs font-bold px-3 py-1.5 rounded-full shrink-0 ml-3" style="background:white;">{{ $t('cost.set_prices_link') }}</span>
+            </Link>
+
+            <p class="text-xs text-slate-400 px-1">
+                {{ $t('cost.co2e') }}: <span class="font-semibold text-slate-600 tabular-nums">{{ totalCo2e.toFixed(1) }} kg</span>
+                · {{ $t('cost.co2e_note') }}
+            </p>
 
             <!-- Category summary cards -->
             <div class="grid grid-cols-2 gap-3">
@@ -138,6 +158,9 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
                         {{ summary[cat]?.total_kg?.toFixed(2) ?? '0.00' }}
                     </p>
                     <p class="text-xs text-slate-400 mt-0.5">kg · {{ summary[cat]?.entry_count ?? 0 }} {{ $t('report.entries') }}</p>
+                    <p v-if="summary[cat]?.cost !== null && summary[cat]?.cost !== undefined" class="mt-1 text-xs font-semibold" style="color: #b91c1c;">
+                        {{ formatMoney(summary[cat].cost as number, currency) }}
+                    </p>
                     <p class="mt-1 text-xs font-mono" style="color: #059669;">{{ summary[cat]?.eu_code }}</p>
                 </div>
             </div>

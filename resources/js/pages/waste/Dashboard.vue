@@ -6,13 +6,15 @@ import { Trash2, ScanLine } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
 import CategoryPicker from '@/components/waste/CategoryPicker.vue';
 import WeightInput from '@/components/waste/WeightInput.vue';
+import CostInput from '@/components/waste/CostInput.vue';
+import { useCostSuggestion } from '@/composables/useCostSuggestion';
 import InputError from '@/components/InputError.vue';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { store, destroy } from '@/routes/waste/entries';
 import { index as aiScanIndex } from '@/routes/waste/ai-scan';
 import { type WasteEntry, type WasteCategory } from '@/types/waste';
 
-type Props = { recentEntries: WasteEntry[] };
+type Props = { recentEntries: WasteEntry[]; itemPrices: Record<string, number>; currency: string };
 const props = defineProps<Props>();
 
 const { t } = useI18n();
@@ -21,9 +23,12 @@ const form = useForm({
     category: '' as WasteCategory | '',
     item_name: '',
     weight_kg: '' as number | '',
+    cost: '' as number | '',
     reason: '',
     notes: '',
 });
+
+const { suggested, markEdited, reset: resetSuggestion } = useCostSuggestion(form, props.itemPrices);
 
 const reasonOptions = computed(() => [
     { value: 'spoilage',       label: t('log_waste.reasons.spoilage') },
@@ -40,6 +45,7 @@ function submit() {
     form.post(store().url, {
         onSuccess: () => {
             form.reset();
+            resetSuggestion();
             nextTick(() => {
                 recentSection.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 if (props.recentEntries.length > 0) {
@@ -95,6 +101,8 @@ function formatWeight(kg: string): string {
                     <WeightInput v-model="form.weight_kg" />
                     <InputError :message="form.errors.weight_kg" />
                 </div>
+
+                <CostInput v-model="form.cost" :currency="currency" :suggested="suggested" :error="form.errors.cost" @edited="markEdited" />
 
                 <div class="space-y-2">
                     <label style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.reason') }}</label>
@@ -171,6 +179,7 @@ function formatWeight(kg: string): string {
                         <p class="text-xs text-slate-400 mt-0.5">
                             {{ $t(`log_waste.categories.${entry.category}`) }} · {{ formatWeight(entry.weight_kg) }} · {{ $t(`log_waste.reasons.${entry.reason}`) }}
                         </p>
+                        <p v-if="entry.notes" class="text-xs text-slate-500 mt-1 line-clamp-2 italic">{{ entry.notes }}</p>
                     </div>
                     <div class="flex items-center gap-2 ml-3 shrink-0">
                         <span

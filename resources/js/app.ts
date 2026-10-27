@@ -1,7 +1,8 @@
-import { createApp, h } from 'vue';
+import { createApp, h, Fragment } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { createI18n } from 'vue-i18n';
 import { initializeTheme } from '@/composables/useAppearance';
+import DesktopNotice from '@/components/DesktopNotice.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
@@ -50,7 +51,7 @@ createInertiaApp({
         color: '#4B5563',
     },
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
+        createApp({ render: () => h(Fragment, [h(App, props), h(DesktopNotice)]) })
             .use(plugin)
             .use(i18n)
             .mount(el!);

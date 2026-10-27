@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Waste;
 use App\Http\Controllers\Controller;
 use App\Support\FoodWasteScanException;
 use App\Support\FoodWasteScanner;
+use App\Support\ItemPriceSuggester;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,14 +13,16 @@ use Inertia\Response as InertiaResponse;
 
 class AIScanController extends Controller
 {
-    public function index(Request $request): InertiaResponse
+    public function index(Request $request, ItemPriceSuggester $suggester): InertiaResponse
     {
         $user = $request->user();
 
         return Inertia::render('waste/AiScan', [
+            'itemPrices' => (object) $suggester->forUser($user),
+            'currency' => $user->currency,
             'quota' => [
-                'ai_scans_used'  => $user->aiScansUsedThisMonth(),
-                'ai_scan_quota'  => $user->aiScanQuota(),
+                'ai_scans_used' => $user->aiScansUsedThisMonth(),
+                'ai_scan_quota' => $user->aiScanQuota(),
             ],
         ]);
     }
@@ -30,6 +33,7 @@ class AIScanController extends Controller
 
         if (! $user->canAiScan()) {
             $quota = $user->aiScanQuota();
+
             return response()->json([
                 'error' => "Monthly AI scan limit reached ({$quota} scans). Upgrade to Pro for unlimited scans.",
             ], 403);

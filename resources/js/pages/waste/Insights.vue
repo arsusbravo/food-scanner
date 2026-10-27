@@ -2,6 +2,8 @@
 import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { Link } from '@inertiajs/vue3';
+import { formatMoney } from '@/lib/money';
 import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Info, Lightbulb } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -13,6 +15,12 @@ const props = defineProps<{
     byReason: Record<string, number>;
     weeklyTrend: { label: string; kg: number }[];
     hasData: boolean;
+    hasCostData: boolean;
+    currency: string;
+    thisMonthCost: number;
+    lastMonthCost: number;
+    thisMonthCo2e: number;
+    costByCategory: Record<string, number>;
 }>();
 
 const { t } = useI18n();
@@ -53,6 +61,8 @@ type Insight = { type: InsightType; title: string; detail: string };
 
 const monthChange = computed(() => pctChange(props.thisMonthKg, props.lastMonthKg));
 const weekChange  = computed(() => pctChange(props.thisWeekKg, props.lastWeekKg));
+const costChange  = computed(() => pctChange(props.thisMonthCost, props.lastMonthCost));
+const topCostCategory = computed(() => topKey(props.costByCategory));
 const topReason   = computed(() => topKey(props.byReason));
 const topCategory = computed(() => topKey(props.byCategory));
 
@@ -226,6 +236,36 @@ function insightIcon(insight: Insight) {
                     </p>
                     <p class="text-xs mt-0.5" style="color:rgba(167,243,208,0.6);">{{ $t('insights.vs_last_month') }}</p>
                 </div>
+            </div>
+
+            <!-- Money lost card -->
+            <div class="bg-white rounded-2xl border border-slate-100 p-5" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+                <template v-if="hasCostData">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ $t('cost.lost_month') }}</p>
+                            <p class="text-3xl font-bold tabular-nums mt-1" style="color:#b91c1c;">{{ formatMoney(thisMonthCost, currency) }}</p>
+                        </div>
+                        <div v-if="costChange !== null" class="text-right">
+                            <p class="text-sm font-bold" :style="costChange <= 0 ? 'color:#059669;' : 'color:#dc2626;'">
+                                {{ costChange <= 0 ? '' : '+' }}{{ costChange }}%
+                            </p>
+                            <p class="text-xs text-slate-400">{{ $t('cost.vs') }}</p>
+                        </div>
+                    </div>
+                    <p v-if="topCostCategory" class="text-xs text-slate-500 mt-3">
+                        {{ $t('cost.top_cost') }}:
+                        <span class="font-semibold text-slate-700">{{ CATEGORY_LABELS[topCostCategory] ?? topCostCategory }}</span>
+                        · {{ formatMoney(costByCategory[topCostCategory], currency) }}
+                    </p>
+                </template>
+                <Link v-else href="/waste/settings#cost-per-kg" class="flex items-center justify-between text-sm font-semibold" style="color:#059669;">
+                    {{ $t('cost.set_prices') }}
+                    <span class="text-xs font-bold px-3 py-1.5 rounded-full" style="background:#ecfdf5;">{{ $t('cost.set_prices_link') }}</span>
+                </Link>
+                <p class="text-xs text-slate-400 mt-3 pt-3 border-t border-slate-100">
+                    {{ $t('cost.co2e') }}: <span class="font-semibold text-slate-600 tabular-nums">{{ thisMonthCo2e.toFixed(1) }} kg</span>
+                </p>
             </div>
 
             <!-- Insight cards -->

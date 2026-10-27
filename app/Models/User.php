@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -13,22 +14,23 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'email', 'password', 'document_locale'])]
+#[Fillable(['name', 'email', 'password', 'document_locale', 'waste_prices', 'currency'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable, Billable;
+    use Billable, HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     protected function casts(): array
     {
         return [
-            'email_verified_at'      => 'datetime',
-            'password'               => 'hashed',
-            'two_factor_confirmed_at'=> 'datetime',
-            'is_admin'               => 'boolean',
-            'is_active'              => 'boolean',
-            'plan_expires_at'        => 'datetime',
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'two_factor_confirmed_at' => 'datetime',
+            'is_admin' => 'boolean',
+            'is_active' => 'boolean',
+            'plan_expires_at' => 'datetime',
+            'waste_prices' => 'array',
         ];
     }
 
@@ -83,16 +85,16 @@ class User extends Authenticatable
         return config("plans.{$this->effectivePlan()}.exports");
     }
 
-    public function billingPeriodStart(): \Carbon\CarbonInterface
+    public function billingPeriodStart(): CarbonInterface
     {
         // Pro users: anchor to expiry day (same day of month as purchase).
         // Free users: anchor to registration day.
-        $anchor    = ($this->plan_expires_at && $this->plan_expires_at->isFuture())
+        $anchor = ($this->plan_expires_at && $this->plan_expires_at->isFuture())
             ? $this->plan_expires_at
             : $this->created_at;
 
         $anchorDay = (int) $anchor->day;
-        $today     = now();
+        $today = now();
 
         // Try the anchor day in the current month; Carbon clamps to the last day
         // of shorter months (e.g. registered on Jan 31 → Feb 28).
@@ -153,7 +155,7 @@ class User extends Authenticatable
         }
 
         $countryMap = ['NL' => 'nl', 'BE' => 'nl', 'DE' => 'de', 'FR' => 'fr', 'LU' => 'en'];
-        $country    = $this->company?->country;
+        $country = $this->company?->country;
 
         return ($country && isset($countryMap[$country])) ? $countryMap[$country] : 'nl';
     }

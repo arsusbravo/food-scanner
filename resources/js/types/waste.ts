@@ -26,6 +26,8 @@ export type WasteReportRow = {
     eu_code: string;
     total_kg: number;
     entry_count: number;
+    cost: number | null;
+    co2e: number;
     by_reason: Partial<Record<WasteReason, { total_kg: number; entry_count: number }>>;
 };
 

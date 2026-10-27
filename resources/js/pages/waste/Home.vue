@@ -2,6 +2,7 @@
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { formatMoney } from '@/lib/money';
 import { UtensilsCrossed, ScanLine, ChevronRight, TrendingUp, CalendarDays } from 'lucide-vue-next';
 import { type WasteEntry } from '@/types/waste';
 
@@ -10,6 +11,9 @@ type Props = {
     todayCount: number;
     weekKg: number;
     weekCount: number;
+    weekCost: number;
+    hasCostData: boolean;
+    currency: string;
     recentEntries: WasteEntry[];
 };
 
@@ -78,6 +82,12 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                 <p class="text-xs text-slate-400 mt-1">
                     {{ weekCount }} {{ $t(weekCount === 1 ? 'home.entry' : 'home.entries') }}
                 </p>
+                <p v-if="hasCostData" class="text-xs font-bold mt-1" style="color: #b91c1c;">
+                    {{ $t('cost.lost_week') }}: {{ formatMoney(weekCost, currency) }}
+                </p>
+                <Link v-else href="/waste/settings#cost-per-kg" class="block text-xs font-bold mt-1" style="color: #059669;">
+                    {{ $t('cost.set_prices_link') }} →
+                </Link>
             </div>
         </div>
 
@@ -140,6 +150,7 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                         <p class="text-xs text-slate-400 mt-0.5">
                             {{ $t(`log_waste.categories.${entry.category}`) }} · {{ fmtEntryWeight(entry.weight_kg) }} · {{ $t(`log_waste.reasons.${entry.reason}`) }}
                         </p>
+                        <p v-if="entry.notes" class="text-xs text-slate-500 mt-1 line-clamp-2 italic">{{ entry.notes }}</p>
                     </div>
                     <span
                         v-if="entry.source === 'ai_scan'"

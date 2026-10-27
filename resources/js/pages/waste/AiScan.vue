@@ -6,6 +6,8 @@ import { Camera, RotateCcw } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
 import CategoryPicker from '@/components/waste/CategoryPicker.vue';
 import WeightInput from '@/components/waste/WeightInput.vue';
+import CostInput from '@/components/waste/CostInput.vue';
+import { useCostSuggestion } from '@/composables/useCostSuggestion';
 import InputError from '@/components/InputError.vue';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { store as entriesStore } from '@/routes/waste/entries';
@@ -24,7 +26,7 @@ type AiResult = {
 
 type QuotaProp = { ai_scans_used: number; ai_scan_quota: number | null };
 
-const props = defineProps<{ quota: QuotaProp }>();
+const props = defineProps<{ quota: QuotaProp; itemPrices: Record<string, number>; currency: string }>();
 
 const quotaReached = computed(() =>
     props.quota.ai_scan_quota !== null && props.quota.ai_scans_used >= props.quota.ai_scan_quota
@@ -43,10 +45,13 @@ const saveForm = useForm({
     category: '' as WasteCategory | '',
     item_name: '',
     weight_kg: '' as number | '',
+    cost: '' as number | '',
     reason: '',
     notes: '',
     source: 'ai_scan' as const,
 });
+
+const { suggested, markEdited, reset: resetSuggestion } = useCostSuggestion(saveForm, props.itemPrices);
 
 const reasonOptions = computed(() => [
     { value: 'spoilage',       label: t('log_waste.reasons.spoilage') },
@@ -148,6 +153,7 @@ function retake() {
     analyseError.value = null;
     if (fileInput.value) fileInput.value.value = '';
     saveForm.reset();
+    resetSuggestion();
 }
 
 function save() {
@@ -295,6 +301,8 @@ const CONFIDENCE_STYLES: Record<'high' | 'medium' | 'low', string> = {
                         <WeightInput v-model="saveForm.weight_kg" />
                         <InputError :message="saveForm.errors.weight_kg" />
                     </div>
+
+                    <CostInput v-model="saveForm.cost" :currency="currency" :suggested="suggested" :error="saveForm.errors.cost" @edited="markEdited" />
 
                     <div class="space-y-2">
                         <label style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('log_waste.reason') }}</label>

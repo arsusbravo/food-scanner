@@ -1,0 +1,1 @@
+function e(e,t){try{return new Intl.NumberFormat(void 0,{style:`currency`,currency:t,maximumFractionDigits:e>=100?0:2}).format(e)}catch{return`${t} ${e.toFixed(2)}`}}export{e as t};

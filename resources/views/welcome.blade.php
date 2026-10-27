@@ -1,17 +1,17 @@
 @extends('layouts.public')
 
-@section('page_title', 'KitchenLog — EU Food Waste Tracker')
-@section('meta_description', __('welcome.subtitle'))
+@section('page_title', __('welcome.meta_title'))
+@section('meta_description', __('welcome.meta_description'))
 
 @section('hero')
     <!-- Logo -->
     <img src="/images/doc/logo-dark.png" alt="KitchenLog" style="width: 64px; height: 64px; object-fit: contain; display: block; margin: 0 auto 20px;" />
 
-    <p style="color: rgba(167,243,208,0.85); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">
-        {{ __('welcome.tagline') }}
+    <p style="color: rgba(167,243,208,0.85); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px;">
+        KitchenLog · {{ __('welcome.tagline') }}
     </p>
-    <h1 style="color: white; font-size: 40px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 12px;">
-        KitchenLog
+    <h1 style="color: white; font-size: 32px; line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 14px;">
+        {{ __('welcome.headline') }}
     </h1>
     <p style="color: rgba(209,250,229,0.9); font-size: 17px; line-height: 1.5; margin: 0 0 28px;">
         {{ __('welcome.subtitle') }}
@@ -19,9 +19,8 @@
 
     <!-- Badges -->
     <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-        <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">EU Directive 2018/851</span>
-        <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">FLW Protocol</span>
-        <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">HORECA</span>
+        <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">{{ __('welcome.badge_1') }}</span>
+        <span style="background: rgba(255,255,255,0.15); color: rgba(209,250,229,0.95); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2);">{{ __('welcome.badge_2') }}</span>
     </div>
 @endsection
 
@@ -43,6 +42,42 @@
             <a href="{{ route('prices') }}" style="font-size: 13px; font-weight: 700; color: #64748b; letter-spacing: 0.02em;">
                 {{ __('welcome.view_pricing') }} →
             </a>
+        </div>
+    </div>
+
+    <!-- Video -->
+    <div style="max-width: 480px; margin: 0 auto; padding: 40px 24px 0;">
+        <h2 style="font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 16px;">
+            {{ __('welcome.video_title') }}
+        </h2>
+        <div style="width: 100%; max-width: 280px; margin: 0 auto; aspect-ratio: 9 / 16; border-radius: 20px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
+            <iframe
+                src="https://www.youtube-nocookie.com/embed/lwP7ihOz3GA"
+                title="{{ __('welcome.video_title') }}"
+                loading="lazy"
+                allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"
+                style="width: 100%; height: 100%; border: 0; display: block;"
+            ></iframe>
+        </div>
+    </div>
+
+    <!-- How it works -->
+    <div style="max-width: 480px; margin: 0 auto; padding: 40px 24px 0;">
+        <h2 style="font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 16px;">
+            {{ __('welcome.how_title') }}
+        </h2>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            @foreach(range(1, 3) as $i)
+            <div style="display: flex; align-items: flex-start; gap: 14px; background: white; border-radius: 18px; padding: 16px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
+                <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #059669, #047857); color: white; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center;">{{ $i }}</div>
+                <div>
+                    <p style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0 0 4px;">{{ __('welcome.step_' . $i . '_title') }}</p>
+                    <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;">{{ __('welcome.step_' . $i . '_desc') }}</p>
+                </div>
+            </div>
+            @endforeach
         </div>
     </div>
 
@@ -105,7 +140,7 @@
                 {{ __('welcome.highlights_title') }}
             </h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                @foreach(range(1, 6) as $i)
+                @foreach(range(1, 4) as $i)
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
                         <circle cx="12" cy="12" r="10"/>
@@ -132,6 +167,7 @@
                 FAQ
             </a>
         </div>
+        <p style="font-size: 12px; color: #94a3b8; margin: 0 0 6px;">{{ __('welcome.auditors') }}</p>
         <p style="font-size: 12px; color: #94a3b8;">{{ __('welcome.footer') }}</p>
     </div>
 
