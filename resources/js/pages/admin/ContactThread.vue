@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { nextTick, onMounted, ref } from 'vue';
-import { ArrowLeft, Send } from 'lucide-vue-next';
+import { Send } from 'lucide-vue-next';
 
 type Message = { id: number; body: string; is_admin_reply: boolean; created_at: string };
 type User = { id: number; name: string; email: string };

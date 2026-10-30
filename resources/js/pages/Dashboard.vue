@@ -29,7 +29,7 @@ type OpenRouterData = {
     rate_limit: { requests: number; interval: string };
 };
 
-const props = defineProps<{
+defineProps<{
     stats: Stats;
     recentEntries: RecentEntry[];
     openrouter: OpenRouterData | null;
@@ -44,11 +44,6 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 const CATEGORY_LABELS: Record<string, string> = {
     protein: 'Protein', veg: 'Veg', dairy: 'Dairy', prepared: 'Prepared',
-};
-
-const REASON_LABELS: Record<string, string> = {
-    spoilage: 'Spoilage', overproduction: 'Overproduction', expiry: 'Expiry',
-    prep_waste: 'Prep Waste', other: 'Other',
 };
 
 function fmtKg(kg: number | string): string {

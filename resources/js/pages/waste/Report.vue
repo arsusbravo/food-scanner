@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { router, Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { formatMoney } from '@/lib/money';
 import { Download, FileText, Zap } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
@@ -22,8 +21,6 @@ type Props = {
 };
 
 const props = defineProps<Props>();
-
-const { t } = useI18n();
 
 const dateFrom = ref(props.dateFrom);
 const dateTo = ref(props.dateTo);

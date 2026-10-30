@@ -13,7 +13,7 @@ type Conversation = {
     preview: string | null;
 };
 
-const props = defineProps<{ conversations: Conversation[] }>();
+defineProps<{ conversations: Conversation[] }>();
 const { t } = useI18n();
 
 const SUBJECT_LABELS = computed<Record<string, string>>(() => ({
