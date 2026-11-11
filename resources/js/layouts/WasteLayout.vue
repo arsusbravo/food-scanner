@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { usePage, Link } from '@inertiajs/vue3';
-import { docs } from '@/routes';
+import { House, Trash2, FileBarChart2, Receipt, Globe, Lightbulb, Settings2, BookOpen, MessageSquare, ExternalLink, ChefHat, Ellipsis } from 'lucide-vue-next';
+import { ref, computed, onMounted, watch } from 'vue';
 import { Toaster } from '@/components/ui/sonner';
-import { ref, computed, onMounted } from 'vue';
-import { House, Trash2, FileBarChart2, Receipt, Globe, Lightbulb, Settings2, BookOpen, MessageSquare, ExternalLink } from 'lucide-vue-next';
-import { useLocale, type SupportedLocale } from '@/composables/useLocale';
+import { useLocale  } from '@/composables/useLocale';
+import type {SupportedLocale} from '@/composables/useLocale';
+import { docs } from '@/routes';
 
 const page = usePage<{ auth: { user: { name: string; email: string; is_pro: boolean } }; contactUnread: number; locale: string }>();
 
@@ -12,6 +13,7 @@ const userName = computed(() => page.props.auth?.user?.name ?? '');
 const userEmail = computed(() => page.props.auth?.user?.email ?? '');
 const userInitials = computed(() => {
     const name = userName.value;
+
     return name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase() || '?';
 });
 
@@ -26,6 +28,7 @@ const { locale, setLocale } = useLocale();
 // is immediately reflected when entering the app.
 onMounted(() => {
     const serverLocale = page.props.locale as SupportedLocale;
+
     if (serverLocale && serverLocale !== locale.value) {
         setLocale(serverLocale);
     }
@@ -50,16 +53,29 @@ function selectLocale(code: SupportedLocale) {
     langOpen.value = false;
 }
 
-const navItems = [
-    { label: 'Home',     icon: House,           href: '/waste',          match: ['/waste'] },
-    { label: 'Receipts', icon: Receipt,         href: '/waste/receipts', match: ['/waste/receipts'] },
+type NavItem = { label: string; icon: typeof House; href: string; match: string[] };
+
+const navItems: NavItem[] = [
+    { label: 'Home',     icon: House,   href: '/waste',          match: ['/waste'] },
+    { label: 'Receipts', icon: Receipt, href: '/waste/receipts', match: ['/waste/receipts'] },
+    { label: 'Dishes',   icon: ChefHat, href: '/waste/dishes',   match: ['/waste/dishes'] },
     // The AI scan page is reached from the Waste page, so it belongs to this tab.
-    { label: 'Waste',    icon: Trash2, href: '/waste/entries',  match: ['/waste/entries', '/waste/ai-scan'] },
-    { label: 'Reports',  icon: FileBarChart2,   href: '/waste/report/purchases', match: ['/waste/report'] },
-    { label: 'Insights', icon: Lightbulb,       href: '/waste/insights', match: ['/waste/insights'] },
+    { label: 'Waste',    icon: Trash2,  href: '/waste/entries',  match: ['/waste/entries', '/waste/ai-scan'] },
 ];
 
-function isActive(item: (typeof navItems)[number]) {
+// Reports and Insights live behind the "Others" button, which opens a small menu.
+const reportItems: NavItem[] = [
+    { label: 'Reports',  icon: FileBarChart2, href: '/waste/report/purchases', match: ['/waste/report'] },
+    { label: 'Insights', icon: Lightbulb,     href: '/waste/insights',         match: ['/waste/insights'] },
+];
+
+const reportsOpen = ref(false);
+
+watch(url, () => {
+    reportsOpen.value = false;
+});
+
+function isActive(item: NavItem) {
     const path = url.value.split('?')[0];
 
     if (item.href === '/waste') {
@@ -68,6 +84,8 @@ function isActive(item: (typeof navItems)[number]) {
 
     return item.match.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
 }
+
+const reportsActive = computed(() => reportItems.some((item) => isActive(item)));
 </script>
 
 <template>
@@ -236,6 +254,45 @@ function isActive(item: (typeof navItems)[number]) {
                         <component :is="item.icon" style="width: 20px; height: 20px;" />
                     </div>
                     <span style="font-size: 10px; font-weight: 600; line-height: 1;">{{ item.label }}</span>
+                </Link>
+
+                <button
+                    type="button"
+                    class="flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all"
+                    :style="reportsActive || reportsOpen ? 'color: #059669;' : 'color: #94a3b8;'"
+                    :aria-expanded="reportsOpen"
+                    aria-haspopup="menu"
+                    @click="reportsOpen = !reportsOpen"
+                >
+                    <div
+                        class="flex items-center justify-center rounded-xl transition-colors"
+                        style="width: 36px; height: 32px;"
+                        :style="reportsActive || reportsOpen ? 'background: #ecfdf5;' : ''"
+                    >
+                        <Ellipsis style="width: 20px; height: 20px;" />
+                    </div>
+                    <span style="font-size: 10px; font-weight: 600; line-height: 1;">Others</span>
+                </button>
+            </div>
+
+            <!-- Others menu: Reports and Insights -->
+            <div v-if="reportsOpen" class="fixed inset-0" style="z-index: -1;" @click="reportsOpen = false" />
+            <div
+                v-if="reportsOpen"
+                role="menu"
+                class="absolute right-3 overflow-hidden rounded-2xl border border-slate-100 bg-white"
+                style="bottom: 72px; min-width: 170px; box-shadow: 0 8px 28px rgba(0,0,0,0.16);"
+            >
+                <Link
+                    v-for="item in reportItems"
+                    :key="item.href"
+                    :href="item.href"
+                    role="menuitem"
+                    class="flex items-center gap-3 px-4 py-3.5 text-sm font-semibold"
+                    :style="isActive(item) ? 'color: #059669; background: #ecfdf5;' : 'color: #334155;'"
+                >
+                    <component :is="item.icon" style="width: 18px; height: 18px;" />
+                    {{ item.label }}
                 </Link>
             </div>
         </nav>
