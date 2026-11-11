@@ -37,11 +37,15 @@ return [
 
     'anthropic' => [
         'key' => env('ANTHROPIC_API_KEY'),
+        // Model used to read receipts and invoices (needs good OCR on crumpled paper).
+        'receipt_model' => env('ANTHROPIC_RECEIPT_MODEL', 'claude-haiku-5-5'),
     ],
 
     'openrouter' => [
         'key' => env('OPENROUTER_API_KEY'),
         'model' => env('OPENROUTER_MODEL', 'anthropic/claude-sonnet-4-6'),
+        // Receipts need a stronger vision model than the cheap default above.
+        'receipt_model' => env('OPENROUTER_RECEIPT_MODEL', 'anthropic/claude-haiku-5.5'),
     ],
 
     'ai' => [

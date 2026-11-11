@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Waste;
 use App\Http\Controllers\Controller;
 use App\Models\UserExport;
 use App\Models\WasteEntry;
+use App\Support\ReportPeriod;
 use App\Support\WasteReportBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -20,13 +21,18 @@ class ReportController extends Controller
 
     public function index(Request $request): Response
     {
-        $from = $request->query('date_from')
-            ? Carbon::parse($request->query('date_from'))->startOfDay()
-            : now()->startOfMonth();
+        $period = $request->query('period')
+            ?? ($request->query('date_from') || $request->query('date_to') ? 'custom' : 'this_month');
 
-        $to = $request->query('date_to')
-            ? Carbon::parse($request->query('date_to'))->endOfDay()
-            : now()->endOfDay();
+        [$from, $to] = ReportPeriod::resolve($period, $request->query('date_from'), $request->query('date_to'));
+
+        // The report needs concrete dates (they appear on the page and in the exports).
+        $earliest = $period === 'all'
+            ? WasteEntry::where('user_id', $request->user()->id)->min('logged_at')
+            : null;
+
+        $from ??= $earliest ? Carbon::parse($earliest)->startOfDay() : now()->startOfMonth();
+        $to ??= now()->endOfDay();
 
         $rows = WasteEntry::where('user_id', $request->user()->id)
             ->whereBetween('logged_at', [$from, $to])
@@ -45,6 +51,7 @@ class ReportController extends Controller
             'totalCost' => $totals['cost'],
             'totalCo2e' => $totals['co2e'],
             'currency' => $user->currency,
+            'period' => $period,
             'dateFrom' => $from->toDateString(),
             'dateTo' => $to->toDateString(),
             'grandTotal' => round($rows->sum('total_kg'), 2),

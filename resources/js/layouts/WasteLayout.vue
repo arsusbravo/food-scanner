@@ -3,7 +3,7 @@ import { usePage, Link } from '@inertiajs/vue3';
 import { docs } from '@/routes';
 import { Toaster } from '@/components/ui/sonner';
 import { ref, computed, onMounted } from 'vue';
-import { House, UtensilsCrossed, ScanLine, FileBarChart2, Globe, Lightbulb, Settings2, BookOpen, MessageSquare, ExternalLink } from 'lucide-vue-next';
+import { House, Trash2, FileBarChart2, Receipt, Globe, Lightbulb, Settings2, BookOpen, MessageSquare, ExternalLink } from 'lucide-vue-next';
 import { useLocale, type SupportedLocale } from '@/composables/useLocale';
 
 const page = usePage<{ auth: { user: { name: string; email: string; is_pro: boolean } }; contactUnread: number; locale: string }>();
@@ -51,16 +51,22 @@ function selectLocale(code: SupportedLocale) {
 }
 
 const navItems = [
-    { label: 'Home',     icon: House,           href: '/waste' },
-    { label: 'Log',      icon: UtensilsCrossed, href: '/waste/entries' },
-    { label: 'Scan',     icon: ScanLine,        href: '/waste/ai-scan' },
-    { label: 'Report',   icon: FileBarChart2,   href: '/waste/report' },
-    { label: 'Insights', icon: Lightbulb,       href: '/waste/insights' },
+    { label: 'Home',     icon: House,           href: '/waste',          match: ['/waste'] },
+    { label: 'Receipts', icon: Receipt,         href: '/waste/receipts', match: ['/waste/receipts'] },
+    // The AI scan page is reached from the Waste page, so it belongs to this tab.
+    { label: 'Waste',    icon: Trash2, href: '/waste/entries',  match: ['/waste/entries', '/waste/ai-scan'] },
+    { label: 'Reports',  icon: FileBarChart2,   href: '/waste/report/purchases', match: ['/waste/report'] },
+    { label: 'Insights', icon: Lightbulb,       href: '/waste/insights', match: ['/waste/insights'] },
 ];
 
-function isActive(href: string) {
-    if (href === '/waste') return url.value === '/waste';
-    return url.value.startsWith(href);
+function isActive(item: (typeof navItems)[number]) {
+    const path = url.value.split('?')[0];
+
+    if (item.href === '/waste') {
+        return path === '/waste';
+    }
+
+    return item.match.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
 }
 </script>
 
@@ -220,12 +226,12 @@ function isActive(href: string) {
                     :key="item.href"
                     :href="item.href"
                     class="flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all"
-                    :style="isActive(item.href) ? 'color: #059669;' : 'color: #94a3b8;'"
+                    :style="isActive(item) ? 'color: #059669;' : 'color: #94a3b8;'"
                 >
                     <div
                         class="flex items-center justify-center rounded-xl transition-colors"
                         style="width: 36px; height: 32px;"
-                        :style="isActive(item.href) ? 'background: #ecfdf5;' : ''"
+                        :style="isActive(item) ? 'background: #ecfdf5;' : ''"
                     >
                         <component :is="item.icon" style="width: 20px; height: 20px;" />
                     </div>

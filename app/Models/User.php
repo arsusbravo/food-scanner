@@ -41,6 +41,13 @@ class User extends Authenticatable
 
     // ── Relationships ─────────────────────────────────────────
 
+    protected static function booted(): void
+    {
+        // Model events do not fire for cascading deletes, so remove receipt
+        // photos from disk explicitly when an account is deleted.
+        static::deleting(fn (User $user) => $user->receipts()->each(fn (Receipt $receipt) => $receipt->delete()));
+    }
+
     public function company(): HasOne
     {
         return $this->hasOne(Company::class);
@@ -49,6 +56,11 @@ class User extends Authenticatable
     public function wasteEntries(): HasMany
     {
         return $this->hasMany(WasteEntry::class);
+    }
+
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class);
     }
 
     public function userExports(): HasMany
@@ -121,6 +133,25 @@ class User extends Authenticatable
         return $this->userExports()
             ->where('created_at', '>=', $this->billingPeriodStart())
             ->count();
+    }
+
+    public function receiptQuota(): ?int
+    {
+        return config("plans.{$this->effectivePlan()}.receipts");
+    }
+
+    public function receiptScansUsedThisMonth(): int
+    {
+        return $this->receipts()
+            ->where('created_at', '>=', $this->billingPeriodStart())
+            ->count();
+    }
+
+    public function canScanReceipt(): bool
+    {
+        $quota = $this->receiptQuota();
+
+        return $quota === null || $this->receiptScansUsedThisMonth() < $quota;
     }
 
     public function canAiScan(): bool

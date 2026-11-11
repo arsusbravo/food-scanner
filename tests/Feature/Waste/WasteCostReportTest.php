@@ -66,15 +66,23 @@ test('insights report prices as unset when none saved', function () {
             ->where('thisMonthCost', 0));
 });
 
-test('home shows this weeks cost', function () {
+test('home renders without stats', function () {
     $user = userWithEntries(['protein' => 10, 'veg' => 2]);
     $user->update(['document_locale' => 'en']);
 
     $this->actingAs($user)
         ->get(route('waste.home'))
-        ->assertInertia(fn (Assert $page) => $page
-            ->where('hasCostData', true)
-            ->where('weekCost', 28));
+        ->assertInertia(fn (Assert $page) => $page->component('waste/Home')->missing('weekCost'));
+});
+
+test('a first-time user without a document language is sent to settings once', function () {
+    $user = User::factory()->create(['document_locale' => null]);
+
+    $this->actingAs($user)
+        ->get(route('waste.home'))
+        ->assertRedirect(route('waste.settings.index').'#document-language');
+
+    $this->get(route('waste.home'))->assertOk();
 });
 
 test('csv includes cost columns only when prices are set', function () {
@@ -163,14 +171,11 @@ test('item prices are suggested from the most recent costed entry', function () 
             ->missing('itemPrices.lettuce'));
 });
 
-test('entry notes are passed to the log and home lists', function () {
+test('entry notes are passed to the waste page list', function () {
     $user = User::factory()->create(['document_locale' => 'en']);
     WasteEntry::factory()->for($user)->create(['notes' => 'Delivery arrived warm']);
 
     $this->actingAs($user)->get(route('waste.entries.index'))
-        ->assertInertia(fn (Assert $page) => $page->where('recentEntries.0.notes', 'Delivery arrived warm'));
-
-    $this->actingAs($user)->get(route('waste.home'))
         ->assertInertia(fn (Assert $page) => $page->where('recentEntries.0.notes', 'Delivery arrived warm'));
 
     $this->actingAs($user)->get(route('waste.report.pdf'))->assertOk();

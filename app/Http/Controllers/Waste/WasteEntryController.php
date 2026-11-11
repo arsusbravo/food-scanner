@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Waste;
 use App\Http\Controllers\Controller;
 use App\Models\WasteEntry;
 use App\Support\ItemPriceSuggester;
-use App\Support\WasteReportBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,50 +23,7 @@ class WasteEntryController extends Controller
             return redirect()->to(route('waste.settings.index').'#document-language');
         }
 
-        $userId = $user->id;
-
-        $todayStats = WasteEntry::where('user_id', $userId)
-            ->whereDate('logged_at', today())
-            ->selectRaw('COUNT(*) as count, COALESCE(SUM(weight_kg), 0) as total_kg')
-            ->first();
-
-        $weekStats = WasteEntry::where('user_id', $userId)
-            ->where('logged_at', '>=', now()->startOfWeek())
-            ->selectRaw('COUNT(*) as count, COALESCE(SUM(weight_kg), 0) as total_kg')
-            ->first();
-
-        $prices = $user->waste_prices ?? [];
-        $weekCostRows = WasteEntry::where('user_id', $userId)
-            ->where('logged_at', '>=', now()->startOfWeek())
-            ->selectRaw('category, '.WasteReportBuilder::COST_SELECT)
-            ->groupBy('category')
-            ->get();
-
-        $weekCost = $weekCostRows->sum(fn ($row) => WasteReportBuilder::categoryCost(
-            (float) $row->entry_cost,
-            (float) $row->unpriced_kg,
-            (int) $row->priced_count,
-            $prices[$row->category] ?? null,
-        ) ?? 0.0);
-
-        $hasCostData = collect($prices)->contains(fn ($price) => $price !== null && $price !== '')
-            || WasteEntry::where('user_id', $userId)->whereNotNull('cost')->exists();
-
-        $recentEntries = WasteEntry::where('user_id', $userId)
-            ->orderByDesc('logged_at')
-            ->limit(5)
-            ->get();
-
-        return Inertia::render('waste/Home', [
-            'todayKg' => (float) $todayStats->total_kg,
-            'todayCount' => (int) $todayStats->count,
-            'weekKg' => (float) $weekStats->total_kg,
-            'weekCount' => (int) $weekStats->count,
-            'weekCost' => round($weekCost, 2),
-            'hasCostData' => $hasCostData,
-            'currency' => $user->currency,
-            'recentEntries' => $recentEntries,
-        ]);
+        return Inertia::render('waste/Home');
     }
 
     public function index(Request $request, ItemPriceSuggester $suggester): Response

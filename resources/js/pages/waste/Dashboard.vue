@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useForm, Head } from '@inertiajs/vue3';
-import { computed, ref, nextTick } from 'vue';
+import { useForm, Head, Link } from '@inertiajs/vue3';
+import { computed, ref, nextTick, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Trash2, ScanLine } from 'lucide-vue-next';
+import { Trash2, ScanLine, PencilLine } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
 import CategoryPicker from '@/components/waste/CategoryPicker.vue';
 import WeightInput from '@/components/waste/WeightInput.vue';
@@ -29,6 +29,16 @@ const form = useForm({
 });
 
 const { suggested, markEdited, reset: resetSuggestion } = useCostSuggestion(form, props.itemPrices);
+
+// The form stays closed until the user chooses manual entry, but server
+// validation errors must never be hidden.
+const showForm = ref(false);
+
+watch(() => form.hasErrors, (hasErrors) => {
+    if (hasErrors) {
+        showForm.value = true;
+    }
+});
 
 const reasonOptions = computed(() => [
     { value: 'spoilage',       label: t('log_waste.reasons.spoilage') },
@@ -69,12 +79,47 @@ function formatWeight(kg: string): string {
 </script>
 
 <template>
-    <Head title="Log Waste" />
+    <Head :title="$t('log_waste.page_title')" />
 
     <div class="max-w-lg mx-auto px-4 pt-5 pb-8 space-y-5">
 
+        <h1 class="text-2xl font-bold text-slate-900">{{ $t('log_waste.page_title') }}</h1>
+
+        <!-- Choose how to log -->
+        <div class="grid grid-cols-2 gap-3">
+            <Link
+                :href="aiScanIndex().url as string"
+                class="rounded-2xl p-4 flex flex-col gap-3 transition-opacity active:opacity-80"
+                style="background: linear-gradient(135deg, #0d9488, #0f766e); box-shadow: 0 4px 16px rgba(13,148,136,0.3);"
+            >
+                <div class="size-10 rounded-xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
+                    <ScanLine style="width: 20px; height: 20px; color: white;" />
+                </div>
+                <div>
+                    <p class="font-semibold text-sm text-white">{{ $t('log_waste.choose_scan_title') }}</p>
+                    <p class="text-xs mt-0.5" style="color: rgba(153,246,228,0.85);">{{ $t('log_waste.choose_scan_desc') }}</p>
+                </div>
+            </Link>
+
+            <button
+                type="button"
+                class="rounded-2xl p-4 flex flex-col gap-3 text-left transition-opacity active:opacity-80"
+                :style="`background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 16px rgba(5,150,105,0.3); ${showForm ? 'outline: 3px solid #a7f3d0;' : ''}`"
+                :aria-expanded="showForm"
+                @click="showForm = !showForm"
+            >
+                <div class="size-10 rounded-xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
+                    <PencilLine style="width: 20px; height: 20px; color: white;" />
+                </div>
+                <div>
+                    <p class="font-semibold text-sm text-white">{{ $t('log_waste.choose_manual_title') }}</p>
+                    <p class="text-xs mt-0.5" style="color: rgba(167,243,208,0.85);">{{ $t('log_waste.choose_manual_desc') }}</p>
+                </div>
+            </button>
+        </div>
+
         <!-- Form card -->
-        <div class="bg-white rounded-2xl border border-slate-100 p-5" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+        <div v-if="showForm" class="bg-white rounded-2xl border border-slate-100 p-5" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
             <h1 class="text-xl font-bold text-slate-900 mb-5">{{ $t('log_waste.title') }}</h1>
 
             <form class="space-y-5" @submit.prevent="submit">
@@ -144,16 +189,6 @@ function formatWeight(kg: string): string {
                 </button>
             </form>
         </div>
-
-        <!-- AI Scan shortcut -->
-        <a
-            :href="aiScanIndex().url as string"
-            class="flex items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-4 text-sm font-medium transition-colors"
-            style="border-color: #6ee7b7; color: #059669; background: #f0fdf4;"
-        >
-            <ScanLine style="width: 20px; height: 20px;" />
-            <span>{{ $t('log_waste.ai_shortcut') }}</span>
-        </a>
 
         <!-- Recent entries -->
         <div ref="recentSection">

@@ -3,6 +3,8 @@
 use App\Http\Controllers\Waste\AIScanController;
 use App\Http\Controllers\Waste\ContactController;
 use App\Http\Controllers\Waste\InsightsController;
+use App\Http\Controllers\Waste\PurchaseReportController;
+use App\Http\Controllers\Waste\ReceiptController;
 use App\Http\Controllers\Waste\ReportController;
 use App\Http\Controllers\Waste\SubscriptionController;
 use App\Http\Controllers\Waste\WasteEntryController;
@@ -17,6 +19,15 @@ Route::middleware(['auth', 'verified', 'user-active'])->prefix('waste')->name('w
     Route::get('ai-scan', [AIScanController::class, 'index'])->name('ai-scan.index');
     Route::post('ai-scan', [AIScanController::class, 'store'])->name('ai-scan.store');
 
+    Route::get('receipts', [ReceiptController::class, 'index'])->name('receipts.index');
+    Route::get('receipts/scan', [ReceiptController::class, 'create'])->name('receipts.create');
+    Route::post('receipts/scan', [ReceiptController::class, 'scan'])->name('receipts.scan');
+    Route::get('receipts/export', [ReceiptController::class, 'exportCsv'])->name('receipts.export');
+    Route::get('receipts/{receipt}', [ReceiptController::class, 'show'])->name('receipts.show');
+    Route::patch('receipts/{receipt}', [ReceiptController::class, 'update'])->name('receipts.update');
+    Route::delete('receipts/{receipt}', [ReceiptController::class, 'destroy'])->name('receipts.destroy');
+    Route::get('receipts/{receipt}/images/{image}', [ReceiptController::class, 'image'])->name('receipts.image');
+
     Route::get('insights', [InsightsController::class, 'index'])->name('insights.index');
 
     Route::get('settings', [WasteSettingsController::class, 'index'])->name('settings.index');
@@ -27,6 +38,7 @@ Route::middleware(['auth', 'verified', 'user-active'])->prefix('waste')->name('w
     Route::patch('settings/document-locale', [WasteSettingsController::class, 'updateDocumentLocale'])->name('settings.document-locale');
 
     Route::get('report', [ReportController::class, 'index'])->name('report.index');
+    Route::get('report/purchases', [PurchaseReportController::class, 'index'])->name('report.purchases');
     Route::get('report/csv', [ReportController::class, 'exportCsv'])->name('report.csv');
     Route::get('report/pdf', [ReportController::class, 'exportPdf'])->name('report.pdf');
 

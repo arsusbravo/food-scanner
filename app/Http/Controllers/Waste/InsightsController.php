@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Waste;
 
 use App\Http\Controllers\Controller;
 use App\Models\WasteEntry;
+use App\Support\PurchaseSummary;
 use App\Support\WasteReportBuilder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -64,7 +65,25 @@ class InsightsController extends Controller
             fn ($categoryRows, $category) => (float) $categoryRows->sum('kg') * WasteReportBuilder::CO2E_FACTORS[$category]
         ), 2);
 
+        $purchases = new PurchaseSummary($user);
+        $monthStart = now()->startOfMonth();
+        $monthEnd = now()->endOfMonth();
+        $spendThisMonth = $purchases->totals($monthStart, $monthEnd);
+        $foodSpend = $purchases->foodSpend($monthStart, $monthEnd);
+        $wasteCost = $costOf($thisMonth);
+
         return Inertia::render('waste/Insights', [
+            'purchases' => [
+                'spendThisMonth' => $spendThisMonth['spend'],
+                'receiptsThisMonth' => $spendThisMonth['count'],
+                'spendLastMonth' => $purchases->totals(now()->subMonthNoOverflow()->startOfMonth(), now()->subMonthNoOverflow()->endOfMonth())['spend'],
+                'bySupplier' => $purchases->bySupplier($monthStart, $monthEnd, 5),
+                'byCategory' => $purchases->byCategory($monthStart, $monthEnd),
+                'foodSpend' => $foodSpend,
+                'wasteCost' => $wasteCost,
+                // Share of the food bought this month that ended up in the bin.
+                'binnedPercent' => $foodSpend > 0 && $wasteCost > 0 ? round($wasteCost / $foodSpend * 100, 1) : null,
+            ],
             'hasCostData' => collect($prices)->contains(fn ($price) => $price !== null && $price !== '')
                 || $thisMonth->sum('priced_count') > 0,
             'currency' => $user->currency,

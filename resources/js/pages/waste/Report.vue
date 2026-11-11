@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { router, Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { formatMoney } from '@/lib/money';
+import PeriodChips from '@/components/waste/PeriodChips.vue';
+import ReportTabs from '@/components/waste/ReportTabs.vue';
 import { Download, FileText, Zap } from 'lucide-vue-next';
 import { Spinner } from '@/components/ui/spinner';
 import { index as reportIndex } from '@/routes/waste/report';
@@ -9,6 +11,7 @@ import { index as subscriptionRoute } from '@/routes/waste/subscription';
 import { type WasteCategory, type WasteReason, type WasteReportRow } from '@/types/waste';
 
 type Props = {
+    period: string;
     summary: Record<WasteCategory, WasteReportRow>;
     dateFrom: string;
     dateTo: string;
@@ -25,6 +28,12 @@ const props = defineProps<Props>();
 const dateFrom = ref(props.dateFrom);
 const dateTo = ref(props.dateTo);
 
+// Choosing a period reloads the props on this same component; keep the inputs (and the exports that use them) in sync.
+watch(() => [props.dateFrom, props.dateTo], ([from, to]) => {
+    dateFrom.value = from;
+    dateTo.value = to;
+});
+
 const categories: WasteCategory[] = ['protein', 'veg', 'dairy', 'prepared'];
 const reasons: WasteReason[] = ['spoilage', 'overproduction', 'expiry', 'prep_waste', 'other'];
 
@@ -35,9 +44,13 @@ const exportQuotaReached = computed(() =>
     props.quota.export_quota !== null && props.quota.exports_used >= props.quota.export_quota
 );
 
+function choose(period: string) {
+    router.get(reportIndex().url, { period }, { preserveScroll: true });
+}
+
 function generate() {
     generating.value = true;
-    router.get(reportIndex().url, { date_from: dateFrom.value, date_to: dateTo.value }, {
+    router.get(reportIndex().url, { period: 'custom', date_from: dateFrom.value, date_to: dateTo.value }, {
         onFinish: () => { generating.value = false; },
     });
 }
@@ -69,12 +82,13 @@ const CATEGORY_BADGE: Record<WasteCategory, string> = {
 
         <!-- Header -->
         <div>
-            <h1 class="text-2xl font-bold text-slate-900">{{ $t('report.title') }}</h1>
-            <p class="text-xs text-slate-400 mt-1">{{ $t('report.subtitle') }}</p>
+            <h1 class="text-2xl font-bold text-slate-900 mb-3">{{ $t('purchases.reports_title') }}</h1>
+            <ReportTabs active="waste" />
         </div>
 
         <!-- Date range filter -->
-        <div class="bg-white rounded-2xl border border-slate-100 p-4" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+        <div class="bg-white rounded-2xl border border-slate-100 p-4 space-y-4" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+            <PeriodChips :period="period" @choose="choose" />
             <div class="flex flex-wrap gap-4 items-end">
                 <div class="flex-1 min-w-32 space-y-1.5">
                     <label for="date_from" style="font-size: 13px; font-weight: 700; color: #374151;">{{ $t('report.date_from') }}</label>

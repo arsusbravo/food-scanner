@@ -15,6 +15,16 @@ const props = defineProps<{
     byReason: Record<string, number>;
     weeklyTrend: { label: string; kg: number }[];
     hasData: boolean;
+    purchases: {
+        spendThisMonth: number;
+        receiptsThisMonth: number;
+        spendLastMonth: number;
+        bySupplier: { supplier: string | null; total: number; count: number }[];
+        byCategory: Record<string, number>;
+        foodSpend: number;
+        wasteCost: number;
+        binnedPercent: number | null;
+    };
     hasCostData: boolean;
     currency: string;
     thisMonthCost: number;
@@ -59,6 +69,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 type InsightType = 'good' | 'warn' | 'bad' | 'info';
 type Insight = { type: InsightType; title: string; detail: string };
 
+const spendChange = computed(() => pctChange(props.purchases.spendThisMonth, props.purchases.spendLastMonth));
+const maxSpendCategory = computed(() => Math.max(1, ...Object.values(props.purchases.byCategory).map((value) => Math.abs(value))));
 const monthChange = computed(() => pctChange(props.thisMonthKg, props.lastMonthKg));
 const weekChange  = computed(() => pctChange(props.thisWeekKg, props.lastWeekKg));
 const costChange  = computed(() => pctChange(props.thisMonthCost, props.lastMonthCost));
@@ -203,6 +215,64 @@ function insightIcon(insight: Insight) {
             <h1 class="text-2xl font-bold text-slate-900">{{ $t('insights.title') }}</h1>
             <p class="text-xs text-slate-400 mt-1">{{ $t('insights.subtitle') }}</p>
         </div>
+
+        <!-- Purchases -->
+        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest pt-1">{{ $t('purchases.insights_title') }}</h2>
+
+        <div
+            v-if="purchases.receiptsThisMonth === 0"
+            class="bg-white rounded-2xl border border-slate-100 p-6 text-center text-sm text-slate-400"
+            style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);"
+        >
+            {{ $t('purchases.no_receipts_month') }}
+            <Link href="/waste/receipts" class="block mt-2 font-bold" style="color: #059669;">{{ $t('receipts.title') }} →</Link>
+        </div>
+
+        <template v-else>
+            <div class="rounded-2xl p-5 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #065f46, #059669, #0d9488); box-shadow: 0 4px 20px rgba(5,150,105,0.3);">
+                <div>
+                    <p class="text-sm font-medium" style="color: rgba(167,243,208,0.85);">{{ $t('purchases.spend_month') }}</p>
+                    <p class="text-4xl font-bold tabular-nums mt-1">{{ formatMoney(purchases.spendThisMonth, currency) }}</p>
+                    <p class="text-xs mt-1" style="color: rgba(167,243,208,0.75);">{{ $t('receipts.confirmed_count', { n: purchases.receiptsThisMonth }) }}</p>
+                </div>
+                <div v-if="spendChange !== null" class="text-right">
+                    <p class="text-sm font-bold" :style="spendChange <= 0 ? 'color:#6ee7b7;' : 'color:#fca5a5;'">{{ spendChange <= 0 ? '' : '+' }}{{ spendChange }}%</p>
+                    <p class="text-xs mt-0.5" style="color: rgba(167,243,208,0.6);">{{ $t('insights.vs_last_month') }}</p>
+                </div>
+            </div>
+
+            <!-- Bought vs binned -->
+            <div v-if="purchases.binnedPercent !== null" class="rounded-2xl p-4" style="background: #fff7ed; border: 1px solid #fed7aa;">
+                <p class="text-sm font-bold" style="color: #9a3412;">{{ $t('purchases.bvb_title') }}</p>
+                <p class="text-sm mt-1" style="color: #9a3412;">
+                    {{ $t('purchases.bvb_text', { bought: formatMoney(purchases.foodSpend, currency), binned: formatMoney(purchases.wasteCost, currency), pct: purchases.binnedPercent }) }}
+                </p>
+            </div>
+
+            <div v-if="purchases.bySupplier.length" class="bg-white rounded-2xl border border-slate-100 overflow-hidden" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+                <p class="px-4 py-3 text-sm font-bold text-slate-800 border-b border-slate-100">{{ $t('purchases.top_suppliers') }}</p>
+                <ul>
+                    <li v-for="(row, i) in purchases.bySupplier" :key="i" class="flex items-center justify-between gap-3 px-4 py-2.5" :class="i > 0 ? 'border-t border-slate-50' : ''">
+                        <p class="truncate text-sm font-semibold text-slate-900">{{ row.supplier || $t('receipts.unknown_supplier') }}</p>
+                        <p class="shrink-0 text-sm font-bold tabular-nums text-slate-900">{{ formatMoney(row.total, currency) }}</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div v-if="Object.keys(purchases.byCategory).length" class="bg-white rounded-2xl border border-slate-100 p-4 space-y-3" style="box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+                <p class="text-sm font-bold text-slate-800">{{ $t('purchases.by_category') }}</p>
+                <div v-for="(total, category) in purchases.byCategory" :key="category" class="flex items-center gap-3">
+                    <span class="w-24 shrink-0 text-xs font-semibold text-slate-600 truncate">{{ $t(`receipts.categories.${category}`) }}</span>
+                    <div class="h-2 flex-1 rounded-full bg-slate-100 overflow-hidden">
+                        <div class="h-full rounded-full" style="background: #059669;" :style="`width: ${Math.max(0, Math.round((total / maxSpendCategory) * 100))}%;`" />
+                    </div>
+                    <span class="w-20 shrink-0 text-right text-xs font-bold tabular-nums text-slate-700">{{ formatMoney(total, currency) }}</span>
+                </div>
+            </div>
+        </template>
+
+        <!-- Waste -->
+        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest pt-3">{{ $t('purchases.waste_title') }}</h2>
 
         <!-- Empty state -->
         <div
