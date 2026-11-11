@@ -30,11 +30,12 @@ You are a bookkeeping assistant for a restaurant. Read every supplier receipt or
   "confidence": "high"|"medium"|"low",
   "notes": "string or null",
   "lines": [
-    { "description": "product text as printed", "amount": number, "category": "protein"|"veg"|"dairy"|"prepared"|"beverage"|"dry_goods"|"non_food"|"other" }
+    { "description": "product text as printed", "amount": number, "quantity": number or null, "unit": "pc"|"kg"|"g"|"l"|"ml"|"cl"|null, "unit_price": number or null, "category": "protein"|"veg"|"dairy"|"prepared"|"beverage"|"dry_goods"|"non_food"|"other" }
   ]
 }
 Rules:
 - Only copy what is printed. Never calculate or invent quantities, weights or unit prices.
+- "quantity", "unit" and "unit_price" are filled ONLY when the receipt prints them for that row: a multiplier such as "2X" or "3 x" (quantity 2, unit "pc", unit_price = the printed price per item), or a weighed item with a printed weight and price per kg (quantity = weight, unit "kg" or "g", unit_price = printed price per kg). Most rows only have a description and an amount: then quantity, unit and unit_price MUST be null. A size inside the product name (for example "250 g") is part of the description, not a quantity.
 - One line per printed product row: its description and the amount printed on that SAME row in the right-hand amount column. Read row by row and never move an amount to another row.
 - Discounts, deposits and returns (for example "korting", "statiegeld", or any negative amount) are their own lines with the printed, negative amount.
 - If a row has a multiplier such as "2X" followed by a unit price and a row total, the amount is the row total (the right-most number).
@@ -263,12 +264,20 @@ PROMPT;
     {
         $description = (string) $this->text($line['description'], 255);
         $category = in_array($line['category'] ?? null, Receipt::LINE_CATEGORIES, true) ? $line['category'] : 'other';
+        $lineTotal = $this->number($line['amount'] ?? $line['line_total'] ?? null);
+        $quantity = $this->number($line['quantity'] ?? null);
+        $unit = $this->unit($line['unit'] ?? null);
+        $unitPrice = $this->number($line['unit_price'] ?? null);
 
         return [
             'description' => $description,
             'normalized_item' => self::normalizeItem($description),
-            'line_total' => $this->number($line['amount'] ?? $line['line_total'] ?? null),
+            'line_total' => $lineTotal,
+            'quantity' => $quantity,
+            'unit' => $unit,
+            'unit_price' => $unitPrice,
             'category' => $category,
+            ...PriceBasis::compute($description, $lineTotal, $quantity, $unit, $unitPrice),
         ];
     }
 
@@ -337,6 +346,19 @@ PROMPT;
         $code = strtoupper(trim((string) $value));
 
         return preg_match('/^[A-Z]{3}$/', $code) ? $code : 'EUR';
+    }
+
+    private function unit(mixed $value): ?string
+    {
+        $map = [
+            'kg' => 'kg', 'kilo' => 'kg', 'kilogram' => 'kg',
+            'g' => 'g', 'gr' => 'g', 'gram' => 'g',
+            'l' => 'l', 'lt' => 'l', 'liter' => 'l', 'litre' => 'l',
+            'ml' => 'ml', 'cl' => 'cl',
+            'pc' => 'pc', 'pcs' => 'pc', 'st' => 'pc', 'stuk' => 'pc', 'stuks' => 'pc', 'x' => 'pc', 'piece' => 'pc',
+        ];
+
+        return $map[strtolower(trim((string) $value))] ?? null;
     }
 
     private function text(mixed $value, int $max): ?string

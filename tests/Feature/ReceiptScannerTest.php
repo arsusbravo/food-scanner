@@ -139,3 +139,17 @@ test('a retry is used only when it keeps every document and is closer overall', 
 
     expect((new ReceiptScanner($client))->scan(['abc']))->toHaveCount(2);
 });
+
+test('printed multipliers and weights are kept, everything else stays empty', function () {
+    $answer = json_encode(['receipts' => [['supplier_name' => 'PLUS', 'gross_total' => 9.7, 'lines' => [
+        ['description' => '2X PROTEIN BAR CARAMEL', 'amount' => 5.18, 'quantity' => 2, 'unit' => 'stuks', 'unit_price' => '2,59', 'category' => 'prepared'],
+        ['description' => 'Bananen', 'amount' => 1.06, 'quantity' => 0.534, 'unit' => 'kg', 'unit_price' => 1.99, 'category' => 'veg'],
+        ['description' => 'Boter 250 g', 'amount' => 3.52, 'category' => 'dairy'],
+    ]]]]);
+
+    $lines = scanner($answer)->scan(['abc'])[0]['lines'];
+
+    expect($lines[0])->toMatchArray(['quantity' => 2.0, 'unit' => 'pc', 'unit_price' => 2.59, 'base_unit' => 'pc', 'base_price' => 2.59, 'base_quantity' => 2.0])
+        ->and($lines[1])->toMatchArray(['unit' => 'kg', 'base_unit' => 'kg', 'base_price' => 1.99])
+        ->and($lines[2])->toMatchArray(['quantity' => null, 'unit' => null, 'unit_price' => null, 'base_unit' => 'pc', 'base_price' => 3.52, 'pack_size' => 0.25, 'pack_unit' => 'kg']);
+});

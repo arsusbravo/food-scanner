@@ -3,6 +3,7 @@
 use App\Http\Controllers\Waste\AIScanController;
 use App\Http\Controllers\Waste\ContactController;
 use App\Http\Controllers\Waste\InsightsController;
+use App\Http\Controllers\Waste\PriceReportController;
 use App\Http\Controllers\Waste\PurchaseReportController;
 use App\Http\Controllers\Waste\ReceiptController;
 use App\Http\Controllers\Waste\ReportController;
@@ -39,6 +40,9 @@ Route::middleware(['auth', 'verified', 'user-active'])->prefix('waste')->name('w
 
     Route::get('report', [ReportController::class, 'index'])->name('report.index');
     Route::get('report/purchases', [PurchaseReportController::class, 'index'])->name('report.purchases');
+    Route::get('report/prices', [PriceReportController::class, 'index'])->name('report.prices');
+    Route::post('report/prices/links', [PriceReportController::class, 'link'])->name('report.prices.link');
+    Route::delete('report/prices/links/{link}', [PriceReportController::class, 'unlink'])->name('report.prices.unlink');
     Route::get('report/csv', [ReportController::class, 'exportCsv'])->name('report.csv');
     Route::get('report/pdf', [ReportController::class, 'exportPdf'])->name('report.pdf');
 

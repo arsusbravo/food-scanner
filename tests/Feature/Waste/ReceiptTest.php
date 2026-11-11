@@ -437,3 +437,27 @@ test('the scan response flags a duplicate of an existing receipt', function () {
         ->assertOk()
         ->assertJsonPath('receipts.0.duplicate_id', $existing->id);
 });
+
+test('saving a receipt stores the price basis of every line', function () {
+    $user = User::factory()->create();
+    $receipt = Receipt::factory()->draft()->for($user)->create();
+
+    $this->actingAs($user)->patch(route('waste.receipts.update', $receipt), payload([
+        'confirm' => true,
+        'gross_total' => 100,
+        'lines' => [
+            ['description' => 'Boter 250 g', 'line_total' => 3.5, 'category' => 'dairy'],
+            ['description' => '2X Protein bar', 'line_total' => 5.18, 'quantity' => 2, 'unit' => 'pc', 'unit_price' => 2.59, 'category' => 'prepared'],
+            ['description' => 'Korting', 'line_total' => -1, 'category' => 'other'],
+        ],
+    ]))->assertRedirect();
+
+    $lines = $receipt->lines()->orderBy('id')->get();
+
+    expect((float) $lines[0]->base_price)->toBe(3.5)
+        ->and((float) $lines[0]->pack_size)->toBe(0.25)
+        ->and($lines[0]->normalized_item)->toBe('boter')
+        ->and((float) $lines[1]->base_price)->toBe(2.59)
+        ->and((float) $lines[1]->base_quantity)->toBe(2.0)
+        ->and($lines[2]->base_price)->toBeNull();
+});

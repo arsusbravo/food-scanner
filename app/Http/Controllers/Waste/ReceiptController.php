@@ -8,6 +8,7 @@ use App\Models\Receipt;
 use App\Models\ReceiptImage;
 use App\Models\UserExport;
 use App\Support\FoodWasteScanException;
+use App\Support\PriceBasis;
 use App\Support\ReceiptScanner;
 use App\Support\XlsxWriter;
 use Illuminate\Http\JsonResponse;
@@ -196,9 +197,14 @@ class ReceiptController extends Controller
     {
         $validated = $request->validated();
         $lines = collect($validated['lines'])->map(function (array $line) {
+            $lineTotal = isset($line['line_total']) ? (float) $line['line_total'] : null;
+            $quantity = isset($line['quantity']) ? (float) $line['quantity'] : null;
+            $unitPrice = isset($line['unit_price']) ? (float) $line['unit_price'] : null;
+
             return [
                 ...$line,
                 'normalized_item' => ReceiptScanner::normalizeItem($line['description']),
+                ...PriceBasis::compute($line['description'], $lineTotal, $quantity, $line['unit'] ?? null, $unitPrice),
             ];
         });
 
@@ -388,6 +394,9 @@ class ReceiptController extends Controller
             'lines' => $receipt->lines->map(fn ($line) => [
                 'description' => $line->description,
                 'line_total' => $line->line_total,
+                'quantity' => $line->quantity,
+                'unit' => $line->unit,
+                'unit_price' => $line->unit_price,
                 'category' => $line->category,
             ])->values(),
         ];

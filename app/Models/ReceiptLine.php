@@ -23,6 +23,11 @@ class ReceiptLine extends Model
         'vat_rate',
         'category',
         'price_per_kg',
+        'base_unit',
+        'base_price',
+        'base_quantity',
+        'pack_size',
+        'pack_unit',
     ];
 
     protected function casts(): array
@@ -33,6 +38,9 @@ class ReceiptLine extends Model
             'line_total' => 'decimal:2',
             'vat_rate' => 'decimal:2',
             'price_per_kg' => 'decimal:4',
+            'base_price' => 'decimal:4',
+            'base_quantity' => 'decimal:3',
+            'pack_size' => 'decimal:3',
         ];
     }
 

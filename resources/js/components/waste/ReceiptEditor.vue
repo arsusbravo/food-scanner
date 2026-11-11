@@ -7,6 +7,9 @@ import { show as showRoute } from '@/routes/waste/receipts';
 export type EditorLine = {
     description: string;
     line_total: string | number | null;
+    quantity?: string | number | null;
+    unit?: string | null;
+    unit_price?: string | number | null;
     category: string;
 };
 
@@ -47,12 +50,18 @@ const mismatch = computed(() => {
 });
 
 function addLine() {
-    draft.value.lines.push({ description: '', line_total: null, category: 'other' });
+    draft.value.lines.push({ description: '', line_total: null, quantity: null, unit: null, unit_price: null, category: 'other' });
 }
 
 function removeLine(index: number) {
     draft.value.lines.splice(index, 1);
 }
+
+const hasDetails = (line: EditorLine) => [line.quantity, line.unit, line.unit_price].some((value) => value !== null && value !== undefined && value !== '');
+
+const detailsSummary = (line: EditorLine) => [line.quantity, line.unit, line.unit_price !== null && line.unit_price !== undefined && line.unit_price !== '' ? `× ${line.unit_price}` : null]
+    .filter((part) => part !== null && part !== undefined && part !== '')
+    .join(' ');
 
 const inputClass = 'w-full h-11 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 [color-scheme:light] px-3 text-sm';
 const smallInput = 'w-full h-10 rounded-lg border border-slate-200 bg-white px-2 text-sm text-slate-900 placeholder:text-slate-400 [color-scheme:light]';
@@ -139,6 +148,28 @@ const smallInput = 'w-full h-10 rounded-lg border border-slate-200 bg-white px-2
             <select v-model="line.category" :class="smallInput">
                 <option v-for="category in categories" :key="category" :value="category">{{ $t(`receipts.categories.${category}`) }}</option>
             </select>
+            <details :open="hasDetails(line)" class="text-xs">
+                <summary class="cursor-pointer select-none font-semibold text-slate-500">
+                    {{ $t('receipts.details') }}<span v-if="hasDetails(line)" class="font-normal text-slate-400"> · {{ detailsSummary(line) }}</span>
+                </summary>
+                <div class="grid grid-cols-3 gap-2 pt-2">
+                    <div>
+                        <label class="text-[10px] font-semibold text-slate-400">{{ $t('receipts.qty') }}</label>
+                        <input v-model="line.quantity" type="number" step="any" inputmode="decimal" :class="smallInput" />
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-semibold text-slate-400">{{ $t('receipts.unit') }}</label>
+                        <select v-model="line.unit" :class="smallInput">
+                            <option :value="null">–</option>
+                            <option v-for="unit in ['pc', 'kg', 'g', 'l', 'ml', 'cl']" :key="unit" :value="unit">{{ unit }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-semibold text-slate-400">{{ $t('receipts.unit_price') }}</label>
+                        <input v-model="line.unit_price" type="number" step="any" inputmode="decimal" :class="smallInput" />
+                    </div>
+                </div>
+            </details>
         </div>
 
         <button type="button" class="w-full h-11 rounded-xl border-2 border-dashed text-sm font-semibold inline-flex items-center justify-center gap-2" style="border-color: #a7f3d0; color: #059669;" @click="addLine">
