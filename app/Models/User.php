@@ -195,7 +195,7 @@ class User extends Authenticatable
     /**
      * Resolve the locale to use for documents (PDF exports, AI scan prompts).
      * Priority: explicit document_locale → app locale (if supported) → company country → 'en'.
-     * Ensures unsupported app languages (zh-TW, zh-CN, tr) never reach the document pipeline.
+     * Ensures unsupported app languages (zh-TW, zh-CN, tr, id) never reach the document pipeline.
      */
     public function resolveDocumentLocale(string $appLocale = 'en'): string
     {

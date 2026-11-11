@@ -21,6 +21,7 @@ class DishWriter
         'zh-TW' => 'Traditional Chinese',
         'zh-CN' => 'Simplified Chinese',
         'tr' => 'Turkish',
+        'id' => 'Indonesian',
     ];
 
     private const MAX_PARAGRAPHS = 2;

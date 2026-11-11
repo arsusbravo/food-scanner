@@ -1,22 +1,23 @@
-import { createApp, h, Fragment } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
+import { createApp, h, Fragment } from 'vue';
 import { createI18n } from 'vue-i18n';
-import { initializeTheme } from '@/composables/useAppearance';
 import DesktopNotice from '@/components/DesktopNotice.vue';
+import { initializeTheme } from '@/composables/useAppearance';
+import { messages as de } from '@/i18n/de';
+import { messages as en } from '@/i18n/en';
+import { messages as es } from '@/i18n/es';
+import { messages as fr } from '@/i18n/fr';
+import { messages as id } from '@/i18n/id';
+import { messages as nl } from '@/i18n/nl';
+import { messages as tr } from '@/i18n/tr';
+import { messages as zhCN } from '@/i18n/zh-CN';
+import { messages as zhTW } from '@/i18n/zh-TW';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import DemoLayout from '@/layouts/DemoLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import WasteLayout from '@/layouts/WasteLayout.vue';
-import DemoLayout from '@/layouts/DemoLayout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
-import { messages as en } from '@/i18n/en';
-import { messages as nl } from '@/i18n/nl';
-import { messages as de } from '@/i18n/de';
-import { messages as fr } from '@/i18n/fr';
-import { messages as es } from '@/i18n/es';
-import { messages as zhTW } from '@/i18n/zh-TW';
-import { messages as zhCN } from '@/i18n/zh-CN';
-import { messages as tr } from '@/i18n/tr';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -28,7 +29,7 @@ const i18n = createI18n({
     legacy: false,
     locale: storedLocale,
     fallbackLocale: 'en',
-    messages: { en, nl, de, fr, es, 'zh-TW': zhTW, 'zh-CN': zhCN, tr },
+    messages: { en, nl, de, fr, es, 'zh-TW': zhTW, 'zh-CN': zhCN, tr, id },
 });
 
 createInertiaApp({

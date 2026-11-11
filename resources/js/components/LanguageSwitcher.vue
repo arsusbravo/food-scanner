@@ -6,7 +6,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useLocale, type SupportedLocale } from '@/composables/useLocale';
+import { useLocale  } from '@/composables/useLocale';
+import type {SupportedLocale} from '@/composables/useLocale';
 
 const { locale, setLocale } = useLocale();
 
@@ -16,6 +17,10 @@ const LABELS: Record<SupportedLocale, string> = {
     de: 'DE',
     fr: 'FR',
     es: 'ES',
+    'zh-TW': '繁中',
+    'zh-CN': '简中',
+    tr: 'TR',
+    id: 'ID',
 };
 
 const FULL_LABELS: Record<SupportedLocale, string> = {
@@ -24,6 +29,10 @@ const FULL_LABELS: Record<SupportedLocale, string> = {
     de: 'Deutsch',
     fr: 'Français',
     es: 'Español',
+    'zh-TW': '繁體中文',
+    'zh-CN': '简体中文',
+    tr: 'Türkçe',
+    id: 'Bahasa Indonesia',
 };
 </script>
 
@@ -38,7 +47,7 @@ const FULL_LABELS: Record<SupportedLocale, string> = {
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="start" class="w-40">
             <DropdownMenuItem
-                v-for="code in (['en', 'nl', 'de', 'fr', 'es'] as SupportedLocale[])"
+                v-for="code in (['en', 'nl', 'de', 'fr', 'es', 'zh-TW', 'zh-CN', 'tr', 'id'] as SupportedLocale[])"
                 :key="code"
                 :class="{ 'font-semibold text-primary': locale === code }"
                 @click="setLocale(code)"

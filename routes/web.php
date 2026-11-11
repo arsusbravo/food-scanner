@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Admin\DemoStatsController;
 use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DemoController;
@@ -25,12 +27,12 @@ Route::get('/', function (Request $request) {
 // Public, no-signup demo (real AI scan + report). Metered per device by
 // DemoQuota; Turnstile-gated; throttled as a network-level backstop.
 Route::prefix('demo')->name('demo.')->middleware('throttle:20,1')->group(function () {
-    Route::get('/',           [DemoController::class, 'index'])->name('index');
-    Route::post('scan',       [DemoController::class, 'scan'])->name('scan');
-    Route::post('report',     [DemoController::class, 'report'])->name('report');
+    Route::get('/', [DemoController::class, 'index'])->name('index');
+    Route::post('scan', [DemoController::class, 'scan'])->name('scan');
+    Route::post('report', [DemoController::class, 'report'])->name('report');
     Route::post('report/pdf', [DemoController::class, 'reportPdf'])->name('report.pdf');
     // Lightweight diagnostic ping — no AI cost, no Turnstile, just an event row.
-    Route::post('event',      [DemoController::class, 'event'])->name('event');
+    Route::post('event', [DemoController::class, 'event'])->name('event');
 });
 
 Route::get('/docs', fn () => view('docs'))->name('docs');
@@ -38,13 +40,14 @@ Route::get('/faq', fn () => view('faq'))->name('faq');
 Route::get('/prices', fn () => view('prices'))->name('prices');
 
 // Legal pages are translated into the EU document languages only — other
-// UI locales (zh-TW, zh-CN, tr) fall back to English on these pages so
+// UI locales (zh-TW, zh-CN, tr, id) fall back to English on these pages so
 // nobody sees a half-translated policy. The user's chosen UI locale and
 // cookie are untouched; only the request-local app locale is coerced.
 $legal = function (string $view) {
     if (! in_array(app()->getLocale(), ['en', 'nl', 'de', 'fr', 'es'], true)) {
         app()->setLocale('en');
     }
+
     return view($view);
 };
 Route::get('/privacy', fn () => $legal('privacy'))->name('privacy');
@@ -55,7 +58,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
     // Demo statistics
-    Route::get('admin/demo', [\App\Http\Controllers\Admin\DemoStatsController::class, 'index'])->name('admin.demo');
+    Route::get('admin/demo', [DemoStatsController::class, 'index'])->name('admin.demo');
 
     // Users management
     Route::get('admin/users', [AdminController::class, 'users'])->name('admin.users');
@@ -71,9 +74,9 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::delete('admin/entries/{entry}', [AdminController::class, 'destroyEntry'])->name('admin.entries.destroy');
 
     // Contact conversations
-    Route::get('admin/contact',                                   [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('admin.contact');
-    Route::get('admin/contact/{conversation}',                    [\App\Http\Controllers\Admin\ContactController::class, 'show'])->name('admin.contact.show');
-    Route::post('admin/contact/{conversation}/reply',             [\App\Http\Controllers\Admin\ContactController::class, 'reply'])->name('admin.contact.reply');
+    Route::get('admin/contact', [ContactController::class, 'index'])->name('admin.contact');
+    Route::get('admin/contact/{conversation}', [ContactController::class, 'show'])->name('admin.contact.show');
+    Route::post('admin/contact/{conversation}/reply', [ContactController::class, 'reply'])->name('admin.contact.reply');
 
     // Registration management
     Route::get('admin/registrations', [RegistrationController::class, 'index'])->name('admin.registrations');

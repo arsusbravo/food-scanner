@@ -46,6 +46,7 @@ const LANG_LABELS: Record<SupportedLocale, string> = {
     'zh-TW': '繁體中文',
     'zh-CN': '简体中文',
     tr: 'Türkçe',
+    id: 'Bahasa Indonesia',
 };
 
 function selectLocale(code: SupportedLocale) {
@@ -131,7 +132,7 @@ const reportsActive = computed(() => reportItems.some((item) => isActive(item)))
                             style="position: absolute; right: 0; top: calc(100% + 8px); background: white; border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); min-width: 160px; overflow: hidden; z-index: 99;"
                         >
                             <button
-                                v-for="code in (['en','nl','de','fr','es','zh-TW','zh-CN','tr'] as SupportedLocale[])"
+                                v-for="code in (['en','nl','de','fr','es','zh-TW','zh-CN','tr','id'] as SupportedLocale[])"
                                 :key="code"
                                 type="button"
                                 class="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-left transition-colors"

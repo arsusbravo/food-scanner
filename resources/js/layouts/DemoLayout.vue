@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import { Globe } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { useLocale  } from '@/composables/useLocale';
+import type {SupportedLocale} from '@/composables/useLocale';
 import { login } from '@/routes';
-import { useLocale, type SupportedLocale } from '@/composables/useLocale';
 
 const { locale, setLocale } = useLocale();
 const langOpen = ref(false);
@@ -17,6 +18,7 @@ const LANG_LABELS: Record<SupportedLocale, string> = {
     'zh-TW': '繁體中文',
     'zh-CN': '简体中文',
     tr: 'Türkçe',
+    id: 'Bahasa Indonesia',
 };
 
 function selectLocale(code: SupportedLocale) {
@@ -64,7 +66,7 @@ function selectLocale(code: SupportedLocale) {
                             style="position: absolute; right: 0; top: calc(100% + 8px); background: white; border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); min-width: 160px; overflow: hidden; z-index: 99;"
                         >
                             <button
-                                v-for="code in (['en','nl','de','fr','es','zh-TW','zh-CN','tr'] as SupportedLocale[])"
+                                v-for="code in (['en','nl','de','fr','es','zh-TW','zh-CN','tr','id'] as SupportedLocale[])"
                                 :key="code"
                                 type="button"
                                 class="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-left"
