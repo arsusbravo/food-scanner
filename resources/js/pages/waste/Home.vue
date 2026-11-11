@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ChefHat, Receipt, Trash2 } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Receipt, Trash2 } from 'lucide-vue-next';
 
 const { t } = useI18n();
 const page = usePage<{ auth: { user: { name: string } } }>();
@@ -63,6 +63,20 @@ const todayDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', day:
                 <div>
                     <p class="text-xl font-bold text-white">{{ $t('home.waste_title') }}</p>
                     <p class="text-sm mt-1" style="color: rgba(153,246,228,0.9);">{{ $t('home.waste_desc') }}</p>
+                </div>
+            </Link>
+
+            <Link
+                href="/waste/dishes"
+                class="rounded-3xl p-6 flex items-center gap-4 transition-opacity active:opacity-80"
+                style="background: linear-gradient(135deg, #0891b2, #0e7490); box-shadow: 0 6px 20px rgba(8,145,178,0.3); min-height: 132px;"
+            >
+                <div class="size-14 rounded-2xl flex items-center justify-center shrink-0" style="background: rgba(255,255,255,0.2);">
+                    <ChefHat style="width: 28px; height: 28px; color: white;" />
+                </div>
+                <div>
+                    <p class="text-xl font-bold text-white">{{ $t('home.dishes_title') }}</p>
+                    <p class="text-sm mt-1" style="color: rgba(165,243,252,0.9);">{{ $t('home.dishes_desc') }}</p>
                 </div>
             </Link>
         </div>

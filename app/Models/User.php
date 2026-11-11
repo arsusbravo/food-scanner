@@ -63,6 +63,11 @@ class User extends Authenticatable
         return $this->hasMany(Receipt::class);
     }
 
+    public function dishDescriptions(): HasMany
+    {
+        return $this->hasMany(DishDescription::class);
+    }
+
     public function userExports(): HasMany
     {
         return $this->hasMany(UserExport::class);
@@ -145,6 +150,25 @@ class User extends Authenticatable
         return $this->receipts()
             ->where('created_at', '>=', $this->billingPeriodStart())
             ->count();
+    }
+
+    public function dishQuota(): ?int
+    {
+        return config("plans.{$this->effectivePlan()}.dishes");
+    }
+
+    public function dishesUsedThisMonth(): int
+    {
+        return $this->dishDescriptions()
+            ->where('created_at', '>=', $this->billingPeriodStart())
+            ->count();
+    }
+
+    public function canWriteDish(): bool
+    {
+        $quota = $this->dishQuota();
+
+        return $quota === null || $this->dishesUsedThisMonth() < $quota;
     }
 
     public function canScanReceipt(): bool

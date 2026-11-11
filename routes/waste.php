@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Waste\AIScanController;
 use App\Http\Controllers\Waste\ContactController;
+use App\Http\Controllers\Waste\DishController;
 use App\Http\Controllers\Waste\InsightsController;
 use App\Http\Controllers\Waste\PriceReportController;
 use App\Http\Controllers\Waste\PurchaseReportController;
@@ -28,6 +29,11 @@ Route::middleware(['auth', 'verified', 'user-active'])->prefix('waste')->name('w
     Route::patch('receipts/{receipt}', [ReceiptController::class, 'update'])->name('receipts.update');
     Route::delete('receipts/{receipt}', [ReceiptController::class, 'destroy'])->name('receipts.destroy');
     Route::get('receipts/{receipt}/images/{image}', [ReceiptController::class, 'image'])->name('receipts.image');
+
+    Route::get('dishes', [DishController::class, 'index'])->name('dishes.index');
+    Route::post('dishes', [DishController::class, 'store'])->name('dishes.store');
+    Route::patch('dishes/{dish}', [DishController::class, 'update'])->name('dishes.update');
+    Route::delete('dishes/{dish}', [DishController::class, 'destroy'])->name('dishes.destroy');
 
     Route::get('insights', [InsightsController::class, 'index'])->name('insights.index');
 

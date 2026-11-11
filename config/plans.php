@@ -5,11 +5,13 @@ return [
         'ai_scans' => (int) env('PLAN_FREE_SCANS', 4),
         'exports' => (int) env('PLAN_FREE_EXPORTS', 2),
         'receipts' => (int) env('PLAN_FREE_RECEIPTS', 5),
+        'dishes' => (int) env('PLAN_FREE_DISHES', 5),
     ],
     'pro' => [
         'ai_scans' => 1000,
         'exports' => null, // unlimited
         'receipts' => (int) env('PLAN_PRO_RECEIPTS', 500),
+        'dishes' => (int) env('PLAN_PRO_DISHES', 300),
     ],
     'demo' => [
         // Anonymous demo allowance, per device (signed `demo_id` cookie).
